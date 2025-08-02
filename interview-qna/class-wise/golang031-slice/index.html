@@ -1,0 +1,573 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Golang031 Slice - BGCE ARCHIVE</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../../favicon.svg">
+        <link rel="shortcut icon" href="../../../favicon.png">
+        <link rel="stylesheet" href="../../../css/variables.css">
+        <link rel="stylesheet" href="../../../css/general.css">
+        <link rel="stylesheet" href="../../../css/chrome.css">
+        <link rel="stylesheet" href="../../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="highlight-css" href="../../../highlight.css">
+        <link rel="stylesheet" id="tomorrow-night-css" href="../../../tomorrow-night.css">
+        <link rel="stylesheet" id="ayu-highlight-css" href="../../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "../../../";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "../../../searchindex.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="../../../toc.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="../../../toc.html"></iframe>
+            </noscript>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">BGCE ARCHIVE</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+                        <a href="https://github.com/NesoHQ/bgce-archive.git" title="Git repository" aria-label="Git repository">
+                            <i id="git-repository-button" class="fa fa-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <i class="fa fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="-class-31--go-slice"><a class="header" href="#-class-31--go-slice">📚 Class 31 : Go Slice</a></h1>
+<h2 id="-main-topics"><a class="header" href="#-main-topics">🚀 Main Topics</a></h2>
+<ul>
+<li>Slice কী?</li>
+<li>একটি Slice এ কয়টি অংশ থাকে?</li>
+<li>Slice এর Pointer, Length, এবং Capacity নির্ণয় করা</li>
+<li>বিদ্যমান Array থেকে Slice তৈরি</li>
+<li>বিদ্যমান Slice থেকে নতুন Slice তৈরি</li>
+<li>Slice Literal (সরাসরি ঘোষণা)</li>
+<li><code>make()</code> দিয়ে Slice তৈরি (শুধু length)</li>
+<li><code>make()</code> দিয়ে Slice তৈরি (length এবং capacity)</li>
+<li>খালি বা Nil Slice তৈরি</li>
+<li>Slice এ নতুন element যোগ করা (append)</li>
+<li><code>append</code> করার সময় অভ্যন্তরীণ প্রক্রিয়া (Heap এবং Underlying Array)</li>
+<li>Underlying Array কীভাবে dynamic ভাবে বাড়ে</li>
+<li>কিছু মজার উদাহরণ এবং ইন্টারভিউ প্রশ্ন</li>
+<li>Variadic Functions</li>
+</ul>
+<hr />
+<h1 id="-১-slice-কী"><a class="header" href="#-১-slice-কী">🧠 ১. Slice কী?</a></h1>
+<ul>
+<li><strong>Slice</strong> হলো Go এর একটি flexible data structure।</li>
+<li>এটি মূলত array এর উপরে নির্মিত একটি <strong>dynamic view</strong>।</li>
+<li>array এর মত হলেও, slice এর সাইজ পরিবর্তন করা যায় (বড় বা ছোট করা যায়)।</li>
+</ul>
+<p><strong>মূল পয়েন্ট:</strong></p>
+<ul>
+<li>Slice, array নয়।</li>
+<li>Slice, array এর উপরে তৈরি হয়।</li>
+</ul>
+<hr />
+<h1 id="-২-একটি-slice-এর-কয়টি-অংশ-থাকে"><a class="header" href="#-২-একটি-slice-এর-কয়টি-অংশ-থাকে">🔥 ২. একটি Slice এর কয়টি অংশ থাকে?</a></h1>
+<p>Slice মূলত একটি <strong>struct</strong> যা তিনটি অংশ নিয়ে গঠিত:</p>
+<pre><code class="language-go">struct Slice {
+    pointer *T // points underlying array
+    length  int // current elements number
+    capacity int // maximum elements (until reallocation)
+	}
+</code></pre>
+<p>Slice কে মূলত একটি array এর "window" হিসেবে ভাবা যেতে পারে।</p>
+<hr />
+<h1 id="-৩-pointer-length-এবং-capacity-নিরধারণ-করার-উপায"><a class="header" href="#-৩-pointer-length-এবং-capacity-নিরধারণ-করার-উপায">🕵️‍♂️ ৩. Pointer, length এবং capacity নির্ধারণ করার উপায়</a></h1>
+<p>নিম্নোক্ত built-in ফাংশন ব্যবহার করে Slice এর length এবং capacity বের করা যায়:</p>
+<ul>
+<li><code>len(slice)</code> ➡️ Length</li>
+<li><code>cap(slice)</code> ➡️ Capacity</li>
+</ul>
+<p>উদাহরণ:</p>
+<pre><code class="language-go">s := arr[1:4] // index 1 to 3
+fmt.Println(len(s)) // 3
+fmt.Println(cap(s)) //  index 1 to end of the array
+</code></pre>
+<hr />
+<h1 id="-৪-array-থেকে-slice-তৈরি-করা"><a class="header" href="#-৪-array-থেকে-slice-তৈরি-করা">🏗 ৪. Array থেকে Slice তৈরি করা</a></h1>
+<pre><code class="language-go">arr := [6]string{"This", "is", "a", "Go", "interview", "Questions"}
+s := arr[1:4] // slice ["is", "a", "Go"]
+</code></pre>
+<ul>
+<li><code>pointer</code>: <code>arr</code> এর index 1 নির্দেশ করে</li>
+<li><code>length</code>: 3 (index 1 to 3)</li>
+<li><code>capacity</code>: 5 (index 1 to 5)</li>
+</ul>
+<hr />
+<h1 id="-৫-slice-থেকে-নতুন-slice-তৈরি"><a class="header" href="#-৫-slice-থেকে-নতুন-slice-তৈরি">🔄 ৫. Slice থেকে নতুন Slice তৈরি</a></h1>
+<pre><code class="language-go">s1 := s[1:2] // Slice "a"
+</code></pre>
+<ul>
+<li><code>s1</code> Slice টি একই Array এর একটি <strong>view</strong>!</li>
+<li><code>s1</code> পরিবর্তন করলে <code>arr</code> এর মানও পরিবর্তিত হতে পারে।</li>
+</ul>
+<hr />
+<h1 id="-6-slice-literal"><a class="header" href="#-6-slice-literal">✍️ 6. Slice Literal</a></h1>
+<p>একটি Slice তৈরি করতে সরাসরি মান ব্যবহার করা যায়, আলাদা করে Array তৈরি করার প্রয়োজন নেই।</p>
+<pre><code class="language-go">s2 := []int{3, 4, 7}
+</code></pre>
+<h2 id="এখানে-go-automatically-একটি-underlying-array-তৈরি-করে"><a class="header" href="#এখানে-go-automatically-একটি-underlying-array-তৈরি-করে">এখানে Go automatically একটি underlying Array তৈরি করে।</a></h2>
+<h1 id="-৭-make-দিযে-একটি-slice-তৈরি-করা"><a class="header" href="#-৭-make-দিযে-একটি-slice-তৈরি-করা">🏗️ ৭. make() দিয়ে একটি Slice তৈরি করা</a></h1>
+<pre><code class="language-go">s3 := make([]int, 3)
+</code></pre>
+<ul>
+<li><code>make()</code> দিয়ে ৩টি শূন্য মান (zero) সহ একটি Slice তৈরি করে। অর্থাৎ, ৩টি empty element থাকবে।</li>
+<li><code>len = 3</code>, <code>cap = 3</code></li>
+</ul>
+<hr />
+<h1 id="-৮-make-দিযে-একটি-slice-তৈরি-করা-length-এবং-capacity"><a class="header" href="#-৮-make-দিযে-একটি-slice-তৈরি-করা-length-এবং-capacity">🏗️🏗️ ৮. <code>make()</code> দিয়ে একটি Slice তৈরি করা (length এবং capacity)</a></h1>
+<pre><code class="language-go">s4 := make([]int, 3, 5)
+</code></pre>
+<ul>
+<li><code>len = 3</code>, কিন্তু capacity <code>cap = 5</code> পর্যন্ত হতে পারে reallocation এর আগ পর্যন্ত</li>
+</ul>
+<hr />
+<h1 id="-9-empty--nil-slice-তৈরি"><a class="header" href="#-9-empty--nil-slice-তৈরি">🕳 9. Empty / Nil Slice তৈরি</a></h1>
+<pre><code class="language-go">var s5 []int
+</code></pre>
+<ul>
+<li><code>len = 0</code>, <code>cap = 0</code></li>
+<li>Still valid! এতে নতুন element যোগ (append) করা যাবে।</li>
+</ul>
+<hr />
+<h1 id="-১০-slice-এ-নতুন-element-append-করা"><a class="header" href="#-১০-slice-এ-নতুন-element-append-করা">➕ ১০. Slice এ নতুন element append করা</a></h1>
+<pre><code class="language-go">s6 := append(s6, 1)
+</code></pre>
+<ul>
+<li>Go নিজে থেকে underlying Array বড় করে।</li>
+<li><em>অনেক বড় Array</em> তৈরি এবং আগের element গুলো copy করার কাজও করে থাকে।</li>
+</ul>
+<hr />
+<h1 id="-১১-append-করার-সময়-আসলে-কী-হয়"><a class="header" href="#-১১-append-করার-সময়-আসলে-কী-হয়">🧬 ১১. append করার সময় আসলে কী হয়?</a></h1>
+<p>যখন একটি Slice এর capacity পূর্ণ হয়:</p>
+<ul>
+<li>একটি <strong>নতুন Array</strong> (সাধারণত দ্বিগুণ সাইজের) তৈরি করা হয়।</li>
+<li>আগের Array এর সমস্ত elements নতুন Array তে কপি করা হয়।</li>
+</ul>
+<p>এ কারণেই কখনও কখনও append করা দ্রুত মনে হয় এবং কখনও বড় মেমরি অপারেশন তৈরি করতে পারে।</p>
+<hr />
+<h1 id="-১২-underlying-array-কিভাবে-বৃদধি-পায"><a class="header" href="#-১২-underlying-array-কিভাবে-বৃদধি-পায">📈 ১২. Underlying Array কিভাবে বৃদ্ধি পায়:</a></h1>
+<p><strong>যে প্যাটার্নে capacity পায় (Capacity Growth Pattern):</strong> (simplified)</p>
+<ul>
+<li>Cap 1 ➡️ 2 ➡️ 4 ➡️ 8 ➡️ 16 ➡️ ...</li>
+</ul>
+<p>এটি একটি optimization technique যা নিশ্চিত করে যেন append অপারেশনগুলো গড়ে <code>O(1)</code> সময়ে সম্পন্ন হয়।</p>
+<hr />
+<h1 id="go-slice-বৃদধি-len-এবং-cap-এর-dynamics-বোঝা"><a class="header" href="#go-slice-বৃদধি-len-এবং-cap-এর-dynamics-বোঝা">Go Slice বৃদ্ধি: <code>len</code> এবং <code>cap</code> এর dynamics বোঝা</a></h1>
+<p>Go Slice একটি শক্তিশালী এবং flexible data structure, যা dynamic Array এর মতো কাজ করে। এর একটি মূল বৈশিষ্ট্য হলো, যখন নতুন element যোগ করা হয়, তখন Slice নিজে নিজেই বৃদ্ধি পায়। Slice কীভাবে এবং কখন বৃদ্ধি পায়, আর এর মেমরি অ্যালোকেশনের পদ্ধতি বুঝলে অনেক efficient program design করা সম্ভব।</p>
+<p>এখন আমরা Go Slice এর বৃদ্ধির পদ্ধতি বিশ্লেষণ করব:</p>
+<ul>
+<li>যদি Slice এর <code>len</code> এবং <code>cap</code> <code>1024</code>-এর কম হয়, তাহলে এটি সাধারণত দ্বিগুণ (2x) বৃদ্ধি পায়।</li>
+<li><code>len</code> এবং <code>cap</code>, <code>1024</code> ছাড়িয়ে গেলে, এটি প্রায় 25% হারে বৃদ্ধি পায়।</li>
+<li>Slice কেন নির্দিষ্ট পরিমাণে (যেমন 1024 থেকে 1280) না বাড়িয়ে বড় ব্লকে (যেমন 1536) বাড়ে, সেটিও ব্যাখ্যা করা হবে।</li>
+</ul>
+<h2 id="slice-growth-overview"><a class="header" href="#slice-growth-overview">Slice Growth Overview</a></h2>
+<p>Go তে slice মূলত array এর উপরে ভিত্তি করে কাজ করে। যখন একটি slice এ নতুন element append করা হয়, তখন প্রয়োজনে Go একটি বড় array তৈরি করে এবং পুরানো element গুলো তাতে কপি করে। এই প্রসেসটি নির্ভর করে Go কিভাবে নতুন capacity নির্ধারণ করে এবং মেমরি allocate করে।</p>
+<h3 id="১২১-ছোট-slice-এর-কষেতরে-দবিগুণ-বৃদধি-lencap--1024"><a class="header" href="#১২১-ছোট-slice-এর-কষেতরে-দবিগুণ-বৃদধি-lencap--1024">১২.১. ছোট Slice এর ক্ষেত্রে দ্বিগুণ বৃদ্ধি (<code>len(cap) &lt; 1024</code>)</a></h3>
+<p>যখন slice ছোট থাকে (অর্থাৎ, এর <code>len</code> এবং <code>cap</code> দুটোই 1024 এর কম), তখন Go সাধারণত capacity <strong>দ্বিগুণ</strong> করে। এর মানে, যখন slice এ একটি element যোগ করা হয় এবং নতুন মেমরি প্রয়োজন হয়, তখন Go আগের capacity এর দ্বিগুণ আকারের একটি নতুন array তৈরি করে এবং পুরানো element গুলো সেখানে কপি করে। Slice এর <code>len</code> ১ বাড়বে, কিন্তু <code>cap</code> দ্বিগুণ হবে।</p>
+<h4 id="উদাহরণ"><a class="header" href="#উদাহরণ">উদাহরণ:</a></h4>
+<pre><code class="language-go">s := []int{1, 2, 3}
+fmt.Println(len(s), cap(s)) // len: 3, cap: 3
+
+s = append(s, 4)
+fmt.Println(len(s), cap(s)) // len: 4, cap: 6
+
+s = append(s, 5)
+fmt.Println(len(s), cap(s)) // len: 5, cap: 6
+</code></pre>
+<ul>
+<li>প্রথমে, slice এর <code>len</code> ৩ এবং <code>cap</code> ৩ থাকে।</li>
+<li>চতুর্থ element যোগ করার সময়, slice এর capacity ৩ থেকে দ্বিগুণ হয়ে ৬ হয়ে যায়।</li>
+<li>পরবর্তী অ্যাপেন্ডে, slice এর capacity ৬ ই থাকবে কারণ <code>len</code> &lt; <code>cap</code>।</li>
+</ul>
+<h3 id="১২২-বড-slice-এর-কষেতরে-২৫-বৃদধি-lencap--1024"><a class="header" href="#১২২-বড-slice-এর-কষেতরে-২৫-বৃদধি-lencap--1024">১২.২. বড় Slice এর ক্ষেত্রে ২৫% বৃদ্ধি (<code>len(cap) &gt;= 1024</code>)</a></h3>
+<p>যখন slice এর <code>len</code> এবং <code>cap</code> 1024 বা তার বেশি হয়, তখন Go দ্বিগুণের পরিবর্তে বর্তমান capacity এর <strong>২৫%</strong> বৃদ্ধি করে। এই কৌশলটি ঘন ঘন মেমরি reallocation এড়াতে এবং অপ্রয়োজনীয় মেমরি অপচয় কমাতে সহায়তা করে।</p>
+<h4 id="উদাহরণ-1"><a class="header" href="#উদাহরণ-1">উদাহরণ:</a></h4>
+<pre><code class="language-go">s := make([]int, 1024)  // len: 1024, cap: 1024
+fmt.Println(len(s), cap(s))
+
+s = append(s, 1025) // len: 1025, cap: 1280 (1024 + 25% of 1024)
+fmt.Println(len(s), cap(s))
+
+s = append(s, 1300) // len: 1300, cap: 1600 (1280 + 25% of 1280)
+fmt.Println(len(s), cap(s))
+</code></pre>
+<ul>
+<li>শুরুতে, আমরা length এবং capacity 1024 সহ একটি slice তৈরি করি।</li>
+<li>পরের element append করলে slice এর capacity 1024 থেকে 1280 হয়, যা 1024 এর সাথে ২৫% যোগ করে পাওয়া যায়।</li>
+<li>আরেকটি element append করলে capacity 1600 হয় (1280 এর সাথে ২৫% যোগ করে)।</li>
+</ul>
+<h3 id="১২৩-মেমরি-বলকের-ভূমিকা-যেমন-1536-কষমতার-slice"><a class="header" href="#১২৩-মেমরি-বলকের-ভূমিকা-যেমন-1536-কষমতার-slice">১২.৩. মেমরি ব্লকের ভূমিকা (যেমন, 1536 ক্ষমতার Slice)</a></h3>
+<p>যখন slice এর <code>len</code> এবং <code>cap</code> 1024 এর কাছাকাছি বা তার বেশি হয়, তখন Go সর্বদা নিখুঁত গণনা অনুযায়ী মেমরি বরাদ্দ করে না। এর পরিবর্তে এটি সিস্টেম মেমরি বরাদ্দের ধরণ অনুযায়ী <strong>Optimal Memory Block</strong> ব্যবহার করে।</p>
+<p>উদাহরণস্বরূপ, যদি একটি slice এর capacity 1024 এর কাছাকাছি থাকে, পরবর্তী বরাদ্দ সরাসরি 256 যোগ করে 1280 না হয়ে, এর থেকে বড় 1536 এর মতো ব্লকে হতে পারে। এটি বড় মেমরি ব্লকের জন্য আরও কার্যকর মেমরি ব্যবহারে সহায়তা করে।</p>
+<h4 id="কেন-1536-এর-পরিবরতে-1280"><a class="header" href="#কেন-1536-এর-পরিবরতে-1280">কেন 1536 এর পরিবর্তে 1280?</a></h4>
+<p>এটি মূলত <strong>Hardware Memory Alignment</strong> এর উপর নির্ভর করে। 1536 সংখ্যাটি বেছে নেওয়া হয় কারণ এটি সাধারণত 2-এর গুণিতক আকারের মেমরি ব্লকের সাথে ভালোভাবে মিলে যায় এবং আধুনিক CPU এবং মেমরি সিস্টেমের জন্য optimize করা। মেমরি অ্যালোকেশন সাধারণত সিস্টেমের memory page size বা cache line এর সাথে সামঞ্জস্য রেখে বড় ব্লকে করা হয়, যা মেমরি অ্যাক্সেসকে আরও ইফিশিয়েন্ট করে তোলে।</p>
+<h4 id="উদাহরণ-memory-alignment"><a class="header" href="#উদাহরণ-memory-alignment">উদাহরণ (memory alignment):</a></h4>
+<pre><code class="language-go">s := make([]int, 1024) // len: 1024, cap: 1024
+fmt.Println(len(s), cap(s)) // 1024, 1024
+
+s = append(s, 1025) // len: 1025, cap: 1536 (next optimal block size)
+fmt.Println(len(s), cap(s)) // 1025, 1536
+</code></pre>
+<ul>
+<li>1024 থেকে 1536 এ capacity বৃদ্ধি হয়, কারণ 1536 একটি বেটার মেমরি ব্লক যা সিস্টেমের ইফিশিয়েন্ট মেমরি অ্যালোকেশন করে।</li>
+</ul>
+<h3 id="১২৪-কেন-এমন-হয"><a class="header" href="#১২৪-কেন-এমন-হয">১২.৪. কেন এমন হয়?</a></h3>
+<p><strong>efficiency considerations</strong> Go সরাসরি 256 করে বৃদ্ধি করে না (যেমন আমরা মনে করি 1024 থেকে 1280)। কারণ এটি ইফিশিয়েন্সি বৃদ্ধির জন্য গুরুত্বপূর্ণ। এই অ্যালোকেশন স্ট্র্যাটেজির ফলে ঘন ঘন রি-অ্যালোকেশন এড়ানো যায় এবং অপ্রয়োজনীয় মেমরি অপচয় কমে যায়। বরং বড় ব্লকে (1536) মেমরি বরাদ্দ করে Go রানটাইম নিশ্চিত করে Sliceে পর্যাপ্ত capacity আছে আরও element এপেন্ড করার জন্য এবং খুব তাড়াতাড়ি Sliceকে বাড়াতে হবে না।</p>
+<p>এর ফলে আরও ভালো performance পাওয়া যায়, বিশেষ করে যখন slice দ্রুত বৃদ্ধি পায়।</p>
+<h2 id="conclusion"><a class="header" href="#conclusion">Conclusion</a></h2>
+<p>Go-এর slice বৃদ্ধি কৌশল অনেক ইফিশিয়েন্ট কোড লিখা সম্ভব। ছোট সাইজের slice এর ক্ষেত্রে, Go capacity দ্বিগুণ করে যাতে কম রি-অ্যালোকেশনে আরও element ধারণ করতে পারে। বড় slice (1024 এবং এর বেশি) হলে, এটি capacity ২৫% বৃদ্ধি করে এবং মাঝে মাঝে অপ্টিমাল মেমরি ব্লকের সাথে সামঞ্জস্য রাখে। এই পদ্ধতিটি slice কে দ্রুত এবং মেমরি সাশ্রয়ী করে তোলে।</p>
+<hr />
+<h1 id="১৩-কিছু-ইনটারেসটিং-ইনটারভিউ-পরশনের-উদাহরণ"><a class="header" href="#১৩-কিছু-ইনটারেসটিং-ইনটারভিউ-পরশনের-উদাহরণ">🤯১৩. কিছু ইন্টারেস্টিং ইন্টারভিউ প্রশ্নের উদাহরণ</a></h1>
+<h3 id="-some-underlying-array-trick"><a class="header" href="#-some-underlying-array-trick">⚡ Some Underlying Array Trick</a></h3>
+<pre><code class="language-go">var x []int
+x = append(x, 1)
+x = append(x, 2)
+x = append(x, 3)
+
+y := x
+x = append(x, 4)
+y = append(y, 5)
+
+x[0] = 10
+fmt.Println(x)
+fmt.Println(y)
+</code></pre>
+<p>-x এবং y একই backing array শেয়ার করে</p>
+<ul>
+<li>একটিতে পরিবর্তন (mutation) করলে দুটোরই মান পরিবর্তিত হতে পারে।</li>
+</ul>
+<p>কিন্তু <code>cap</code> অতিক্রম করে অ্যাপেন্ড করলে, তারা আলাদা Array তে বিভক্ত হতে পারে।</p>
+<h1 id="-১৪-variadic-functions"><a class="header" href="#-১৪-variadic-functions">🛠 ১৪. Variadic Functions</a></h1>
+<p>কোন ফাংশন <code>...</code> (ellipsis) operator ব্যবহার করে অসংখ্য argument receive করতে পারে।</p>
+<pre><code class="language-go">func variadic(numbers ...int) {
+    fmt.Println(numbers)
+}
+
+variadic(2, 3, 4, 6, 8, 10)
+</code></pre>
+<p>এখানে <code>numbers</code> কিন্তু একটি <strong>slice</strong>!</p>
+<hr />
+<h1 id="-ram-এ-slice-এর-visualization-arr-এবং-s-এর-জনয"><a class="header" href="#-ram-এ-slice-এর-visualization-arr-এবং-s-এর-জনয">🧠 RAM এ Slice এর visualization (arr এবং s এর জন্য)</a></h1>
+<pre><code>Array arr (indexes):
+[0] "This"
+[1] "is"  &lt;- s.ptr points here
+[2] "a"
+[3] "Go"
+[4] "interview"
+[5] "Questions"
+
+Slice s:
+- ptr = &amp;arr[1]
+- len = 3 ("is", "a", "Go")
+- cap = 5 (from "is" to "Questions")
+</code></pre>
+<p>Memory Visualization:</p>
+<pre><code>+----+--+-+--+---------+---------+
+|This|is|a|Go|interview|Questions|
++----+--+-+--+---------+---------+
+       ^ ^  ^
+     s[0] s[1] s[2]
+</code></pre>
+<hr />
+<h1 id="-full-code-with-detailed-comments"><a class="header" href="#-full-code-with-detailed-comments">📄 Full Code with Detailed Comments</a></h1>
+<pre><code class="language-go">package main
+
+import "fmt"
+
+func main() {
+	// Create an array of strings
+	arr := [6]string{"This", "is", "a", "Go", "interview", "Questions"}
+	fmt.Println(arr)
+
+	// Create a slice from array indexes 1 to 3 (exclusive of 4)
+	s := arr[1:4]
+	fmt.Println(s) // [is a Go]
+
+	// Create a slice from a slice
+	s1 := s[1:2]
+	fmt.Println(s1) // [a]
+	fmt.Println(len(s1)) // 1
+	fmt.Println(cap(s1)) // 4 (capacity depends on the underlying array)
+
+	// Slice literal
+	s2 := []int{3, 4, 7}
+	fmt.Println("slice", s2, "lenght:", len(s2), "capacity:", cap(s2))
+
+	// make() function with length only
+	s3 := make([]int, 3)
+	s3[0] = 5
+	fmt.Println(s3)
+	fmt.Println(len(s3))
+	fmt.Println(cap(s3))
+
+	// make() function with length and capacity
+	s4 := make([]int, 3, 5)
+	s4[0] = 5
+	fmt.Println(s4)
+	fmt.Println(len(s4))
+	fmt.Println(cap(s4))
+
+	// Empty slice
+	var s5 []int
+	fmt.Println(s5) // []
+
+	// Appending elements to empty slice
+	var s6 []int
+	s6 = append(s6, 1)
+	fmt.Println(s6) // [1]
+
+	var s7 []int
+	s7 = append(s7, 1, 2, 3)
+	fmt.Println(s7, len(s7), cap(s7)) // [1 2 3] 3 3
+
+	// Interview question: Sharing underlying array
+	var x []int
+	x = append(x, 1)
+	x = append(x, 2)
+	x = append(x, 3)
+
+	y := x
+	x = append(x, 4)
+	y = append(y, 5)
+
+	x[0] = 10
+
+	fmt.Println(x) // [10 2 3 5]
+	fmt.Println(y) // [10 2 3 5]
+
+	// Another interview question
+	slc := []int{1, 2, 3, 4, 5}
+	slc = append(slc, 6)
+	slc = append(slc, 7)
+
+	slcA := slc[4:]
+
+	slcY := changeSlice(slcA)
+
+	fmt.Println(slc)  // [1 2 3 4 10 6 7]
+	fmt.Println(slcY) // [10 6 7 11]
+	fmt.Println(slc[0:8]) // [1 2 3 4 10 6 7 11]
+
+	// Variadic function call
+	variadic(2, 3, 4, 6, 8, 10)
+}
+
+// Function that changes the slice passed
+func changeSlice(a []int) []int {
+	a[0] = 10
+	a = append(a, 11)
+	return a
+}
+
+// Variadic function that takes multiple integers
+func variadic(numbers ...int) {
+	fmt.Println(numbers)
+	fmt.Println(len(numbers))
+	fmt.Println(cap(numbers))
+}
+</code></pre>
+<p>[<strong>Author:</strong> @ifrunruhin12, @nazma98
+<strong>Date:</strong> 2025-05-01 - 2025-05-18
+<strong>Category:</strong> interview-qa/class-wise
+]</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../../interview-qna/class-wise/golang030-pointers/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../../interview-qna/class-wise/golang032-Computer-Architecture-and-History/index.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../../interview-qna/class-wise/golang030-pointers/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../../interview-qna/class-wise/golang032-Computer-Architecture-and-History/index.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../../elasticlunr.min.js"></script>
+        <script src="../../../mark.min.js"></script>
+        <script src="../../../searcher.js"></script>
+
+        <script src="../../../clipboard.min.js"></script>
+        <script src="../../../highlight.js"></script>
+        <script src="../../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>
