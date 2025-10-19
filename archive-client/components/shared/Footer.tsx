@@ -4,10 +4,10 @@ import { SocialLinkButton } from "./SocialLinkButton";
 export default function Footer() {
   return (
     <footer className="bg-background border-t bg-gradient-to-br from-gray-950 via-gray-950 to-blue-950">
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto  py-12">
         {/* Newsletter Section */}
         <div className="text-center mb-8 sm:mb-10 lg:mb-12">
-          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-3 sm:mb-4 text-white px-4">
+          <h2 className="text-xl sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 text-white px-4">
             Stay up to date with BGCE Archive releases and important updates
           </h2>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center max-w-md mx-auto px-4">
@@ -16,7 +16,7 @@ export default function Footer() {
               placeholder="Email@example.com"
               className="flex-1 px-4 py-2.5 sm:py-2 border rounded-md text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent border-gray-600 bg-gray-800 text-white"
             />
-            <button className="px-6 py-2.5 sm:py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors text-sm sm:text-base font-medium">
+            <button className="px-6 py-2.5 sm:py-2 bg-white rounded-md  text-sm sm:text-base font-medium text-black">
               Subscribe
             </button>
           </div>
@@ -31,7 +31,7 @@ export default function Footer() {
             <h3 className="text-lg sm:text-xl font-semibold text-white">
               BGCE Archive
             </h3>
-            <div className="flex flex-col gap-4 sm:gap-6">
+            <div className="flex flex-col gap-4 sm:gap-6 mt-6">
               <SocialLinkButton
                 href="https://discord.gg/wHq4SjKrNY"
                 icon="discord"
@@ -39,13 +39,13 @@ export default function Footer() {
                 subtitle="Real-time discussions and support"
                 color="indigo"
               />
-              <SocialLinkButton
+              {/* <SocialLinkButton
                 href="https://www.youtube.com/@gowithhabib"
                 icon="youtube"
                 title="Go With Habib"
                 subtitle="Deep dives, and community videos"
                 color="red"
-              />
+              /> */}
             </div>
           </div>
 
@@ -154,34 +154,19 @@ export default function Footer() {
               Copyright © BGCE Archive {new Date().getFullYear()}
             </div>
             <div className="flex flex-wrap justify-center md:justify-end gap-3 sm:gap-4 lg:gap-6 text-xs sm:text-sm text-white">
-              <Link
-                href="/terms"
-                className=" hover:text-foreground transition-colors whitespace-nowrap"
-              >
+              <Link href="/terms" className="whitespace-nowrap">
                 Terms & Conditions
               </Link>
-              <Link
-                href="/cookies"
-                className=" hover:text-foreground transition-colors whitespace-nowrap"
-              >
+              <Link href="/cookies" className="whitespace-nowrap">
                 Cookies Policy
               </Link>
-              <Link
-                href="/privacy"
-                className=" hover:text-foreground transition-colors whitespace-nowrap"
-              >
+              <Link href="/privacy" className="whitespace-nowrap">
                 Privacy Policy
               </Link>
-              <Link
-                href="/security"
-                className=" hover:text-foreground transition-colors whitespace-nowrap"
-              >
+              <Link href="/security" className="whitespace-nowrap">
                 Security Policy
               </Link>
-              <Link
-                href="/trust"
-                className=" hover:text-foreground transition-colors whitespace-nowrap"
-              >
+              <Link href="/trust" className="whitespace-nowrap">
                 Trust Center
               </Link>
             </div>

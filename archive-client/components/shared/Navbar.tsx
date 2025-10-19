@@ -26,12 +26,7 @@ export function Navbar() {
 
   const navItems = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/articles", label: "Articles", icon: Newspaper },
-    {
-      href: "https://discord.gg/wHq4SjKrNY",
-      label: "Our Community",
-      icon: FaDiscord,
-    },
+    { href: "/articles", label: "Archives", icon: Newspaper },
   ];
 
   const closeSheet = () => setIsOpen(false);
