@@ -37,7 +37,7 @@ export function Navbar() {
   const closeSheet = () => setIsOpen(false);
 
   return (
-    <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:bg-gray-800 sticky top-0 z-50  lg:sticky lg:top-0">
+    <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:bg-gradient-to-br dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 sticky top-0 z-50  lg:sticky lg:top-0 ">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Brand Name */}
@@ -98,7 +98,7 @@ export function Navbar() {
               <Button
                 size="sm"
                 asChild
-                className="rounded-sm bg-gray-800 hover:bg-gray-950 hover:text-white"
+                className="rounded-sm bg-gray-800 hover:bg-gray-950 hover:text-white  dark:bg-white"
               >
                 <Link href="/register" className="flex items-center space-x-1">
                   <UserPlus className="h-4 w-4" />
