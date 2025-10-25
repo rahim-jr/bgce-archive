@@ -7,6 +7,7 @@ import { Archive, Edit, Trash2, CheckCircle, Clock, XCircle, MoreHorizontal } fr
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
 import axiosInstance from "@/utils/AxiosInstance"
+import axios from "axios"
 
 
 interface Category {
@@ -34,7 +35,7 @@ const fetchCategories = async () => {
             sort_order: 'desc',
         }
         
-        const response = await axiosInstance.get('/api/v1/categories', { params })
+        const response = await axios.get('http://localhost:5000/api/v1/categories', { params })
         
         if (response.data && response.data.data) {
             categories.value = response.data.data as Category[]
