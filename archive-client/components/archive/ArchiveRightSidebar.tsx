@@ -18,7 +18,7 @@ export const ArchiveRightSidebar = () => {
             Containers
           </span>
           <span className="bg-[#606F7B] dark:bg-gray-600 text-white text-[12px] px-3 py-0.5 font-medium items-center rounded-full cursor-pointer">
-            Generative AI on AWS
+            Generative AI on BGCE
           </span>
         </div>
       </div>

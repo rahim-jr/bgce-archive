@@ -24,16 +24,16 @@ const articles: Article[] = [
     id: 1,
     title: '"The provided number does not exist or does not belong to th...',
     description:
-      'I want to resolve the "The provided number does not exist or does not belong to the account." error when I send an SMS message using AWS SNS or Pinpoint from my account.',
+      'I want to resolve the "The provided number does not exist or does not belong to the account." error when I send an SMS message using BGCE SNS or Pinpoint from my account.',
     tags: [
-      "AWS End User Messaging",
+      "BGCE End User Messaging",
       "Amazon Simple Notification Service (SNS)",
       "Amazon Pinpoint",
     ],
     votes: 0,
     views: "764",
     author: {
-      name: "rajaws",
+      name: "rajBGCE",
       avatar: "/placeholder.svg",
       badge: "SUPPORT ENGINEER",
       badgeColor: "bg-orange-500",
@@ -45,7 +45,7 @@ const articles: Article[] = [
     title: "'Network Error' uploading files with Amplify Storage",
     description:
       "Demonstrates how to configure an S3 bucket to accept multipart uploads using Amplify",
-    tags: ["AWS Amplify", "Amazon Q"],
+    tags: ["BGCE Amplify", "Amazon Q"],
     votes: 0,
     views: "2.6K",
     author: {
