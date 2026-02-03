@@ -2,6 +2,20 @@
 
 A Content Management Service for structured knowledge posts under categories and subcategories. Admin-driven, clean, and focused on archive-quality content.
 
+## Status
+
+✅ **Service is running and operational!**
+- Health check: `http://localhost:8081/api/v1/health`
+- API Base: `http://localhost:8081/api/v1`
+- Database: Auto-creates and migrates on startup
+- **JWT Authentication**: Integrated with Cortex (same JWT secret)
+
+### Authentication Flow
+1. User logs in via Cortex (`http://localhost:8080/api/v1/auth/login`)
+2. Cortex returns JWT token
+3. User includes token in Postal requests: `Authorization: Bearer <token>`
+4. Postal validates token using same JWT secret as Cortex
+
 ## Features
 
 ### Core Functionality

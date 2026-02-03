@@ -4,10 +4,14 @@ import (
 	"net/http"
 )
 
-type Middlewares struct{}
+type Middlewares struct {
+	jwtSecret string
+}
 
-func NewMiddlewares() *Middlewares {
-	return &Middlewares{}
+func NewMiddlewares(jwtSecret string) *Middlewares {
+	return &Middlewares{
+		jwtSecret: jwtSecret,
+	}
 }
 
 func CORS(next http.Handler) http.Handler {

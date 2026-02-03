@@ -61,7 +61,7 @@ func runRESTServer(cmd *cobra.Command, args []string) error {
 
 	// Initialize middlewares
 	log.Println("🔄 Initializing middlewares...")
-	mw := middlewares.NewMiddlewares()
+	mw := middlewares.NewMiddlewares(cfg.JWTSecret)
 
 	// Create server
 	log.Println("🔄 Creating HTTP server...")

@@ -2,35 +2,53 @@ package middlewares
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"strings"
+
+	"postal/auth"
 )
 
 type contextKey string
 
-const UserIDKey contextKey = "user_id"
+const (
+	UserIDKey   contextKey = "user_id"
+	UsernameKey contextKey = "username"
+	EmailKey    contextKey = "email"
+	RoleKey     contextKey = "role"
+)
 
 func (m *Middlewares) AuthenticateJWT(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
-			http.Error(w, "Authorization header required", http.StatusUnauthorized)
+			respondWithError(w, "Authorization header required", http.StatusUnauthorized)
 			return
 		}
 
 		// Extract token
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
-			http.Error(w, "Invalid authorization header format", http.StatusUnauthorized)
+			respondWithError(w, "Invalid authorization header format", http.StatusUnauthorized)
 			return
 		}
 
-		// TODO: Validate JWT token and extract user ID
-		// For now, we'll use a placeholder
-		userID := uint(1) // This should come from JWT validation
+		tokenString := parts[1]
 
-		// Add user ID to context
-		ctx := context.WithValue(r.Context(), UserIDKey, userID)
+		// Validate JWT token using the same secret as cortex
+		claims, err := auth.ValidateToken(tokenString, m.jwtSecret)
+		if err != nil {
+			respondWithError(w, "Invalid or expired token", http.StatusUnauthorized)
+			return
+		}
+
+		// Add user information to context
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, UserIDKey, uint(claims.UserID))
+		ctx = context.WithValue(ctx, UsernameKey, claims.Username)
+		ctx = context.WithValue(ctx, EmailKey, claims.Email)
+		ctx = context.WithValue(ctx, RoleKey, claims.Role)
+
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -40,4 +58,34 @@ func GetUserID(r *http.Request) uint {
 		return userID
 	}
 	return 0
+}
+
+func GetUsername(r *http.Request) string {
+	if username, ok := r.Context().Value(UsernameKey).(string); ok {
+		return username
+	}
+	return ""
+}
+
+func GetEmail(r *http.Request) string {
+	if email, ok := r.Context().Value(EmailKey).(string); ok {
+		return email
+	}
+	return ""
+}
+
+func GetRole(r *http.Request) string {
+	if role, ok := r.Context().Value(RoleKey).(string); ok {
+		return role
+	}
+	return ""
+}
+
+func respondWithError(w http.ResponseWriter, message string, statusCode int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status":  false,
+		"message": message,
+	})
 }
