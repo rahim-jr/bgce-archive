@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	customerrors "cortex/pkg/custom_errors"
 	"cortex/rest/middlewares"
@@ -30,11 +31,24 @@ func (h *Handlers) UpdateSubCategory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse UUID
-	subcategoryUUID, err := uuid.Parse(idStr)
-	if err != nil {
-		utils.SendError(w, http.StatusBadRequest, "invalid subcategory ID format", nil)
-		return
+	// Try to parse as integer ID first
+	var subcategoryUUID uuid.UUID
+	id, err := strconv.Atoi(idStr)
+	if err == nil {
+		// It's an integer ID, look up the UUID
+		subcategory, err := h.SubcategoryService.GetSubcategoryByID(ctx, id)
+		if err != nil {
+			utils.SendError(w, http.StatusNotFound, "Subcategory not found", nil)
+			return
+		}
+		subcategoryUUID = subcategory.UUID
+	} else {
+		// Try to parse as UUID
+		subcategoryUUID, err = uuid.Parse(idStr)
+		if err != nil {
+			utils.SendError(w, http.StatusBadRequest, "invalid subcategory ID format", nil)
+			return
+		}
 	}
 
 	// Get user ID from middleware

@@ -183,6 +183,15 @@ const handleDeleteSubcategory = async (subcategory: Subcategory) => {
     }
 }
 
+const handleUpdateSubcategoryStatus = async (subcategory: Subcategory, newStatus: Subcategory['status']) => {
+    try {
+        await subcategoryStore.updateSubcategory(subcategory.id, { status: newStatus } as any)
+        await loadData()
+    } catch (error) {
+        console.error(`Failed to update status for ${subcategory.label}:`, error)
+    }
+}
+
 const getStatusBadge = (status: string) => {
     switch (status) {
         case 'approved':
@@ -342,14 +351,25 @@ onMounted(() => {
                                             Edit
                                         </DropdownMenuItem>
                                         
-                                        <template v-if="isViewingCategories && item.status !== 'approved'">
-                                            <DropdownMenuItem @click="handleUpdateCategoryStatus(item as Category, 'approved')">
+                                        <!-- Approve/Reject for Categories -->
+                                        <template v-if="isViewingCategories">
+                                            <DropdownMenuItem v-if="item.status !== 'approved'" @click="handleUpdateCategoryStatus(item as Category, 'approved')">
                                                 <CheckCircle class="mr-2 h-4 w-4 text-green-600" />
                                                 Approve
                                             </DropdownMenuItem>
+                                            <DropdownMenuItem v-if="item.status !== 'rejected'" @click="handleUpdateCategoryStatus(item as Category, 'rejected')">
+                                                <XCircle class="mr-2 h-4 w-4 text-red-600" />
+                                                Reject
+                                            </DropdownMenuItem>
                                         </template>
-                                        <template v-if="isViewingCategories && item.status !== 'rejected'">
-                                            <DropdownMenuItem @click="handleUpdateCategoryStatus(item as Category, 'rejected')">
+
+                                        <!-- Approve/Reject for Subcategories -->
+                                        <template v-else>
+                                            <DropdownMenuItem v-if="item.status !== 'approved'" @click="handleUpdateSubcategoryStatus(item as Subcategory, 'approved')">
+                                                <CheckCircle class="mr-2 h-4 w-4 text-green-600" />
+                                                Approve
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem v-if="item.status !== 'rejected'" @click="handleUpdateSubcategoryStatus(item as Subcategory, 'rejected')">
                                                 <XCircle class="mr-2 h-4 w-4 text-red-600" />
                                                 Reject
                                             </DropdownMenuItem>
