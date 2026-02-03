@@ -48,13 +48,14 @@ export async function getSubcategories(parentUuid?: string): Promise<ApiSubcateg
             throw new Error(`Failed to fetch subcategories: ${response.statusText}`);
         }
 
-        const result: ApiResponse<ApiSubcategory[]> = await response.json();
+        const result: ApiResponse<ApiSubcategory[] | null> = await response.json();
 
         if (!result.status) {
             throw new Error(result.message || 'Failed to fetch subcategories');
         }
 
-        return result.data;
+        // Handle null data from backend
+        return result.data || [];
     } catch (error) {
         console.error('Error fetching subcategories:', error);
         return [];
