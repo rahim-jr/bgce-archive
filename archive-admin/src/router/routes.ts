@@ -3,7 +3,8 @@ import NotFoundPage from '@/pages/NotFoundPage.vue'
 import DashboardPage from '@/pages/DashboardPage.vue'
 import MainLayout from '@/components/layouts/MainLayout.vue'
 import LoginPage from '@/pages/LoginPage.vue'
-import CategoryPage from '@/pages/archive/CategoryPage.vue'
+import CategoryHierarchyPage from '@/pages/archive/CategoryHierarchyPage.vue'
+import ProfilePage from '@/pages/profile/ProfilePage.vue'
 
 export const routes = [
   {
@@ -20,22 +21,20 @@ export const routes = [
         path: 'archive',
         name: 'archive',
         meta: { requiresAuth: true },
-        // Define children here:
         children: [
           {
             path: 'categories',
             name: 'archive-categories',
-            component: CategoryPage,
-            // meta: { requiresAuth: true },
+            component: CategoryHierarchyPage,
           },
         ],
       },
-      //   {
-      //     path: 'about',
-      //     name: 'about',
-      //     component: AboutPage,
-      //     meta: { requiresAuth: true },
-      //   },
+      {
+        path: 'profile',
+        name: 'profile',
+        component: ProfilePage,
+        meta: { requiresAuth: true },
+      },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFoundPage },
     ],
   },

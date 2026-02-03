@@ -17,6 +17,8 @@
         Settings,
         BarChart3,
         Download,
+        Layers,
+        User,
     } from "lucide-vue-next"
 
 
@@ -45,7 +47,8 @@ interface NavItem {
 
 const mainItems: NavItem[] = [
     { title: "Dashboard", url: "/", icon: BarChart3 },
-    { title: "Archive Categories", url: "/archive/categories", icon: Archive },
+    { title: "Categories", url: "/archive/categories", icon: Archive },
+    { title: "Subcategories", url: "/archive/subcategories", icon: Layers },
     { title: "Documents", url: "/documents", icon: FileText },
     { title: "Images", url: "/images", icon: Image },
     { title: "Videos", url: "/videos", icon: Video },
@@ -61,6 +64,7 @@ const managementItems: NavItem[] = [
 ]
 
 const systemItems: NavItem[] = [
+    { title: "Profile", url: "/profile", icon: User },
     { title: "Security", url: "/security", icon: Shield },
     { title: "Settings", url: "/settings", icon: Settings },
 ]

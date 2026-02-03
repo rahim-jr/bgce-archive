@@ -3,11 +3,13 @@ import 'vue-sonner/style.css'
 import { RouterView } from 'vue-router';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import ConfirmDialog from '@/components/common/ConfirmDialog.vue';
 </script>
 
 <template>
     <TooltipProvider>
         <Toaster position="top-right" :rich-colors="true" class="z-[9999]" :theme="'light'" />
+        <ConfirmDialog />
         <RouterView />
     </TooltipProvider>
 </template>

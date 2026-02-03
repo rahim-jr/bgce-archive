@@ -7,10 +7,13 @@ import { Archive, Edit, Trash2, CheckCircle, Clock, XCircle, MoreHorizontal, Plu
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useCategoryStore } from "@/stores/category"
+import { useConfirm } from "@/composables/useConfirm"
+import { MESSAGES } from "@/constants/messages"
 import CategoryModal from "@/components/platform/CategoryModal.vue"
 import type { Category, CreateCategoryRequest, UpdateCategoryRequest } from "@/types/api"
 
 const categoryStore = useCategoryStore()
+const { confirm } = useConfirm()
 
 const isModalOpen = ref(false)
 const modalMode = ref<'create' | 'edit'>('create')
@@ -37,7 +40,15 @@ const handleModalSubmit = async (data: CreateCategoryRequest | UpdateCategoryReq
 }
 
 const handleDelete = async (category: Category) => {
-    if (confirm(`Are you sure you want to delete "${category.label}"?`)) {
+    const confirmed = await confirm({
+        title: 'Delete Category',
+        message: `Are you sure you want to delete "${category.label}"? This action cannot be undone.`,
+        confirmText: 'Delete',
+        cancelText: 'Cancel',
+        type: 'danger',
+    })
+
+    if (confirmed) {
         await categoryStore.deleteCategory(category.uuid)
     }
 }
