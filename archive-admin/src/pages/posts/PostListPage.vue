@@ -34,11 +34,39 @@ const handleDelete = async (id: number) => {
 }
 
 const handlePublish = async (id: number) => {
-  await postStore.publishPost(id)
+  const confirmed = await confirm({
+    title: 'Publish Post',
+    message: 'Are you sure you want to publish this post?',
+    confirmText: 'Publish',
+    type: 'success',
+  })
+  if (confirmed) {
+    await postStore.publishPost(id)
+  }
 }
 
-const handleReject = async (id: number) => {
-  await postStore.rejectPost(id)
+const handleUnpublish = async (id: number) => {
+  const confirmed = await confirm({
+    title: 'Unpublish Post',
+    message: 'This will make the post private. Continue?',
+    confirmText: 'Unpublish',
+    type: 'warning',
+  })
+  if (confirmed) {
+    await postStore.unpublishPost(id)
+  }
+}
+
+const handleArchive = async (id: number) => {
+  const confirmed = await confirm({
+    title: 'Archive Post',
+    message: 'This will archive the post. You can restore it later.',
+    confirmText: 'Archive',
+    type: 'warning',
+  })
+  if (confirmed) {
+    await postStore.archivePost(id)
+  }
 }
 
 onMounted(() => {
@@ -94,7 +122,8 @@ onMounted(() => {
                 @edit="handleEdit"
                 @delete="handleDelete"
                 @publish="handlePublish"
-                @reject="handleReject"
+                @unpublish="handleUnpublish"
+                @archive="handleArchive"
               />
             </TableBody>
           </Table>

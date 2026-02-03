@@ -109,50 +109,79 @@ export interface UpdateSubcategoryRequest {
     meta?: Record<string, any>
 }
 
-// Post types
+// Post types (matching postal service)
 export interface Post {
     id: number
-    uuid: string
+    uuid?: string
     title: string
     slug: string
     content: string
-    excerpt?: string
+    summary?: string
+    thumbnail?: string
     category_id: number
-    author_id: number
-    status: 'draft' | 'pending' | 'published' | 'rejected'
-    visibility: 'public' | 'private' | 'unlisted'
-    featured_image?: string
-    tags?: string[]
-    meta?: Record<string, any>
+    sub_category_id?: number
+    meta_title?: string
+    meta_description?: string
+    keywords?: string
+    og_image?: string
+    status: 'draft' | 'published' | 'archived' | 'deleted'
+    is_public: boolean
+    is_featured: boolean
+    is_pinned: boolean
     published_at?: string
+    archived_at?: string
+    created_by: number
+    updated_by?: number
+    view_count: number
+    version: number
     created_at: string
     updated_at: string
+    deleted_at?: string
 }
 
 export interface CreatePostRequest {
     title: string
-    slug: string
+    slug?: string
     content: string
-    excerpt?: string
+    summary?: string
+    thumbnail?: string
     category_id: number
-    status?: 'draft' | 'pending'
-    visibility?: 'public' | 'private' | 'unlisted'
-    featured_image?: string
-    tags?: string[]
-    meta?: Record<string, any>
+    sub_category_id?: number
+    meta_title?: string
+    meta_description?: string
+    keywords?: string
+    og_image?: string
+    is_public?: boolean
+    is_featured?: boolean
+    is_pinned?: boolean
 }
 
 export interface UpdatePostRequest {
     title?: string
     slug?: string
     content?: string
-    excerpt?: string
+    summary?: string
+    thumbnail?: string
     category_id?: number
-    status?: 'draft' | 'pending' | 'published' | 'rejected'
-    visibility?: 'public' | 'private' | 'unlisted'
-    featured_image?: string
-    tags?: string[]
-    meta?: Record<string, any>
+    sub_category_id?: number
+    meta_title?: string
+    meta_description?: string
+    keywords?: string
+    og_image?: string
+    is_public?: boolean
+    is_featured?: boolean
+    is_pinned?: boolean
+}
+
+export interface PostListResponse {
+    status: boolean
+    message: string
+    data: Post[]
+    meta: {
+        total: number
+        limit: number
+        offset: number
+    }
 }
 
 // Comment types

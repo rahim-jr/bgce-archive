@@ -6,17 +6,22 @@
  */
 
 export const API_CONFIG = {
+    // Base URLs
+    CORTEX_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1',
+    POSTAL_BASE_URL: import.meta.env.VITE_POSTAL_API_BASE_URL || 'http://localhost:8081/api/v1',
+
     // Mock data flags - set to false when backend is ready
-    USE_MOCK_POSTS: true,
+    USE_MOCK_POSTS: false, // Now using real postal API
     USE_MOCK_COMMENTS: true,
     USE_MOCK_SUPPORT: true,
     USE_MOCK_MODERATION: true,
 
     // Real API endpoints are already configured for:
-    // - Authentication (authService)
-    // - Categories (categoryService)
-    // - Subcategories (subcategoryService)
-    // - Users (userService)
+    // - Authentication (authService) - Cortex
+    // - Categories (categoryService) - Cortex
+    // - Subcategories (subcategoryService) - Cortex
+    // - Users (userService) - Cortex
+    // - Posts (postService) - Postal
 }
 
 /**
