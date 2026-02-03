@@ -1,107 +1,127 @@
 <script setup lang="ts">
-    import { Button } from "@/components/ui/button"
-    import { Progress } from "@/components/ui/progress"
-    import StatCard from "@/components/platform/dashboard/StatCard.vue"
-    import StorageChart from "@/components/platform/dashboard/StorageChart.vue"
-    import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-    import RecentFilesTable from "@/components/platform/dashboard/RecentFilesTable.vue"
-    import { Archive, FileText, Image, Video, Database, TrendingUp, Users, Clock } from "lucide-vue-next"
+import { onMounted, ref } from 'vue'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { FolderTree, FileText, MessageSquare, HeadphonesIcon } from 'lucide-vue-next'
+import { useCategoryStore } from '@/stores/category'
+import { usePostStore } from '@/stores/post'
+import { useCommentStore } from '@/stores/comment'
+import { useSupportStore } from '@/stores/support'
+
+const categoryStore = useCategoryStore()
+const postStore = usePostStore()
+const commentStore = useCommentStore()
+const supportStore = useSupportStore()
+
+const stats = ref({
+  categories: 0,
+  posts: 0,
+  pendingPosts: 0,
+  pendingComments: 0,
+  openTickets: 0,
+})
+
+onMounted(async () => {
+  await Promise.all([
+    categoryStore.fetchCategories(),
+    postStore.fetchPosts(),
+    commentStore.fetchComments({ status: 'pending' }),
+    supportStore.fetchTickets({ status: 'open' }),
+  ])
+
+  stats.value = {
+    categories: categoryStore.categories.length,
+    posts: postStore.posts.length,
+    pendingPosts: postStore.posts.filter(p => p.status === 'pending').length,
+    pendingComments: commentStore.comments.length,
+    openTickets: supportStore.tickets.length,
+  }
+})
 </script>
 
 <template>
-    <div class="space-y-2">
-        <h1 class="text-3xl font-bold text-foreground">
-            Archive Dashboard
-        </h1>
-        <p class="text-muted-foreground">
-            Welcome back! Here's an overview of your archive system.
-        </p>
+  <div class="space-y-6">
+    <div>
+      <h1 class="text-3xl font-bold">Dashboard</h1>
+      <p class="text-muted-foreground">Welcome to Archive Admin Portal</p>
     </div>
 
-    <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard title="Total Files" value="12,847" change="+5.2% from last month" change-type="positive"
-            :icon="Archive" />
-        <StatCard title="Storage Used" value="847 GB" change="85% of total capacity" change-type="neutral"
-            :icon="Database" />
-        <StatCard title="Active Users" value="247" change="+12 this week" change-type="positive" :icon="Users" />
-        <StatCard title="Uploads Today" value="156" change="+23% from yesterday" change-type="positive"
-            :icon="TrendingUp" />
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <Card>
+        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle class="text-sm font-medium">Categories</CardTitle>
+          <FolderTree class="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div class="text-2xl font-bold">{{ stats.categories }}</div>
+          <p class="text-xs text-muted-foreground">Total categories</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle class="text-sm font-medium">Posts</CardTitle>
+          <FileText class="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div class="text-2xl font-bold">{{ stats.posts }}</div>
+          <p class="text-xs text-muted-foreground">
+            {{ stats.pendingPosts }} pending review
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle class="text-sm font-medium">Comments</CardTitle>
+          <MessageSquare class="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div class="text-2xl font-bold">{{ stats.pendingComments }}</div>
+          <p class="text-xs text-muted-foreground">Pending moderation</p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle class="text-sm font-medium">Support</CardTitle>
+          <HeadphonesIcon class="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div class="text-2xl font-bold">{{ stats.openTickets }}</div>
+          <p class="text-xs text-muted-foreground">Open tickets</p>
+        </CardContent>
+      </Card>
     </div>
 
-    <!-- Content Grid -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2">
-            <RecentFilesTable />
-        </div>
+    <div class="grid gap-4 md:grid-cols-2">
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p class="text-sm text-muted-foreground">Activity feed coming soon...</p>
+        </CardContent>
+      </Card>
 
-        <div class="space-y-6">
-            <StorageChart />
-
-            <Card class="bg-gradient-card border-0 shadow-md">
-                <CardHeader>
-                    <CardTitle>Quick Actions</CardTitle>
-                </CardHeader>
-                <CardContent class="space-y-3">
-                    <Button class="w-full justify-start" variant="outline">
-                        <FileText class="mr-2 h-4 w-4" />
-                        Upload Documents
-                    </Button>
-                    <Button class="w-full justify-start" variant="outline">
-                        <Image class="mr-2 h-4 w-4" />
-                        Add Images
-                    </Button>
-                    <Button class="w-full justify-start" variant="outline">
-                        <Video class="mr-2 h-4 w-4" />
-                        Upload Videos
-                    </Button>
-                    <Button class="w-full justify-start" variant="outline">
-                        <Archive class="mr-2 h-4 w-4" />
-                        Create Archive
-                    </Button>
-                </CardContent>
-            </Card>
-
-            <Card class="bg-gradient-card border-0 shadow-md">
-                <CardHeader>
-                    <CardTitle class="flex items-center gap-2">
-                        <div class="h-2 w-2 rounded-full bg-success animate-pulse" />
-                        System Status
-                    </CardTitle>
-                </CardHeader>
-                <CardContent class="space-y-4">
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-muted-foreground">Server Health</span>
-                            <span class="text-success font-medium">Excellent</span>
-                        </div>
-                        <Progress :value="95" class="h-2" />
-                    </div>
-
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-muted-foreground">Storage Health</span>
-                            <span class="text-warning font-medium">Good</span>
-                        </div>
-                        <Progress :value="85" class="h-2" />
-                    </div>
-
-                    <div class="space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-muted-foreground">Network</span>
-                            <span class="text-success font-medium">Optimal</span>
-                        </div>
-                        <Progress :value="98" class="h-2" />
-                    </div>
-
-                    <div class="pt-2 border-t">
-                        <div class="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Clock class="h-4 w-4" />
-                            Last backup: 2 hours ago
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent class="space-y-2">
+          <router-link to="/posts/new" class="block p-3 rounded-md hover:bg-muted">
+            <p class="font-medium">Create New Post</p>
+            <p class="text-sm text-muted-foreground">Write and publish content</p>
+          </router-link>
+          <router-link to="/categories" class="block p-3 rounded-md hover:bg-muted">
+            <p class="font-medium">Manage Categories</p>
+            <p class="text-sm text-muted-foreground">Organize your content</p>
+          </router-link>
+          <router-link to="/comments" class="block p-3 rounded-md hover:bg-muted">
+            <p class="font-medium">Moderate Comments</p>
+            <p class="text-sm text-muted-foreground">Review pending comments</p>
+          </router-link>
+        </CardContent>
+      </Card>
     </div>
+  </div>
 </template>

@@ -30,14 +30,8 @@ export interface User {
     status: 'active' | 'inactive' | 'suspended'
     created_at: string
     updated_at: string
+    last_login_at?: string
     meta?: Record<string, any>
-}
-
-export interface RegisterRequest {
-    username: string
-    email: string
-    password: string
-    full_name?: string
 }
 
 export interface LoginRequest {
@@ -92,31 +86,13 @@ export interface CreateCategoryRequest {
 export interface UpdateCategoryRequest {
     label?: string
     description?: string
-    meta?: Record<string, any>
-}
-
-export interface CategoryFilter {
     status?: string
-    search?: string
-    page?: number
-    limit?: number
+    meta?: Record<string, any>
 }
 
-// Subcategory types
-export interface Subcategory {
-    id: number
-    uuid: string
-    slug: string
-    label: string
-    description?: string
+// Subcategory types (same as category but with parent_id required)
+export interface Subcategory extends Category {
     parent_id: number
-    creator_id?: number
-    created_by: number
-    updated_by?: number
-    status: 'pending' | 'approved' | 'rejected' | 'deleted'
-    meta?: Record<string, any>
-    created_at: string
-    updated_at: string
 }
 
 export interface CreateSubcategoryRequest {
@@ -131,4 +107,152 @@ export interface UpdateSubcategoryRequest {
     label?: string
     description?: string
     meta?: Record<string, any>
+}
+
+// Post types
+export interface Post {
+    id: number
+    uuid: string
+    title: string
+    slug: string
+    content: string
+    excerpt?: string
+    category_id: number
+    author_id: number
+    status: 'draft' | 'pending' | 'published' | 'rejected'
+    visibility: 'public' | 'private' | 'unlisted'
+    featured_image?: string
+    tags?: string[]
+    meta?: Record<string, any>
+    published_at?: string
+    created_at: string
+    updated_at: string
+}
+
+export interface CreatePostRequest {
+    title: string
+    slug: string
+    content: string
+    excerpt?: string
+    category_id: number
+    status?: 'draft' | 'pending'
+    visibility?: 'public' | 'private' | 'unlisted'
+    featured_image?: string
+    tags?: string[]
+    meta?: Record<string, any>
+}
+
+export interface UpdatePostRequest {
+    title?: string
+    slug?: string
+    content?: string
+    excerpt?: string
+    category_id?: number
+    status?: 'draft' | 'pending' | 'published' | 'rejected'
+    visibility?: 'public' | 'private' | 'unlisted'
+    featured_image?: string
+    tags?: string[]
+    meta?: Record<string, any>
+}
+
+// Comment types
+export interface Comment {
+    id: number
+    uuid: string
+    post_id: number
+    user_id?: number
+    author_name: string
+    author_email: string
+    content: string
+    status: 'pending' | 'approved' | 'rejected' | 'spam'
+    parent_id?: number
+    moderation_reason?: string
+    created_at: string
+    updated_at: string
+}
+
+export interface CreateCommentRequest {
+    post_id: number
+    author_name: string
+    author_email: string
+    content: string
+    parent_id?: number
+}
+
+export interface UpdateCommentRequest {
+    status?: 'pending' | 'approved' | 'rejected' | 'spam'
+    moderation_reason?: string
+}
+
+// Moderation Strategy types
+export interface ModerationStrategy {
+    id: number
+    name: string
+    type: 'keyword' | 'ai' | 'manual' | 'auto_approve'
+    enabled: boolean
+    priority: number
+    config: Record<string, any>
+    created_at: string
+    updated_at: string
+}
+
+export interface CreateModerationStrategyRequest {
+    name: string
+    type: 'keyword' | 'ai' | 'manual' | 'auto_approve'
+    enabled: boolean
+    priority: number
+    config: Record<string, any>
+}
+
+export interface UpdateModerationStrategyRequest {
+    name?: string
+    enabled?: boolean
+    priority?: number
+    config?: Record<string, any>
+}
+
+// Support Ticket types
+export interface SupportTicket {
+    id: number
+    uuid: string
+    user_id?: number
+    user_name: string
+    user_email: string
+    subject: string
+    message: string
+    status: 'open' | 'in_progress' | 'resolved' | 'closed'
+    priority: 'low' | 'medium' | 'high' | 'urgent'
+    category: 'bug' | 'feature' | 'question' | 'feedback' | 'other'
+    assigned_to?: number
+    created_at: string
+    updated_at: string
+}
+
+export interface CreateSupportTicketRequest {
+    user_name: string
+    user_email: string
+    subject: string
+    message: string
+    priority?: 'low' | 'medium' | 'high' | 'urgent'
+    category?: 'bug' | 'feature' | 'question' | 'feedback' | 'other'
+}
+
+export interface UpdateSupportTicketRequest {
+    status?: 'open' | 'in_progress' | 'resolved' | 'closed'
+    priority?: 'low' | 'medium' | 'high' | 'urgent'
+    assigned_to?: number
+}
+
+export interface SupportTicketReply {
+    id: number
+    ticket_id: number
+    user_id: number
+    message: string
+    is_staff: boolean
+    created_at: string
+}
+
+export interface CreateSupportTicketReplyRequest {
+    ticket_id: number
+    message: string
 }
