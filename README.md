@@ -41,7 +41,22 @@ The **Golang Community Vault** is more than a repository — it's a shared learn
 
 ---
 
-## 📁 Folder Structure
+## � Quick Start
+
+Want to get up and running quickly? Check out our comprehensive guide:
+
+📖 **[QUICK_START.md](./QUICK_START.md)** — Get all services running in 5 minutes
+
+The guide covers:
+- Setting up Cortex (Backend API)
+- Running Archive-Admin (Admin Dashboard)
+- Running Archive-Client (Public Client)
+- Test credentials and common commands
+- Troubleshooting tips
+
+---
+
+## �📁 Folder Structure
 
 | Folder      | Type          | Description                                              |
 | ----------- | ------------- | -------------------------------------------------------- |

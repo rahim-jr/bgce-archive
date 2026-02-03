@@ -1,49 +1,44 @@
-# Quick Start Guide
+# BGCE Archive - Quick Start Guide
 
 ## 🚀 Get Everything Running in 5 Minutes
 
-### Prerequisites
-- Docker & Docker Compose installed
-- Node.js 18+ and Yarn installed
-- Go 1.23+ installed (for local development)
+This monorepo contains three main projects:
+- **Cortex**: Backend API (Go + PostgreSQL + Redis + RabbitMQ)
+- **Archive-Admin**: Admin Dashboard (Vue 3 + TypeScript)
+- **Archive-Client**: Public Client (Next.js + TypeScript)
 
 ---
 
-## Step 1: Start Backend Services
+## Prerequisites
+
+- Docker & Docker Compose installed
+- Node.js 18+ installed
+- Go 1.23+ installed (for local development)
+- pnpm or yarn package manager
+
+---
+
+## Quick Start (All Services)
+
+### 1. Start Backend (Cortex)
 
 ```bash
 cd cortex
 
-# Start PostgreSQL, Redis, RabbitMQ, and Cortex API
+# Start all backend services (PostgreSQL, Redis, RabbitMQ, API)
 make docker-up
 
-# Wait for services to be healthy (about 30 seconds)
-# Check logs
+# Wait ~30 seconds for services to be healthy
 make docker-logs
-```
 
-The API will be available at `http://localhost:5000`
-
----
-
-## Step 2: Seed the Database
-
-```bash
-# Seed with default users
+# Seed database with test users
 make seed-docker
-
-# This creates 4 users:
-# - admin@bgce.com (Admin@123)
-# - editor@bgce.com (Editor@123)
-# - viewer@bgce.com (Viewer@123)
-# - test@example.com (Test@123)
 ```
 
-See `SEED_CREDENTIALS.md` for all credentials.
+**Backend API**: `http://localhost:8080`
+**Swagger Docs**: `http://localhost:8080/swagger/`
 
----
-
-## Step 3: Start Frontend
+### 2. Start Admin Dashboard
 
 ```bash
 cd archive-admin
@@ -55,50 +50,113 @@ yarn install
 yarn dev
 ```
 
-The frontend will be available at `http://localhost:5173`
+**Admin Dashboard**: `http://localhost:5173` (or check terminal for port)
+
+### 3. Start Public Client (Optional)
+
+```bash
+cd archive-client
+
+# Install dependencies (first time only)
+pnpm install
+
+# Start development server
+pnpm dev
+```
+
+**Public Client**: `http://localhost:3000`
 
 ---
 
-## Step 4: Login and Test
+## 🔑 Default Test Credentials
 
-1. Open browser to `http://localhost:5173/login`
-2. Enter credentials:
-   - Email: `admin@bgce.com`
-   - Password: `Admin@123`
-3. Click "Login to Archive"
-4. You'll be redirected to the dashboard
-5. Navigate to Categories to test CRUD operations
+After seeding, use these credentials to login:
 
-**Other test accounts**:
-- Editor: `editor@bgce.com` / `Editor@123`
-- Viewer: `viewer@bgce.com` / `Viewer@123`
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@bgce.com | Admin@123 |
+| Editor | editor@bgce.com | Editor@123 |
+| Viewer | viewer@bgce.com | Viewer@123 |
+| Test User | test@example.com | Test@123 |
+
+See `cortex/SEED_CREDENTIALS.md` for more details.
 
 ---
 
-## 🧪 Quick API Test
+## 🧪 Quick Test
 
-Run the automated test script:
+### Test Admin Dashboard
+1. Open `http://localhost:5173/login`
+2. Login with `admin@bgce.com` / `Admin@123`
+3. Navigate to Categories page
+4. Test CRUD operations (Create, Edit, Delete)
 
+### Test API Directly
 ```bash
 cd cortex
 ./test_auth_api.sh
 ```
 
-This will test:
+This tests:
 - ✅ User registration
 - ✅ User login
-- ✅ Get profile (protected)
-- ✅ Update profile (protected)
-- ✅ Create category (protected)
-- ✅ Unauthorized access (should fail)
+- ✅ Protected routes
+- ✅ Category CRUD operations
 
 ---
 
-## 📋 Available Commands
+## 📁 Project Structure
 
-### Backend (Cortex)
+```
+bgce-archive/
+├── cortex/                 # Backend API (Go)
+│   ├── auth/              # Authentication logic
+│   ├── category/          # Category service
+│   ├── user/              # User service
+│   ├── rest/              # HTTP handlers
+│   └── ent/               # Database ORM
+│
+├── archive-admin/         # Admin Dashboard (Vue 3)
+│   ├── src/
+│   │   ├── components/    # UI components
+│   │   ├── pages/         # Page components
+│   │   ├── services/      # API services
+│   │   ├── stores/        # Pinia stores
+│   │   └── types/         # TypeScript types
+│   └── package.json
+│
+├── archive-client/        # Public Client (Next.js)
+│   ├── app/               # App router pages
+│   ├── components/        # React components
+│   └── package.json
+│
+└── docs/                  # Documentation
+```
+
+---
+
+## 🌐 Service URLs
+
+| Service | URL | Notes |
+|---------|-----|-------|
+| **Cortex API** | http://localhost:8080 | Backend REST API |
+| **Swagger Docs** | http://localhost:8080/swagger/ | API documentation |
+| **Admin Dashboard** | http://localhost:5173 | Vue 3 admin panel |
+| **Public Client** | http://localhost:3000 | Next.js public site |
+| **PostgreSQL** | localhost:5432 | postgres/postgres |
+| **Redis** | localhost:6379 | No password |
+| **RabbitMQ** | localhost:5672 | admin/admin |
+| **RabbitMQ UI** | http://localhost:15672 | admin/admin |
+
+---
+
+## 📋 Common Commands
+
+### Cortex (Backend)
 
 ```bash
+cd cortex
+
 # Docker commands
 make docker-up          # Start all services
 make docker-down        # Stop all services
@@ -109,19 +167,18 @@ make docker-clean       # Clean everything
 # Database
 make seed               # Seed database (local)
 make seed-docker        # Seed database (Docker)
-make ent-gen            # Generate Ent code
-make ent-schema NAME=X  # Create new entity
 
 # Local development
+make dev                # Run with hot reload
 make build              # Build binary
-make start              # Build and run
-make dev                # Run with hot reload (requires air)
 make test               # Run tests
 ```
 
-### Frontend (Archive-Admin)
+### Archive-Admin (Vue 3)
 
 ```bash
+cd archive-admin
+
 yarn dev                # Start dev server
 yarn build              # Build for production
 yarn preview            # Preview production build
@@ -129,39 +186,52 @@ yarn lint               # Lint code
 yarn type-check         # Check TypeScript types
 ```
 
----
+### Archive-Client (Next.js)
 
-## 🔑 Default Credentials
+```bash
+cd archive-client
 
-After seeding, use these credentials:
-- **Admin**: admin@bgce.com / Admin@123
-- **Editor**: editor@bgce.com / Editor@123
-- **Viewer**: viewer@bgce.com / Viewer@123
-
-See `cortex/SEED_CREDENTIALS.md` for details.
-
----
-
-## 🌐 Service URLs
-
-| Service | URL | Credentials |
-|---------|-----|-------------|
-| Frontend | http://localhost:5173 | - |
-| Backend API | http://localhost:5000 | - |
-| Swagger Docs | http://localhost:5000/swagger/ | - |
-| PostgreSQL | localhost:5432 | postgres/postgres |
-| Redis | localhost:6379 | - |
-| RabbitMQ | localhost:5672 | admin/admin |
-| RabbitMQ Management | http://localhost:15672 | admin/admin |
+pnpm dev                # Start dev server
+pnpm build              # Build for production
+pnpm start              # Start production server
+pnpm lint               # Lint code
+```
 
 ---
 
-## 🐛 Troubleshooting
+## � Configuration
+
+### Backend Environment (.env)
+
+```bash
+cd cortex
+cp .env.example .env
+```
+
+Key variables:
+- `HTTP_PORT=8080` - API server port
+- `JWT_SECRET=your-secret-key` - JWT signing key
+- `BGCE_DB_DSN=...` - PostgreSQL connection string
+
+### Frontend Environment (.env)
+
+```bash
+cd archive-admin
+cp .env.example .env
+```
+
+Key variables:
+- `VITE_API_BASE_URL=http://localhost:8080/api/v1` - Backend API URL
+
+---
+
+## � Troubleshooting
 
 ### Backend won't start
+
 ```bash
 # Check if ports are in use
-lsof -i :5000
+lsof -i :8080
 lsof -i :5432
 
 # Clean and restart
@@ -171,116 +241,223 @@ make docker-up
 ```
 
 ### Frontend can't connect to API
+
 ```bash
-# Check .env file
+# Check environment file
 cat archive-admin/.env
 
 # Should contain:
-# VITE_API_BASE_URL=http://localhost:5000/api/v1
+# VITE_API_BASE_URL=http://localhost:8080/api/v1
 
 # Restart frontend
 cd archive-admin
 yarn dev
 ```
 
-### Database migration issues
-```bash
-# Regenerate Ent code
-cd cortex
-make ent-gen
+### CORS errors
 
-# Rebuild and restart
-make docker-clean
-make docker-up
+- Ensure backend is running on port 8080
+- Check `VITE_API_BASE_URL` in frontend `.env`
+- Clear browser cache and localStorage
+- Restart both backend and frontend
+
+### Authentication issues
+
+- Clear browser localStorage
+- Login again with seeded credentials
+- Check JWT_SECRET in backend `.env`
+- Verify token expiration (24 hours default)
+
+### Database migration issues
+
+```bash
+cd cortex
+make ent-gen            # Regenerate Ent code
+make docker-clean       # Clean everything
+make docker-up          # Restart services
+make seed-docker        # Reseed database
 ```
 
-### Token expired or invalid
-- Clear browser localStorage
-- Login again
-- Token expires after 24 hours
+---
+
+## 📚 Documentation
+
+### Project Documentation
+- `README.md` - Main project overview
+- `IMPLEMENTATION_SUMMARY.md` - Complete feature list
+- `AUTHENTICATION_IMPLEMENTATION.md` - Auth system details
+- `COMPLETE_SUCCESS.md` - All resolved issues
+
+### Cortex (Backend)
+- `cortex/README.md` - Backend overview
+- `cortex/QUICKSTART.md` - Cortex-specific quickstart
+- `cortex/SEEDING.md` - Database seeding guide
+- `cortex/SEED_CREDENTIALS.md` - Test user credentials
+
+### Archive-Admin (Frontend)
+- `archive-admin/README.md` - Admin dashboard overview
+
+### Archive-Client (Public)
+- `archive-client/README.md` - Public client overview
 
 ---
 
-## 📚 Next Steps
+## 🎯 Development Workflow
 
-1. **Read the Documentation**:
-   - `AUTHENTICATION_IMPLEMENTATION.md` - Detailed implementation guide
-   - `IMPLEMENTATION_SUMMARY.md` - Complete feature list
+### 1. Backend Development
 
-2. **Explore the Code**:
-   - Backend: `cortex/user/` and `cortex/auth/`
-   - Frontend: `archive-admin/src/services/` and `archive-admin/src/stores/`
+```bash
+cd cortex
 
-3. **Test the APIs**:
-   - Use the test script: `cortex/test_auth_api.sh`
-   - Import Postman collection (if available)
-   - Check Swagger docs at http://localhost:5000/swagger/
+# Start services
+make docker-up
 
-4. **Customize**:
-   - Update JWT secret in `.env`
-   - Modify user roles and permissions
-   - Add custom fields to User entity
-   - Extend API with new endpoints
+# Run with hot reload (requires air)
+make dev
 
----
+# Make changes to code
+# Changes auto-reload
 
-## 💡 Tips
+# Run tests
+make test
+```
 
-- **Development**: Use `make dev` for backend hot reload
-- **Debugging**: Check `make docker-logs` for backend errors
-- **Testing**: Run `./test_auth_api.sh` after changes
-- **Database**: Use TablePlus or pgAdmin to inspect data
-- **API Testing**: Use Postman or Thunder Client
+### 2. Frontend Development
 
----
+```bash
+cd archive-admin
 
-## 🎯 Common Tasks
+# Start dev server
+yarn dev
 
-### Add a New User Field
+# Make changes to code
+# Changes auto-reload with HMR
 
-1. Update `cortex/ent/schema/user.go`
-2. Run `make ent-gen`
-3. Update `cortex/user/dto.go`
-4. Update `archive-admin/src/types/api.ts`
-5. Restart services
+# Check types
+yarn type-check
 
-### Add a New API Endpoint
+# Lint code
+yarn lint
+```
 
-1. Create handler in `cortex/rest/handlers/`
-2. Add route in `cortex/rest/server.go`
-3. Create service method in frontend
-4. Update TypeScript types
-5. Use in components
+### 3. Full Stack Feature
 
-### Change JWT Expiration
-
-1. Update `cortex/auth/token.go`
-2. Change `ExpiresAt` duration
-3. Rebuild: `make docker-clean && make docker-up`
+1. **Backend**: Add API endpoint in `cortex/rest/handlers/`
+2. **Backend**: Add route in `cortex/rest/server.go`
+3. **Frontend**: Add service method in `archive-admin/src/services/`
+4. **Frontend**: Update types in `archive-admin/src/types/api.ts`
+5. **Frontend**: Use in components/pages
+6. **Test**: Verify end-to-end functionality
 
 ---
 
 ## ✅ Verification Checklist
 
-- [ ] Backend running on port 5000
-- [ ] Frontend running on port 5173
-- [ ] Can register new user
-- [ ] Can login successfully
-- [ ] Can access protected routes
-- [ ] Can create/update/delete categories
+- [ ] Backend running on port 8080
+- [ ] Admin dashboard running on port 5173
+- [ ] Can login to admin dashboard
+- [ ] Can view categories list
+- [ ] Can create new category
+- [ ] Can edit existing category
+- [ ] Can delete category
 - [ ] Token persists after page refresh
 - [ ] Logout works correctly
+- [ ] No CORS errors in console
+- [ ] No 401 authentication errors
+
+---
+
+## 🚀 Next Steps
+
+### For Developers
+
+1. **Explore the Code**:
+   - Backend: Start with `cortex/rest/server.go`
+   - Frontend: Start with `archive-admin/src/main.ts`
+
+2. **Read Documentation**:
+   - Authentication flow
+   - API endpoints
+   - Component structure
+
+3. **Add Features**:
+   - Follow the development workflow above
+   - Test thoroughly
+   - Update documentation
+
+### For Users
+
+1. **Login**: Use admin credentials
+2. **Explore**: Navigate through the admin dashboard
+3. **Test**: Try all CRUD operations
+4. **Customize**: Update categories, users, etc.
+
+---
+
+## 💡 Tips
+
+- **Hot Reload**: Both backend (with air) and frontend support hot reload
+- **Debugging**: Check browser console and backend logs
+- **API Testing**: Use Swagger UI at http://localhost:8080/swagger/
+- **Database**: Use TablePlus, pgAdmin, or psql to inspect data
+- **Performance**: Backend responses are typically <5ms
 
 ---
 
 ## 🆘 Need Help?
 
-1. Check the logs: `make docker-logs`
-2. Review documentation files
-3. Check environment variables
-4. Verify all services are running
-5. Clear browser cache and localStorage
+1. **Check Logs**:
+   ```bash
+   # Backend logs
+   cd cortex && make docker-logs
+   
+   # Frontend logs
+   # Check terminal where yarn dev is running
+   ```
+
+2. **Review Documentation**: Check the docs/ folder
+
+3. **Common Issues**: See Troubleshooting section above
+
+4. **Clean Start**:
+   ```bash
+   # Backend
+   cd cortex && make docker-clean && make docker-up && make seed-docker
+   
+   # Frontend
+   cd archive-admin && rm -rf node_modules && yarn install && yarn dev
+   ```
+
+---
+
+## 📦 Production Deployment
+
+### Backend (Docker)
+
+```bash
+cd cortex
+docker build -t cortex-api .
+docker run -p 8080:8080 --env-file .env cortex-api
+```
+
+### Frontend (Static Build)
+
+```bash
+cd archive-admin
+yarn build
+# Deploy dist/ folder to CDN or static hosting
+```
+
+### Environment Variables
+
+Ensure production environment variables are set:
+- Update `JWT_SECRET` to a strong random value
+- Set proper database credentials
+- Configure CORS for production domains
+- Enable HTTPS/TLS
 
 ---
 
 **Happy Coding! 🎉**
+
+For detailed information about specific components, check the README files in each project directory.
