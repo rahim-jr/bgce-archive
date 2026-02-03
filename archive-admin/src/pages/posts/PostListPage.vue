@@ -27,7 +27,7 @@ const handlePreview = async (id: number) => {
     const post = await postStore.fetchPostById(id)
     if (post && post.slug) {
       // Open preview in new tab - adjust URL based on your archive-client URL
-      const previewUrl = `http://localhost:3000/archive/${post.slug}`
+      const previewUrl = `http://localhost:3000/archive/post/${post.slug}`
       window.open(previewUrl, '_blank')
     }
   } catch (error) {

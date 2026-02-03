@@ -11,6 +11,7 @@ export interface Category {
 
 export interface Article {
   id: number; // Needed for key in lists
+  slug?: string; // Add slug for linking
   title: string;
   author: string; // New field
   publishedAt: string; // New field
@@ -47,6 +48,47 @@ export interface ApiSubcategory {
   parent_id: number;
   creator_id: number;
   meta: Record<string, any> | null;
+}
+
+// Post Types (from Postal service)
+export interface ApiPost {
+  id: number;
+  uuid?: string;
+  title: string;
+  slug: string;
+  content: string;
+  summary?: string;
+  thumbnail?: string;
+  category_id: number;
+  sub_category_id?: number;
+  meta_title?: string;
+  meta_description?: string;
+  keywords?: string;
+  og_image?: string;
+  status: 'draft' | 'published' | 'archived' | 'deleted';
+  is_public: boolean;
+  is_featured: boolean;
+  is_pinned: boolean;
+  published_at?: string;
+  archived_at?: string;
+  created_by: number;
+  updated_by?: number;
+  view_count: number;
+  version: number;
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string;
+}
+
+export interface ApiPostListResponse {
+  status: boolean;
+  message: string;
+  data: ApiPost[];
+  meta: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
 }
 
 export interface ApiResponse<T> {
