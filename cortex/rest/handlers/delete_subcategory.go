@@ -2,12 +2,11 @@ package handlers
 
 import (
 	"net/http"
+	"strconv"
 
 	customerrors "cortex/pkg/custom_errors"
 	"cortex/rest/middlewares"
 	"cortex/rest/utils"
-
-	"github.com/google/uuid"
 )
 
 func (h *Handlers) DeleteSubCategory(w http.ResponseWriter, r *http.Request) {
@@ -20,8 +19,8 @@ func (h *Handlers) DeleteSubCategory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse UUID
-	subcategoryUUID, err := uuid.Parse(idStr)
+	// Parse integer ID
+	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		utils.SendError(w, http.StatusBadRequest, "invalid subcategory ID format", nil)
 		return
@@ -35,7 +34,7 @@ func (h *Handlers) DeleteSubCategory(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete subcategory
-	err = h.SubcategoryService.DeleteSubcategory(ctx, subcategoryUUID, userID)
+	err = h.SubcategoryService.DeleteSubcategoryByID(ctx, id, userID)
 	if err != nil {
 		switch err {
 		case customerrors.ErrCategoryNotFound:

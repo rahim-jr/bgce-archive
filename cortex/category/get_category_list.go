@@ -13,6 +13,9 @@ import (
 func (s *service) GetCategoryList(ctx context.Context, filter GetCategoryFilter) ([]*Category, error) {
 	query := s.ent.Category.Query()
 
+	// IMPORTANT: Only get top-level categories (no parent)
+	query = query.Where(category.ParentIDIsNil())
+
 	if filter.ID != nil {
 		query = query.Where(category.IDEQ(int(*filter.ID)))
 	}

@@ -10,19 +10,6 @@ import (
 )
 
 func (h *Handlers) GetSubCategoryList(w http.ResponseWriter, r *http.Request) {
-	// Get parent UUID from query parameter
-	parentUUIDStr := r.URL.Query().Get("parent_uuid")
-	if parentUUIDStr == "" {
-		utils.SendError(w, http.StatusBadRequest, "parent_uuid query parameter is required", nil)
-		return
-	}
-
-	parentUUID, err := uuid.Parse(parentUUIDStr)
-	if err != nil {
-		utils.SendError(w, http.StatusBadRequest, "invalid parent_uuid format", nil)
-		return
-	}
-
 	// Build filter from query parameters
 	filter := subcategory.GetSubcategoryFilter{}
 	if limit := r.URL.Query().Get("limit"); limit != "" {
@@ -53,7 +40,25 @@ func (h *Handlers) GetSubCategoryList(w http.ResponseWriter, r *http.Request) {
 		filter.Label = &label
 	}
 
-	subcategories, err := h.SubcategoryService.GetSubcategoriesByParentID(r.Context(), parentUUID, filter)
+	// Get parent UUID from query parameter (optional)
+	parentUUIDStr := r.URL.Query().Get("parent_uuid")
+
+	var subcategories []*subcategory.Subcategory
+	var err error
+
+	if parentUUIDStr != "" {
+		// If parent_uuid is provided, get subcategories for that parent
+		parentUUID, parseErr := uuid.Parse(parentUUIDStr)
+		if parseErr != nil {
+			utils.SendError(w, http.StatusBadRequest, "invalid parent_uuid format", nil)
+			return
+		}
+		subcategories, err = h.SubcategoryService.GetSubcategoriesByParentID(r.Context(), parentUUID, filter)
+	} else {
+		// If parent_uuid is not provided, get all subcategories
+		subcategories, err = h.SubcategoryService.GetAllSubcategories(r.Context(), filter)
+	}
+
 	if err != nil {
 		utils.SendError(w, http.StatusInternalServerError, "failed to retrieve subcategories", err)
 		return

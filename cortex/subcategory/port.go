@@ -10,10 +10,12 @@ import (
 type Service interface {
 	CreateSubcategory(ctx context.Context, params CreateSubcategoryParams) error
 	GetSubcategoriesByParentID(ctx context.Context, parentUUID uuid.UUID, filter GetSubcategoryFilter) ([]*Subcategory, error)
+	GetAllSubcategories(ctx context.Context, filter GetSubcategoryFilter) ([]*Subcategory, error)
 	GetSubcategoryByID(ctx context.Context, id int) (*Subcategory, error)
 	GetSubcategoryByUUID(ctx context.Context, uuid uuid.UUID) (*Subcategory, error)
 	UpdateSubcategory(ctx context.Context, params UpdateSubcategoryParams) error
 	DeleteSubcategory(ctx context.Context, uuid uuid.UUID, deletedBy int) error
+	DeleteSubcategoryByID(ctx context.Context, id int, deletedBy int) error
 }
 
 type Cache interface {

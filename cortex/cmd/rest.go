@@ -42,6 +42,12 @@ func APIServerCommand(ctx context.Context) *cobra.Command {
 
 			logger.SetupLogger(cnf.ServiceName)
 
+			// Ensure database exists before connecting
+			if err := config.EnsureDatabaseExists(cnf.BGCE_DB_DRIVER, cnf.BGCE_DB_DSN); err != nil {
+				slog.Error("Failed to ensure database exists:", slog.Any("error", err))
+				return err
+			}
+
 			rmq := rabbitmq.NewRMQ(cnf)
 			defer rmq.Client.Stop()
 

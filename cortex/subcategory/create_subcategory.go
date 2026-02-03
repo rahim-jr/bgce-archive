@@ -2,39 +2,33 @@ package subcategory
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"cortex/ent/category"
 	customerrors "cortex/pkg/custom_errors"
-
-	"github.com/google/uuid"
 )
 
 func (s *service) CreateSubcategory(ctx context.Context, params CreateSubcategoryParams) error {
-	// Parse parent UUID
-	parentUUID, err := uuid.Parse(params.ParentUUID)
-	if err != nil {
-		return fmt.Errorf("invalid parent UUID: %w", err)
-	}
-
-	// Find parent category by UUID to get its integer ID
-	parentCategory, err := s.ent.Category.Query().
-		Where(category.UUIDEQ(parentUUID.String())).
-		First(ctx)
-	if err != nil {
-		return errors.New("parent category not found")
-	}
-
 	// Check if slug already exists
 	exists, err := s.ent.Category.Query().
 		Where(category.Slug(params.Slug)).
 		Exist(ctx)
 	if err != nil {
-		return errors.New("failed to check slug uniqueness")
+		return fmt.Errorf("failed to check slug uniqueness: %w", err)
 	}
 	if exists {
 		return customerrors.ErrSlugExists
+	}
+
+	// Verify parent category exists
+	parentExists, err := s.ent.Category.Query().
+		Where(category.IDEQ(params.ParentID)).
+		Exist(ctx)
+	if err != nil {
+		return fmt.Errorf("failed to verify parent category: %w", err)
+	}
+	if !parentExists {
+		return fmt.Errorf("parent category with ID %d not found", params.ParentID)
 	}
 
 	// Create the subcategory
@@ -43,11 +37,12 @@ func (s *service) CreateSubcategory(ctx context.Context, params CreateSubcategor
 		SetLabel(params.Label).
 		SetDescription(params.Description).
 		SetCreatedBy(params.CreatorID).
-		SetParentID(parentCategory.ID).
+		SetCreatorID(params.CreatorID).
+		SetParentID(params.ParentID).
 		SetMeta(params.Meta).
 		Save(ctx)
 	if err != nil {
-		return errors.New("failed to create subcategory")
+		return fmt.Errorf("failed to create subcategory: %w", err)
 	}
 
 	return nil

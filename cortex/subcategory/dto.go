@@ -31,7 +31,7 @@ type CreateSubcategoryParams struct {
 	Label       string
 	Description string
 	CreatorID   int
-	ParentUUID  string
+	ParentID    int
 	Meta        map[string]interface{}
 }
 

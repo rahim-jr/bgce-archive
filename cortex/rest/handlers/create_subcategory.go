@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 
 	customerrors "cortex/pkg/custom_errors"
@@ -11,10 +12,11 @@ import (
 )
 
 type CreateSubcategoryRequest struct {
-	Slug        string `json:"slug" validate:"required"`
-	Name        string `json:"name" validate:"required"`
-	Description string `json:"description,omitempty"`
-	ParentUUID  string `json:"parent_uuid" validate:"required"`
+	Slug        string                 `json:"slug" validate:"required"`
+	Label       string                 `json:"label" validate:"required"`
+	Description string                 `json:"description,omitempty"`
+	ParentID    int                    `json:"parent_id" validate:"required"`
+	Meta        map[string]interface{} `json:"meta,omitempty"`
 }
 
 func (h *Handlers) CreateSubcategory(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +24,15 @@ func (h *Handlers) CreateSubcategory(w http.ResponseWriter, r *http.Request) {
 
 	var req CreateSubcategoryRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		utils.SendError(w, http.StatusBadRequest, "Failed to decode request body", nil)
+		slog.Error("Failed to decode request body", "error", err.Error())
+		utils.SendError(w, http.StatusBadRequest, "Failed to decode request body: "+err.Error(), nil)
+		return
+	}
+
+	// Validate request
+	if err := utils.Validate(req); err != nil {
+		slog.Error("Validation failed", "error", err.Error())
+		utils.SendError(w, http.StatusBadRequest, err.Error(), nil)
 		return
 	}
 
@@ -32,13 +42,15 @@ func (h *Handlers) CreateSubcategory(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	slog.Info("Creating subcategory", "slug", req.Slug, "label", req.Label, "parent_id", req.ParentID, "user_id", userID)
+
 	subcategoryParams := subcategory.CreateSubcategoryParams{
 		Slug:        req.Slug,
-		Label:       req.Name,
+		Label:       req.Label,
 		Description: req.Description,
 		CreatorID:   userID,
-		ParentUUID:  req.ParentUUID,
-		Meta:        make(map[string]interface{}),
+		ParentID:    req.ParentID,
+		Meta:        req.Meta,
 	}
 
 	err := h.SubcategoryService.CreateSubcategory(ctx, subcategoryParams)
@@ -47,7 +59,9 @@ func (h *Handlers) CreateSubcategory(w http.ResponseWriter, r *http.Request) {
 			utils.SendError(w, http.StatusConflict, "Subcategory with this slug already exists", nil)
 			return
 		}
-		utils.SendError(w, http.StatusInternalServerError, "Failed to create subcategory", nil)
+		// Log and return the actual error message for debugging
+		slog.Error("Failed to create subcategory", "error", err.Error())
+		utils.SendError(w, http.StatusInternalServerError, err.Error(), nil)
 		return
 	}
 

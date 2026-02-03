@@ -112,9 +112,22 @@ ent-gen: ## Generate Ent code
 ## 🗄️ Database
 ## ------------------------------
 
+db-create: ## Create database if it doesn't exist (auto-handled by app)
+	@echo "$(GREEN)Database will be created automatically on first run$(RESET)"
+
 db-migrate: ## Run database migrations
 	@echo "$(GREEN)Running database migrations...$(RESET)"
 	$(SERVER_CMD)
+
+db-reset: ## Drop and recreate database (WARNING: destroys all data)
+	@echo "$(YELLOW)⚠️  WARNING: This will destroy all data!$(RESET)"
+	@read -p "Are you sure? [y/N] " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		echo "$(YELLOW)Dropping database...$(RESET)"; \
+		PGPASSWORD=root psql -h localhost -p 5433 -U postgres -c "DROP DATABASE IF EXISTS cortex_db;"; \
+		echo "$(GREEN)Database will be recreated on next run$(RESET)"; \
+	fi
 
 seed: build ## Seed database with initial data
 	@echo "$(GREEN)Seeding database...$(RESET)"
