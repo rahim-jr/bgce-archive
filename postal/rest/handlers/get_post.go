@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+
+	"postal/rest/utils"
 )
 
 func (h *Handlers) GetPostByID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	idStr := r.PathValue("id")
+	idStr := utils.ExtractIDFromPath(r.URL.Path)
 
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
@@ -41,7 +43,7 @@ func (h *Handlers) GetPostByID(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handlers) GetPostBySlug(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	slug := r.PathValue("slug")
+	slug := utils.ExtractSlugFromPath(r.URL.Path)
 
 	post, err := h.PostService.GetPostBySlug(ctx, slug)
 	if err != nil {

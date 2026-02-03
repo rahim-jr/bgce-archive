@@ -28,6 +28,7 @@ const emit = defineEmits<{
   publish: [id: number]
   unpublish: [id: number]
   archive: [id: number]
+  preview: [id: number]
 }>()
 
 const getStatusBadge = (status: string) => {
@@ -81,7 +82,7 @@ const getStatusBadge = (status: string) => {
             <Edit class="h-4 w-4" />
             Edit Post
           </DropdownMenuItem>
-          <DropdownMenuItem class="gap-2">
+          <DropdownMenuItem @click="emit('preview', post.id)" class="gap-2">
             <Eye class="h-4 w-4" />
             Preview
           </DropdownMenuItem>

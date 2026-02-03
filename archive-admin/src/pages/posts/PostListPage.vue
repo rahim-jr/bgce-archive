@@ -21,6 +21,20 @@ const handleEdit = (id: number) => {
   router.push(`/posts/${id}/edit`)
 }
 
+const handlePreview = async (id: number) => {
+  // Fetch the post to get its slug
+  try {
+    const post = await postStore.fetchPostById(id)
+    if (post && post.slug) {
+      // Open preview in new tab - adjust URL based on your archive-client URL
+      const previewUrl = `http://localhost:3000/archive/${post.slug}`
+      window.open(previewUrl, '_blank')
+    }
+  } catch (error) {
+    console.error('Failed to preview post:', error)
+  }
+}
+
 const handleDelete = async (id: number) => {
   const confirmed = await confirm({
     title: 'Delete Post',
@@ -120,6 +134,7 @@ onMounted(() => {
                 :key="post.id"
                 :post="post"
                 @edit="handleEdit"
+                @preview="handlePreview"
                 @delete="handleDelete"
                 @publish="handlePublish"
                 @unpublish="handleUnpublish"

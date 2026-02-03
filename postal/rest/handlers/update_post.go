@@ -7,11 +7,12 @@ import (
 
 	"postal/post"
 	"postal/rest/middlewares"
+	"postal/rest/utils"
 )
 
 func (h *Handlers) UpdatePost(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	idStr := r.PathValue("id")
+	idStr := utils.ExtractIDFromPath(r.URL.Path)
 
 	id, err := strconv.ParseUint(idStr, 10, 32)
 	if err != nil {
