@@ -20,16 +20,30 @@ import type { ApiCategory, ApiSubcategory } from "@/types/blog.type";
 type ArticleSearchProps = {
   viewMode: string;
   setViewMode: (mode: "list" | "grid") => void;
+  selectedCategory: string;
+  setSelectedCategory: (category: string) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  sortBy: string;
+  setSortBy: (sort: string) => void;
 };
 
 interface CategoryWithSubcategories extends ApiCategory {
   subcategories: ApiSubcategory[];
 }
 
-export function ArticleSearch({ setViewMode, viewMode }: ArticleSearchProps) {
+export function ArticleSearch({
+  setViewMode,
+  viewMode,
+  selectedCategory,
+  setSelectedCategory,
+  searchQuery,
+  setSearchQuery,
+  sortBy,
+  setSortBy,
+}: ArticleSearchProps) {
   const [categories, setCategories] = useState<CategoryWithSubcategories[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
   useEffect(() => {
     async function fetchData() {
@@ -69,6 +83,8 @@ export function ArticleSearch({ setViewMode, viewMode }: ArticleSearchProps) {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search articles..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="rounded-sm shadow-none  pl-10 w-full h-10 focus-visible:ring-0.1 focus-visible:ring-blue-500 focus-visible:border-blue-500 border border-gray-400 font-medium"
           />
         </div>
@@ -123,7 +139,7 @@ export function ArticleSearch({ setViewMode, viewMode }: ArticleSearchProps) {
         </Select>
 
         {/* Sort */}
-        <Select>
+        <Select value={sortBy} onValueChange={setSortBy}>
           <SelectTrigger
             className="w-full md:w-[200px] lg:w-[300px] !h-10 font-medium
             border

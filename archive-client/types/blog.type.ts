@@ -19,6 +19,7 @@ export interface Article {
   votes: number; // New field
   description: string;
   tags: string[]; // New field
+  date: Date;
 }
 
 // API Response Types

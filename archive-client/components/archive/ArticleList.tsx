@@ -2,83 +2,14 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Article } from "@/types/blog.type";
+import Link from "next/link";
 
-interface Article {
-  id: number;
-  title: string;
-  description: string;
-  tags: string[];
-  votes: number;
-  views: string;
-  author: {
-    name: string;
-    avatar: string;
-    badge: string;
-    badgeColor: string;
-  };
-  publishedDate: string;
+interface ArticleListProps {
+  articles: Article[];
 }
 
-const articles: Article[] = [
-  {
-    id: 1,
-    title: '"The provided number does not exist or does not belong to th...',
-    description:
-      'I want to resolve the "The provided number does not exist or does not belong to the account." error when I send an SMS message using BGCE SNS or Pinpoint from my account.',
-    tags: [
-      "BGCE End User Messaging",
-      "Amazon Simple Notification Service (SNS)",
-      "Amazon Pinpoint",
-    ],
-    votes: 0,
-    views: "764",
-    author: {
-      name: "rajBGCE",
-      avatar: "/placeholder.svg",
-      badge: "SUPPORT ENGINEER",
-      badgeColor: "bg-orange-500",
-    },
-    publishedDate: "published 7 months ago",
-  },
-  {
-    id: 2,
-    title: "'Network Error' uploading files with Amplify Storage",
-    description:
-      "Demonstrates how to configure an S3 bucket to accept multipart uploads using Amplify",
-    tags: ["BGCE Amplify", "Amazon Q"],
-    votes: 0,
-    views: "2.6K",
-    author: {
-      name: "Patrick Kremer",
-      avatar: "/placeholder.svg",
-      badge: "EXPERT",
-      badgeColor: "bg-purple-600",
-    },
-    publishedDate: "published a year ago",
-  },
-  {
-    id: 3,
-    title: ".NET 8 Support Now Available for Amazon GameLift Servers C# ...",
-    description:
-      "Amazon GameLift Servers announces .NET 8 support for the C# Server SDK 5. This update ensures continued security patches and technical support, offering developers a seamless path to maintain secure a...",
-    tags: [
-      "Amazon GameLift Servers",
-      "Game Tech",
-      "Game Server Hosting & Backends",
-    ],
-    votes: 0,
-    views: "127",
-    author: {
-      name: "Sachin",
-      avatar: "/placeholder.svg",
-      badge: "EXPERT",
-      badgeColor: "bg-purple-600",
-    },
-    publishedDate: "published 6 months ago",
-  },
-];
-
-const ArticleList: React.FC = () => {
+const ArticleList: React.FC<ArticleListProps> = ({ articles }) => {
   return (
     <div className="space-y-4">
       {articles.map((article) => (
@@ -90,9 +21,11 @@ const ArticleList: React.FC = () => {
             <div className="flex flex-col lg:flex-row">
               {/* Main Content */}
               <div className="flex-1 p-4 md:p-6">
-                <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-2 hover:text-blue-900 dark:hover:text-blue-300 cursor-pointer">
-                  {article.title}
-                </h2>
+                <Link href={`/archive/post/${article.slug}`}>
+                  <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-2 hover:text-blue-900 dark:hover:text-blue-300 cursor-pointer">
+                    {article.title}
+                  </h2>
+                </Link>
                 <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mb-4">
                   {article.description}
                 </p>
@@ -158,7 +91,7 @@ const ArticleList: React.FC = () => {
                         {article.author.name}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {article.publishedDate}
+                        {article.date}
                       </div>
                     </div>
                   </div>
