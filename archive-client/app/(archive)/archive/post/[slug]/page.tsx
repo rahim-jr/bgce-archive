@@ -3,13 +3,13 @@ import { notFound } from "next/navigation";
 import ArticlePage from "@/components/archive/ArticlePage";
 
 interface PageProps {
-    params: {
+    params: Promise<{
         slug: string;
-    };
+    }>;
 }
 
 const PostPage = async ({ params }: PageProps) => {
-    const { slug } = params;
+    const { slug } = await params;
 
     // Fetch post by slug
     const post = await getPostBySlug(slug);

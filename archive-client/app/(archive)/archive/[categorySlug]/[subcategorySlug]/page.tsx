@@ -4,14 +4,14 @@ import { transformPostsToArticles } from "@/lib/transformers";
 import { notFound } from "next/navigation";
 
 interface PageProps {
-    params: {
+    params: Promise<{
         categorySlug: string;
         subcategorySlug: string;
-    };
+    }>;
 }
 
 const SubcategoryPage = async ({ params }: PageProps) => {
-    const { subcategorySlug } = params;
+    const { subcategorySlug } = await params;
 
     // Fetch all subcategories and find the one with matching slug
     const subcategories = await getSubcategories();

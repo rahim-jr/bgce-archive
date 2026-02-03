@@ -4,13 +4,13 @@ import { transformPostsToArticles } from "@/lib/transformers";
 import { notFound } from "next/navigation";
 
 interface PageProps {
-    params: {
+    params: Promise<{
         categorySlug: string;
-    };
+    }>;
 }
 
 const CategoryPage = async ({ params }: PageProps) => {
-    const { categorySlug } = params;
+    const { categorySlug } = await params;
 
     // Fetch category by slug
     const category = await getCategoryBySlug(categorySlug);
