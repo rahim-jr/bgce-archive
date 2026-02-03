@@ -1,0 +1,60 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36" version="29.3.6">
+  <diagram name="high-lvl-service" id="n1VVbhGWaYveHirPwGaG">
+    <mxGraphModel dx="2507" dy="758" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="huXGJptqqZbWPDtFtJLV-14" edge="1" parent="1" source="huXGJptqqZbWPDtFtJLV-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="huXGJptqqZbWPDtFtJLV-20" edge="1" parent="1" source="huXGJptqqZbWPDtFtJLV-13" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-190" y="400" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="huXGJptqqZbWPDtFtJLV-13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="admin" vertex="1">
+          <mxGeometry height="60" width="120" x="-250" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="huXGJptqqZbWPDtFtJLV-18" edge="1" parent="1" source="huXGJptqqZbWPDtFtJLV-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" target="huXGJptqqZbWPDtFtJLV-13">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-30" y="315" />
+              <mxPoint x="-30" y="315" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="huXGJptqqZbWPDtFtJLV-27" edge="1" parent="1" source="huXGJptqqZbWPDtFtJLV-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="210" y="300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="huXGJptqqZbWPDtFtJLV-15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="cortex" vertex="1">
+          <mxGeometry height="60" width="120" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="huXGJptqqZbWPDtFtJLV-17" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="login" vertex="1">
+          <mxGeometry height="30" width="60" x="-90" y="270" as="geometry" />
+        </mxCell>
+        <mxCell id="huXGJptqqZbWPDtFtJLV-19" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="auth token" vertex="1">
+          <mxGeometry height="30" width="60" x="-90" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="huXGJptqqZbWPDtFtJLV-25" edge="1" parent="1" source="huXGJptqqZbWPDtFtJLV-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" target="huXGJptqqZbWPDtFtJLV-24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="huXGJptqqZbWPDtFtJLV-21" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="postal" vertex="1">
+          <mxGeometry height="60" width="120" x="-250" y="400" as="geometry" />
+        </mxCell>
+        <mxCell id="huXGJptqqZbWPDtFtJLV-22" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="auth token" vertex="1">
+          <mxGeometry height="30" width="60" x="-250" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="huXGJptqqZbWPDtFtJLV-23" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;fillColor=#FFE599;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;services:&lt;/h1&gt;&lt;p&gt;1. authentication and authorization&lt;/p&gt;&lt;p&gt;2. manage category lifecycle&lt;/p&gt;&lt;p&gt;3. manage sub category lifecycle&amp;nbsp;&lt;/p&gt;" vertex="1">
+          <mxGeometry height="160" width="180" x="210" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="huXGJptqqZbWPDtFtJLV-24" parent="1" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;fillColor=#FFE599;" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;services:&lt;/h1&gt;&lt;p&gt;1. post management services&lt;/p&gt;" vertex="1">
+          <mxGeometry height="90" width="180" x="-500" y="385" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
