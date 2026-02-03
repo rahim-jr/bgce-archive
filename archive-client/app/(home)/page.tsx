@@ -4,7 +4,7 @@ import PopularSection from "@/components/home/PopularSection";
 import RecentQuestions from "@/components/home/RecentQuestions";
 import React from "react";
 
-const homePage = () => {
+export default function HomePage() {
   return (
     <div>
       <HeroSection />
@@ -13,6 +13,4 @@ const homePage = () => {
       <ArchiveProTips />
     </div>
   );
-};
-
-export default homePage;
+}

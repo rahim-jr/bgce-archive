@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -11,6 +12,7 @@ import {
   FileText,
   Users,
   Clock,
+  FolderOpen,
 } from "lucide-react";
 import {
   Table,
@@ -20,34 +22,18 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getCategories } from "@/lib/api";
+import type { ApiCategory } from "@/types/blog.type";
 
-const topics = [
-  {
-    icon: Cloud,
-    title: "Serverless",
-    stats: { questions: 8595, articles: 351, tutorials: 4, followers: 4947 },
-  },
-  {
-    icon: Shield,
-    title: "Security, Identity, & Compliance",
-    stats: { questions: 8745, articles: 466, tutorials: 10, followers: 4369 },
-  },
-  {
-    icon: Cloud,
-    title: "BGCE Well-Architected Framework",
-    stats: { questions: 1643, articles: 84, tutorials: 5, followers: 4140 },
-  },
-  {
-    icon: Layers,
-    title: "Containers",
-    stats: { questions: 3602, articles: 406, tutorials: 3, followers: 4005 },
-  },
-  {
-    icon: Cpu,
-    title: "Compute",
-    stats: { questions: 17465, articles: 983, tutorials: 9, followers: 3858 },
-  },
-];
+// Icon mapping for categories
+const iconMap: Record<string, any> = {
+  cloud: Cloud,
+  shield: Shield,
+  cpu: Cpu,
+  layers: Layers,
+  server: Server,
+  default: FolderOpen,
+};
 
 const contributors = [
   {
@@ -82,7 +68,35 @@ const contributors = [
   },
 ];
 
+// Helper function to get icon for category
+function getCategoryIcon(slug: string) {
+  const lowerSlug = slug.toLowerCase();
+  for (const [key, Icon] of Object.entries(iconMap)) {
+    if (lowerSlug.includes(key)) {
+      return Icon;
+    }
+  }
+  return iconMap.default;
+}
+
 export default function PopularSection() {
+  const [categories, setCategories] = useState<ApiCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const data = await getCategories();
+        setCategories(data.slice(0, 5)); // Show top 5 categories
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCategories();
+  }, []);
   return (
     <main className="container mx-auto py-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
@@ -94,46 +108,77 @@ export default function PopularSection() {
             </h2>
           </div>
 
-          <div className="space-y-2">
-            {topics.map((topic) => (
-              <Card
-                key={topic.title}
-                className="border border-gray-300 dark:border-0 bg-[#F7F9FB] dark:bg-gray-800 dark:text-white rounded-md  py-0"
-              >
-                <CardContent className="flex flex-col sm:flex-row items-center sm:justify-between px-3 sm:px-4 py-2.5 hover:shadow-md cursor-pointer transition duration-300">
-                  {/* Left: Icon + Title */}
-                  <div className="flex items-center gap-3 mb-2 sm:mb-0">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-500 dark:bg-gray-800">
-                      <topic.icon className="h-5 w-5 text-white dark:text-gray-300" />
-                    </div>
-                    <span className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-[15px]">
-                      {topic.title}
-                    </span>
-                  </div>
+          {loading ? (
+            <div className="space-y-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Card
+                  key={i}
+                  className="border border-gray-300 dark:border-0 bg-[#F7F9FB] dark:bg-gray-800 rounded-md py-0 animate-pulse"
+                >
+                  <CardContent className="px-3 sm:px-4 py-4">
+                    <div className="h-10 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : categories.length === 0 ? (
+            <Card className="border border-gray-300 dark:border-0 bg-[#F7F9FB] dark:bg-gray-800 rounded-md">
+              <CardContent className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                No categories available yet
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-2">
+              {categories.map((category) => {
+                const IconComponent = getCategoryIcon(category.slug);
+                return (
+                  <Card
+                    key={category.id}
+                    className="border border-gray-300 dark:border-0 bg-[#F7F9FB] dark:bg-gray-800 dark:text-white rounded-md py-0"
+                  >
+                    <CardContent className="flex flex-col sm:flex-row items-center sm:justify-between px-3 sm:px-4 py-2.5 hover:shadow-md cursor-pointer transition duration-300">
+                      {/* Left: Icon + Title */}
+                      <div className="flex items-center gap-3 mb-2 sm:mb-0">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-500 dark:bg-gray-800">
+                          <IconComponent className="h-5 w-5 text-white dark:text-gray-300" />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-[15px]">
+                            {category.label}
+                          </span>
+                          {category.description && (
+                            <span className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+                              {category.description}
+                            </span>
+                          )}
+                        </div>
+                      </div>
 
-                  {/* Middle: Stats Row */}
-                  <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                    <span className="flex items-center gap-1 dark:text-white">
-                      <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
-                      {topic.stats.questions}
-                    </span>
-                    <span className="flex items-center gap-1 dark:text-white">
-                      <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
-                      {topic.stats.articles}
-                    </span>
-                    <span className="flex items-center gap-1 dark:text-white">
-                      <Server className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
-                      {topic.stats.tutorials}
-                    </span>
-                    <span className="flex items-center gap-1 dark:text-white">
-                      <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
-                      {topic.stats.followers}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                      {/* Middle: Stats Row - Mock data for now */}
+                      <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                        <span className="flex items-center gap-1 dark:text-white">
+                          <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
+                          {Math.floor(Math.random() * 10000)}
+                        </span>
+                        <span className="flex items-center gap-1 dark:text-white">
+                          <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
+                          {Math.floor(Math.random() * 500)}
+                        </span>
+                        <span className="flex items-center gap-1 dark:text-white">
+                          <Server className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
+                          {Math.floor(Math.random() * 20)}
+                        </span>
+                        <span className="flex items-center gap-1 dark:text-white">
+                          <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
+                          {Math.floor(Math.random() * 5000)}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         {/* Right Section: Contributors */}
