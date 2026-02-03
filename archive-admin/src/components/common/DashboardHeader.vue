@@ -1,103 +1,116 @@
 <script setup lang="ts">
-    import { useAuthStore } from "@/stores/auth"
-    import { Badge } from "@/components/ui/badge"
-    import { Input } from "@/components/ui/input"
-    import { Button } from "@/components/ui/button"
-    import { SidebarTrigger } from "@/components/ui/sidebar"
-    import { Search, Bell, User, Settings, LogOut, } from "lucide-vue-next"
+import { ref } from 'vue'
+import { Bell, Search, Settings, Moon, Sun } from 'lucide-vue-next'
+import { SidebarTrigger } from '@/components/ui/sidebar'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
+import { Badge } from '@/components/ui/badge'
 
-    import {
-        DropdownMenu,
-        DropdownMenuContent,
-        DropdownMenuItem,
-        DropdownMenuLabel,
-        DropdownMenuSeparator,
-        DropdownMenuTrigger,
-    } from "@/components/ui/dropdown-menu"
+const isDark = ref(false)
+const notifications = ref([
+  { id: 1, title: 'New comment pending', time: '5 min ago', unread: true },
+  { id: 2, title: 'Post published successfully', time: '1 hour ago', unread: true },
+  { id: 3, title: 'Support ticket resolved', time: '2 hours ago', unread: false },
+])
 
-const {handleLogout} = useAuthStore()
+const unreadCount = ref(notifications.value.filter(n => n.unread).length)
 
+const toggleTheme = () => {
+  isDark.value = !isDark.value
+  // Implement theme toggle logic
+}
 </script>
 
 <template>
-    <header class="p-4 border-b bg-card/50 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-50">
-        <div class="flex items-center gap-4">
-            <SidebarTrigger class="cursor-pointer" />
+  <header class="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
+    <SidebarTrigger class="lg:hidden" />
+    
+    <!-- Search -->
+    <div class="flex-1 max-w-md">
+      <div class="relative">
+        <Search class="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input 
+          placeholder="Search posts, comments, tickets..." 
+          class="pl-10 bg-muted/50 border-0 focus-visible:ring-1"
+        />
+      </div>
+    </div>
 
-            <!-- Search -->
-            <div class="relative">
-                <Search class="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search archives..." class="w-64 pl-10 bg-background/50" />
+    <!-- Actions -->
+    <div class="flex items-center gap-2">
+      <!-- Theme Toggle -->
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        class="h-9 w-9 rounded-full"
+        @click="toggleTheme"
+      >
+        <Sun v-if="!isDark" class="h-4 w-4" />
+        <Moon v-else class="h-4 w-4" />
+      </Button>
+
+      <!-- Notifications -->
+      <DropdownMenu>
+        <DropdownMenuTrigger as-child>
+          <Button variant="ghost" size="icon" class="h-9 w-9 rounded-full relative">
+            <Bell class="h-4 w-4" />
+            <Badge 
+              v-if="unreadCount > 0"
+              class="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500"
+            >
+              {{ unreadCount }}
+            </Badge>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" class="w-80">
+          <div class="flex items-center justify-between px-4 py-3 border-b">
+            <h3 class="font-semibold text-sm">Notifications</h3>
+            <Button variant="ghost" size="sm" class="h-auto p-0 text-xs text-primary">
+              Mark all read
+            </Button>
+          </div>
+          <div class="max-h-[300px] overflow-y-auto">
+            <div 
+              v-for="notification in notifications" 
+              :key="notification.id"
+              class="flex items-start gap-3 px-4 py-3 hover:bg-muted/50 cursor-pointer transition-colors"
+              :class="notification.unread ? 'bg-blue-50/50' : ''"
+            >
+              <div 
+                class="h-2 w-2 rounded-full mt-2 flex-shrink-0"
+                :class="notification.unread ? 'bg-blue-500' : 'bg-transparent'"
+              />
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium">{{ notification.title }}</p>
+                <p class="text-xs text-muted-foreground mt-1">{{ notification.time }}</p>
+              </div>
             </div>
-        </div>
+          </div>
+          <DropdownMenuSeparator />
+          <div class="px-4 py-3">
+            <Button variant="ghost" size="sm" class="w-full text-xs">
+              View all notifications
+            </Button>
+          </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
 
-        <div class="flex items-center gap-4">
-            <!-- Notifications -->
-            <DropdownMenu>
-                <DropdownMenuTrigger as-child>
-                    <Button variant="ghost" size="icon" class="relative cursor-pointer">
-                        <Bell class="h-4 w-4" />
-                        <Badge
-                            class="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-destructive">
-                            3
-                        </Badge>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" class="w-80">
-                    <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem class="cursor-pointer">
-                        <div class="flex flex-col gap-1">
-                            <p class="text-sm font-medium">New upload completed</p>
-                            <p class="text-xs text-muted-foreground">document.pdf was successfully archived</p>
-                        </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem class="cursor-pointer">
-                        <div class="flex flex-col gap-1">
-                            <p class="text-sm font-medium">Storage warning</p>
-                            <p class="text-xs text-muted-foreground">Archive storage is 85% full</p>
-                        </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem class="cursor-pointer">
-                        <div class="flex flex-col gap-1">
-                            <p class="text-sm font-medium">Backup completed</p>
-                            <p class="text-xs text-muted-foreground">Weekly backup finished successfully</p>
-                        </div>
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-
-            <!-- User Menu -->
-            <DropdownMenu>
-                <DropdownMenuTrigger as-child>
-                    <Button variant="ghost" class="flex items-center gap-2 cursor-pointer">
-                        <div class="h-8 w-8 rounded-full bg-archive-primary flex items-center justify-center">
-                            <User class="h-4 w-4 text-white" />
-                        </div>
-                        <div class="hidden sm:block text-left">
-                            <p class="text-sm font-medium">Admin User</p>
-                            <p class="text-xs text-muted-foreground">admin@archive.com</p>
-                        </div>
-                    </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem class="cursor-pointer">
-                        <User class="mr-2 h-4 w-4" />
-                        Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem class="cursor-pointer">
-                        <Settings class="mr-2 h-4 w-4" />
-                        Settings
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem class="cursor-pointer" @click="handleLogout">
-                        <LogOut class="mr-2 h-4 w-4" />
-                        Log out
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
-        </div>
-    </header>
+      <!-- Settings -->
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        class="h-9 w-9 rounded-full"
+        @click="$router.push('/profile')"
+      >
+        <Settings class="h-4 w-4" />
+      </Button>
+    </div>
+  </header>
 </template>
