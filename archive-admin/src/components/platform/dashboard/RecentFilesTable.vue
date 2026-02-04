@@ -113,9 +113,9 @@ const getFileIcon = (type: string) => {
                         <TableCell>
                             <!-- Dynamically render the status badge -->
                             <Badge v-if="file.status === 'active'" variant="default"
-                                class="bg-success text-success-foreground">Active</Badge>
+                                class="bg-green-500 text-white">Active</Badge>
                             <Badge v-else-if="file.status === 'processing'" variant="secondary"
-                                class="bg-warning text-warning-foreground">Processing</Badge>
+                                class="bg-yellow-500 text-white">Processing</Badge>
                             <Badge v-else-if="file.status === 'archived'" variant="outline">Archived</Badge>
                             <Badge v-else variant="outline">{{ file.status }}</Badge>
                         </TableCell>

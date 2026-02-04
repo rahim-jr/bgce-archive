@@ -117,6 +117,7 @@ export interface Post {
     slug: string
     content: string
     summary?: string
+    excerpt?: string
     thumbnail?: string
     category_id: number
     sub_category_id?: number
@@ -124,7 +125,7 @@ export interface Post {
     meta_description?: string
     keywords?: string
     og_image?: string
-    status: 'draft' | 'published' | 'archived' | 'deleted'
+    status: 'draft' | 'published' | 'archived' | 'deleted' | 'pending'
     is_public: boolean
     is_featured: boolean
     is_pinned: boolean
@@ -144,6 +145,7 @@ export interface CreatePostRequest {
     slug?: string
     content: string
     summary?: string
+    excerpt?: string
     thumbnail?: string
     category_id: number
     sub_category_id?: number
@@ -161,6 +163,7 @@ export interface UpdatePostRequest {
     slug?: string
     content?: string
     summary?: string
+    excerpt?: string
     thumbnail?: string
     category_id?: number
     sub_category_id?: number
@@ -284,4 +287,18 @@ export interface SupportTicketReply {
 export interface CreateSupportTicketReplyRequest {
     ticket_id: number
     message: string
+}
+
+// Category Filter
+export interface CategoryFilter {
+    status?: string
+    parent_id?: number
+}
+
+// Register Request
+export interface RegisterRequest {
+    username: string
+    email: string
+    password: string
+    full_name?: string
 }
