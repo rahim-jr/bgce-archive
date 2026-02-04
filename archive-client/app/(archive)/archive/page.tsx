@@ -1,11 +1,17 @@
-"use client";
-
 import ArchiveWrapper from "@/components/archive/ArchiveWrapper";
+import { getPosts } from "@/lib/api";
+import { transformPostsToArticles } from "@/lib/transformers";
 
-const ArticlesPage = () => {
+const ArticlesPage = async () => {
+  // Fetch all posts
+  const posts = await getPosts({ limit: 50 });
+
+  // Transform API posts to Article format
+  const articles = transformPostsToArticles(posts);
+
   return (
     <>
-      <ArchiveWrapper />
+      <ArchiveWrapper articles={articles} />
     </>
   );
 };

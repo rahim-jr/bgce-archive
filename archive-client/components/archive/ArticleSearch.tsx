@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
   SelectGroup,
-  SelectLabel,
 } from "@/components/ui/select";
 
 import { Search, List, Grid } from "lucide-react";

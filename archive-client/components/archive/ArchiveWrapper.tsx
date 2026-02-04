@@ -7,85 +7,48 @@ import ArticleCard from "./ArchiveCard";
 import { PaginationDemo } from "./Pagination";
 import { Article } from "@/types/blog.type";
 import ArticleList from "./ArticleList";
-import { getPosts } from "@/lib/api";
-import { transformPostsToArticles } from "@/lib/transformers";
 
-const ArchiveWrapper = () => {
+const ArchiveWrapper = ({ articles: initialArticles }: { articles: Article[] }) => {
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [articles, setArticles] = useState<Article[]>(initialArticles);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("recent");
 
   useEffect(() => {
-    async function fetchPosts() {
-      setLoading(true);
-      try {
-        let categoryId: number | undefined;
-        let subCategoryId: number | undefined;
+    // Start with initial articles
+    let filteredArticles = [...initialArticles];
 
-        // Parse selected category/subcategory
-        if (selectedCategory !== "all") {
-          if (selectedCategory.startsWith("cat-")) {
-            categoryId = parseInt(selectedCategory.replace("cat-", ""));
-          } else if (selectedCategory.startsWith("sub-")) {
-            subCategoryId = parseInt(selectedCategory.replace("sub-", ""));
-            // When filtering by subcategory, we don't need to pass category_id
-            // The API will handle it based on sub_category_id
-          }
-        }
-
-        // Fetch posts with filters
-        const posts = await getPosts({
-          category_id: categoryId,
-          sub_category_id: subCategoryId,
-          limit: 50,
-        });
-
-        // Transform to articles
-        let transformedArticles = transformPostsToArticles(posts);
-
-        // Apply search filter
-        if (searchQuery.trim()) {
-          const query = searchQuery.toLowerCase();
-          transformedArticles = transformedArticles.filter(
-            (article) =>
-              article.title.toLowerCase().includes(query) ||
-              article.description.toLowerCase().includes(query)
-          );
-        }
-
-        // Apply sorting
-        switch (sortBy) {
-          case "name-asc":
-            transformedArticles.sort((a, b) => a.title.localeCompare(b.title));
-            break;
-          case "name-desc":
-            transformedArticles.sort((a, b) => b.title.localeCompare(a.title));
-            break;
-          case "recent":
-            transformedArticles.sort(
-              (a, b) =>
-                new Date(b.date).getTime() - new Date(a.date).getTime()
-            );
-            break;
-          case "popular":
-            transformedArticles.sort((a, b) => b.views - a.views);
-            break;
-        }
-
-        setArticles(transformedArticles);
-      } catch (error) {
-        console.error("Failed to fetch posts:", error);
-        setArticles([]);
-      } finally {
-        setLoading(false);
-      }
+    // Apply search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filteredArticles = filteredArticles.filter(
+        (article) =>
+          article.title.toLowerCase().includes(query) ||
+          article.description.toLowerCase().includes(query)
+      );
     }
 
-    fetchPosts();
-  }, [selectedCategory, searchQuery, sortBy]);
+    // Apply sorting
+    switch (sortBy) {
+      case "name-asc":
+        filteredArticles.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case "name-desc":
+        filteredArticles.sort((a, b) => b.title.localeCompare(a.title));
+        break;
+      case "recent":
+        filteredArticles.sort(
+          (a, b) =>
+            new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+        break;
+      case "popular":
+        filteredArticles.sort((a, b) => b.views - a.views);
+        break;
+    }
+
+    setArticles(filteredArticles);
+  }, [initialArticles, searchQuery, sortBy]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -100,19 +63,15 @@ const ArchiveWrapper = () => {
       <ArticleSearch
         setViewMode={setViewMode}
         viewMode={viewMode}
-        selectedCategory={selectedCategory}
-        setSelectedCategory={setSelectedCategory}
+        selectedCategory="all"
+        setSelectedCategory={() => { }} // No-op since articles are pre-filtered
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
         sortBy={sortBy}
         setSortBy={setSortBy}
       />
 
-      {loading ? (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">Loading articles...</p>
-        </div>
-      ) : articles.length === 0 ? (
+      {articles.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground">No articles found.</p>
         </div>

@@ -26,7 +26,7 @@ import { getCategories } from "@/lib/api";
 import type { ApiCategory } from "@/types/blog.type";
 
 // Icon mapping for categories
-const iconMap: Record<string, any> = {
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   cloud: Cloud,
   shield: Shield,
   cpu: Cpu,
