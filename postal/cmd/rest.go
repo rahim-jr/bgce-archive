@@ -65,7 +65,11 @@ func runRESTServer(cmd *cobra.Command, args []string) error {
 
 	// Create server
 	log.Println("🔄 Creating HTTP server...")
-	mux := rest.NewServeMux(mw, h)
+	mux, err := rest.NewServeMux(mw, h)
+	if err != nil {
+		log.Printf("❌ Failed to create server: %v", err)
+		return fmt.Errorf("failed to create server: %w", err)
+	}
 
 	// Start server
 	addr := ":" + cfg.HTTPPort

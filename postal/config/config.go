@@ -4,6 +4,11 @@ import (
 	"time"
 )
 
+const (
+	DebugMode   = "debug"
+	ReleaseMode = "release"
+)
+
 type Config struct {
 	Version     string
 	Mode        string
@@ -31,3 +36,10 @@ type Config struct {
 }
 
 var AppConfig *Config
+
+func GetConfig() *Config {
+	if AppConfig == nil {
+		AppConfig = LoadConfig()
+	}
+	return AppConfig
+}
