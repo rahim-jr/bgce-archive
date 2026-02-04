@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { toast } from 'vue-sonner'
 import { userService } from '@/services'
+import { useToast } from '@/composables/useToast'
 import { MESSAGES } from '@/constants/messages'
 import type { User, UpdateUserRequest, ChangePasswordRequest } from '@/types/api'
 
@@ -9,6 +9,7 @@ export const useUserStore = defineStore('user', () => {
     const profile = ref<User | null>(null)
     const loading = ref(false)
     const error = ref<string | null>(null)
+    const toast = useToast()
 
     /**
      * Fetch user profile
@@ -25,9 +26,7 @@ export const useUserStore = defineStore('user', () => {
         } catch (err: any) {
             error.value = err.message || MESSAGES.ERROR.GENERIC
             console.error('Fetch profile error:', err)
-            toast.error('Error', {
-                description: error.value,
-            })
+            toast.error('Error', error.value)
         } finally {
             loading.value = false
         }
@@ -44,16 +43,12 @@ export const useUserStore = defineStore('user', () => {
 
             if (response.status && response.data) {
                 profile.value = response.data
-                toast.success('Profile Updated', {
-                    description: MESSAGES.SUCCESS.PROFILE_UPDATED,
-                })
+                toast.success('Profile Updated', MESSAGES.SUCCESS.PROFILE_UPDATED)
             }
         } catch (err: any) {
             error.value = err.message || MESSAGES.ERROR.GENERIC
             console.error('Update profile error:', err)
-            toast.error('Update Failed', {
-                description: err.response?.data?.message || MESSAGES.ERROR.GENERIC,
-            })
+            toast.error('Update Failed', err.response?.data?.message || MESSAGES.ERROR.GENERIC)
             throw err
         } finally {
             loading.value = false
@@ -70,16 +65,12 @@ export const useUserStore = defineStore('user', () => {
             const response = await userService.changePassword(data)
 
             if (response.status) {
-                toast.success('Password Changed', {
-                    description: MESSAGES.SUCCESS.PASSWORD_CHANGED,
-                })
+                toast.success('Password Changed', MESSAGES.SUCCESS.PASSWORD_CHANGED)
             }
         } catch (err: any) {
             error.value = err.message || MESSAGES.ERROR.GENERIC
             console.error('Change password error:', err)
-            toast.error('Password Change Failed', {
-                description: err.response?.data?.message || MESSAGES.ERROR.GENERIC,
-            })
+            toast.error('Password Change Failed', err.response?.data?.message || MESSAGES.ERROR.GENERIC)
             throw err
         } finally {
             loading.value = false

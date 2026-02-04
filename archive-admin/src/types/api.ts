@@ -293,6 +293,9 @@ export interface CreateSupportTicketReplyRequest {
 export interface CategoryFilter {
     status?: string
     parent_id?: number
+    page?: number
+    limit?: number
+    search?: string
 }
 
 // Register Request

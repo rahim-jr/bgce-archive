@@ -8,10 +8,11 @@ import type {
 
 export const subcategoryService = {
     /**
-     * Get all subcategories
+     * Get all subcategories or by parent ID
      */
-    async getSubcategories(): Promise<ApiResponse<Subcategory[]>> {
-        const response = await api.get<ApiResponse<Subcategory[]>>('/sub-categories')
+    async getSubcategories(parentId?: number): Promise<ApiResponse<Subcategory[]>> {
+        const params = parentId ? { parent_id: parentId } : undefined
+        const response = await api.get<ApiResponse<Subcategory[]>>('/sub-categories', { params })
         return response.data
     },
 

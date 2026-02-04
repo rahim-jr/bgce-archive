@@ -4,17 +4,7 @@ import { Button } from '@/components/ui/button'
 import { TableCell, TableRow } from '@/components/ui/table'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 import { MoreHorizontal, Edit, Trash2, CheckCircle, XCircle, Eye, Archive, FileText } from 'lucide-vue-next'
-
-interface Post {
-  id: number
-  title: string
-  slug: string
-  category_id: number
-  status: 'draft' | 'published' | 'archived' | 'deleted'
-  created_at: string
-  is_featured?: boolean
-  is_pinned?: boolean
-}
+import type { Post } from '@/types/api'
 
 interface Props {
   post: Post
@@ -37,6 +27,7 @@ const getStatusBadge = (status: string) => {
     published: { class: 'bg-green-100 text-green-700 border-green-200', text: 'Published', icon: CheckCircle },
     archived: { class: 'bg-orange-100 text-orange-700 border-orange-200', text: 'Archived', icon: Archive },
     deleted: { class: 'bg-red-100 text-red-700 border-red-200', text: 'Deleted', icon: XCircle },
+    pending: { class: 'bg-yellow-100 text-yellow-700 border-yellow-200', text: 'Pending', icon: FileText },
   }
   return badges[status as keyof typeof badges] || badges.draft
 }

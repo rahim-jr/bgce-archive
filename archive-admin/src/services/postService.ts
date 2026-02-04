@@ -11,7 +11,17 @@ import type {
 
 export const postService = {
     async getPosts(params?: { status?: string; category_id?: number; sub_category_id?: number; limit?: number; offset?: number }): Promise<PostListResponse> {
-        if (API_CONFIG.USE_MOCK_POSTS) return postMockService.getPosts(params)
+        if (API_CONFIG.USE_MOCK_POSTS) {
+            const mockResponse = await postMockService.getPosts(params)
+            return {
+                ...mockResponse,
+                meta: {
+                    total: mockResponse.data.length,
+                    limit: params?.limit || 10,
+                    offset: params?.offset || 0,
+                }
+            }
+        }
         const response = await postalApi.get<PostListResponse>('/posts', { params })
         return response.data
     },

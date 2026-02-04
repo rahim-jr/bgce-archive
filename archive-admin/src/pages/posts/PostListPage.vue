@@ -22,11 +22,9 @@ const handleEdit = (id: number) => {
 }
 
 const handlePreview = async (id: number) => {
-  // Fetch the post to get its slug
   try {
     const post = await postStore.fetchPostById(id)
     if (post && post.slug) {
-      // Open preview in new tab - adjust URL based on your archive-client URL
       const previewUrl = `http://localhost:3000/archive/post/${post.slug}`
       window.open(previewUrl, '_blank')
     }
@@ -52,7 +50,7 @@ const handlePublish = async (id: number) => {
     title: 'Publish Post',
     message: 'Are you sure you want to publish this post?',
     confirmText: 'Publish',
-    type: 'success',
+    type: 'info',
   })
   if (confirmed) {
     await postStore.publishPost(id)
