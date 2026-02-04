@@ -38,6 +38,30 @@ jobs:
             postal:
               - 'postal/**'
 
+  type-check:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    if: needs.detect-changes.outputs.archive-admin == 'true'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+          cache-dependency-path: archive-admin/yarn.lock
+      
+      - name: Install dependencies
+        working-directory: archive-admin
+        run: yarn install --frozen-lockfile
+      
+      - name: Type check
+        working-directory: archive-admin
+        run: yarn type-check
+        continue-on-error: true  # Don't fail the build, just warn
+
   build-and-push:
     needs: detect-changes
     runs-on: ubuntu-latest
