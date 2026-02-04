@@ -74,21 +74,23 @@ const ArticleList: React.FC<ArticleListProps> = ({ articles }) => {
                       <Avatar className="h-10 w-10 md:h-12 md:w-12 border-2 border-gray-800 dark:border-gray-600">
                         <AvatarImage
                           src={article.author.avatar}
-                          alt={article.author.name}
+                          alt={article.author.name || "Author"}
                         />
                         <AvatarFallback>
-                          {article.author.name.substring(0, 2).toUpperCase()}
+                          {article.author.name
+                            ? article.author.name.substring(0, 2).toUpperCase()
+                            : "AU"}
                         </AvatarFallback>
                       </Avatar>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div
-                        className={`inline-block px-2 py-0.5 ${article.author.badgeColor} text-white text-[10px] font-semibold rounded mb-1`}
+                        className={`inline-block px-2 py-0.5 ${article.author.badgeColor || "bg-gray-500"} text-white text-[10px] font-semibold rounded mb-1`}
                       >
-                        {article.author.badge}
+                        {article.author.badge || "MEMBER"}
                       </div>
                       <div className="text-teal-900 dark:text-teal-300 text-sm font-medium hover:underline cursor-pointer">
-                        {article.author.name}
+                        {article.author.name || "Anonymous"}
                       </div>
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         {article.date}

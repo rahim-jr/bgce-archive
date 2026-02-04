@@ -5,7 +5,12 @@ export function transformPostToArticle(post: ApiPost): Article {
         id: post.id,
         slug: post.slug,
         title: post.title,
-        author: "Archive Team",
+        author: {
+            name: "Archive Team",
+            avatar: "/placeholder.svg",
+            badge: "CONTRIBUTOR",
+            badgeColor: "bg-blue-600",
+        },
         publishedAt: post.published_at
             ? new Date(post.published_at).toLocaleDateString("en-US", {
                 month: "short",
@@ -21,6 +26,7 @@ export function transformPostToArticle(post: ApiPost): Article {
         votes: 0,
         description: post.summary || post.meta_description || "",
         tags: post.keywords ? post.keywords.split(",").map((k) => k.trim()) : [],
+        date: post.published_at || post.created_at,
     };
 }
 

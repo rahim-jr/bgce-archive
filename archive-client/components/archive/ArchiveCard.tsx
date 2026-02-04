@@ -9,7 +9,12 @@ interface ArticleCardProps {
     id: number;
     slug?: string;
     title: string;
-    author: string;
+    author: {
+      name: string;
+      avatar: string;
+      badge: string;
+      badgeColor: string;
+    };
     publishedAt: string;
     views: number;
     votes: number;
@@ -34,17 +39,17 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 mb-2 ">
             {/* Avatar */}
             <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 text-blue-600 dark:text-blue-300 font-semibold text-sm">
-              {article.author.charAt(0)}
+              {article.author.name.charAt(0)}
             </div>
 
             {/* Name and badge */}
             <div className="flex flex-col leading-tight">
               <div className="flex items-center gap-2">
                 <span className="text-teal-900 dark:text-teal-300 font-medium hover:underline cursor-pointer">
-                  {article.author}
+                  {article.author.name}
                 </span>
-                <Badge className="bg-[#504BAB] dark:bg-purple-700 text-white text-[10px] font-semibold">
-                  EXPERT
+                <Badge className={`${article.author.badgeColor} text-white text-[10px] font-semibold`}>
+                  {article.author.badge}
                 </Badge>
               </div>
               <span className="text-xs text-gray-600 dark:text-gray-400">

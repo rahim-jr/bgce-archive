@@ -13,13 +13,18 @@ export interface Article {
   id: number; // Needed for key in lists
   slug?: string; // Add slug for linking
   title: string;
-  author: string; // New field
+  author: {
+    name: string;
+    avatar: string;
+    badge: string;
+    badgeColor: string;
+  };
   publishedAt: string; // New field
   views: number; // New field
   votes: number; // New field
   description: string;
   tags: string[]; // New field
-  date: Date;
+  date: string;
 }
 
 // API Response Types
