@@ -58,48 +58,33 @@ jobs:
       should-build: ${{ needs.detect-changes.outputs[matrix.service] == 'true' || github.ref_type == 'tag' }}
     secrets: inherit
 
-  # ============================================================================
-  # DEPLOYMENT: Uncomment when infrastructure repository is ready
-  # ============================================================================
-  # update-deployment:
-  #   needs: [detect-changes, build-and-push]
-  #   if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
-  #   strategy:
-  #     matrix:
-  #       service: [archive-admin, archive-client, cortex, postal]
-  #   uses: ./.github/workflows/update-k8s.yml
-  #   with:
-  #     service: ${{ matrix.service }}
-  #     should-update: ${{ needs.detect-changes.outputs[matrix.service] == 'true' }}
-  #   secrets: inherit
-  # ============================================================================
-
-  # Temporary deployment status message (remove when uncommenting above)
+  # Trigger infrastructure deployment after successful builds
   update-deployment:
     needs: [detect-changes, build-and-push]
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/master'
+    if: success() && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [archive-admin, archive-client, cortex, postal]
     
     steps:
-      - name: Deployment Status
-        if: needs.detect-changes.outputs[matrix.service] == 'true'
+      - name: 🚀 Trigger Infrastructure Deployment
         run: |
-          echo "## 🚀 Deployment Status" >> $GITHUB_STEP_SUMMARY
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.INFRA_REPO_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/nesohq/nesohq-infra/dispatches \
+            -d '{"event_type":"deploy-bgce-archive"}'
+      
+      - name: 📝 Deployment Summary
+        run: |
+          echo "## 🚀 Deployment Triggered" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Service:** ${{ matrix.service }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Status:** ⏳ Pending Infrastructure Setup" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ✅ Infrastructure deployment triggered" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** nesohq/nesohq-infra" >> $GITHUB_STEP_SUMMARY
+          echo "**Event:** deploy-bgce-archive" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📋 **Next Steps:**" >> $GITHUB_STEP_SUMMARY
-          echo "- Infrastructure repository setup is in progress" >> $GITHUB_STEP_SUMMARY
-          echo "- Kubernetes deployment automation will be enabled once infra repo is ready" >> $GITHUB_STEP_SUMMARY
-          echo "- Manual deployment may be required at this time" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 **Image Ready:**" >> $GITHUB_STEP_SUMMARY
+          echo "**Built Images:**" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "ghcr.io/nesohq/bgce-archive/${{ matrix.service }}:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/nesohq/bgce-archive/archive-admin:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/nesohq/bgce-archive/archive-client:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/nesohq/bgce-archive/cortex:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/nesohq/bgce-archive/postal:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "💡 Once the infrastructure repository is ready, automatic K8s deployment will be enabled." >> $GITHUB_STEP_SUMMARY
