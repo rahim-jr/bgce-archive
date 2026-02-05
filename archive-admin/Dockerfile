@@ -18,6 +18,9 @@ RUN yarn build-only
 # Production stage
 FROM nginx:alpine
 
+# Copy custom nginx config for SPA
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Copy built assets from builder
 COPY --from=builder /app/dist /usr/share/nginx/html
 
