@@ -1,48 +1,104 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { FolderTree, FileText, MessageSquare, HeadphonesIcon, TrendingUp, Clock, CheckCircle2, AlertCircle } from 'lucide-vue-next'
+import { FolderTree, FileText, MessageSquare, HeadphonesIcon, TrendingUp, Clock, Loader2 } from 'lucide-vue-next'
 import { useCategoryStore } from '@/stores/category'
 import { usePostStore } from '@/stores/post'
 import { useCommentStore } from '@/stores/comment'
 import { useSupportStore } from '@/stores/support'
+import { statsService } from '@/services/statsService'
 
 const categoryStore = useCategoryStore()
 const postStore = usePostStore()
 const commentStore = useCommentStore()
 const supportStore = useSupportStore()
 
+const loading = ref(true)
 const stats = ref({
   categories: 0,
+  subcategories: 0,
   posts: 0,
-  pendingPosts: 0,
   publishedPosts: 0,
+  draftPosts: 0,
+  archivedPosts: 0,
   pendingComments: 0,
   openTickets: 0,
 })
 
-const recentActivity = ref([
-  { type: 'post', action: 'published', title: 'Getting Started with Vue 3', time: '2 hours ago' },
-  { type: 'comment', action: 'approved', title: 'Comment on "Understanding TypeScript"', time: '3 hours ago' },
-  { type: 'ticket', action: 'resolved', title: 'Support ticket #1234', time: '5 hours ago' },
-  { type: 'post', action: 'pending', title: 'New post awaiting review', time: '6 hours ago' },
-])
+const recentActivity = computed(() => {
+  const activities: any[] = []
+  
+  // Add recent posts
+  const recentPosts = postStore.posts.slice(0, 2)
+  recentPosts.forEach(post => {
+    activities.push({
+      type: 'post',
+      action: post.status,
+      title: post.title,
+      time: getRelativeTime(post.updated_at || post.created_at),
+    })
+  })
+  
+  // Add recent comments (if available)
+  const recentComments = commentStore.comments.slice(0, 1)
+  recentComments.forEach(comment => {
+    activities.push({
+      type: 'comment',
+      action: comment.status,
+      title: `Comment on "${comment.post_title || 'a post'}"`,
+      time: getRelativeTime(comment.created_at),
+    })
+  })
+  
+  // Add recent tickets (if available)
+  const recentTickets = supportStore.tickets.slice(0, 1)
+  recentTickets.forEach(ticket => {
+    activities.push({
+      type: 'ticket',
+      action: ticket.status,
+      title: `Support ticket #${ticket.id}`,
+      time: getRelativeTime(ticket.created_at),
+    })
+  })
+  
+  return activities.length > 0 ? activities : [
+    { type: 'post', action: 'published', title: 'No recent activity', time: 'Start creating content!' },
+  ]
+})
+
+const getRelativeTime = (dateString: string) => {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+  
+  if (diffMins < 1) return 'Just now'
+  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
+  return date.toLocaleDateString()
+}
 
 onMounted(async () => {
-  await Promise.all([
-    categoryStore.fetchCategories(),
-    postStore.fetchPosts(),
-    commentStore.fetchComments({ status: 'pending' }),
-    supportStore.fetchTickets({ status: 'open' }),
-  ])
+  loading.value = true
+  try {
+    // Fetch all data in parallel
+    await Promise.all([
+      categoryStore.fetchCategories(),
+      postStore.fetchPosts(),
+      commentStore.fetchComments({ status: 'pending' }),
+      supportStore.fetchTickets({ status: 'open' }),
+    ])
 
-  stats.value = {
-    categories: categoryStore.categories.length,
-    posts: postStore.posts.length,
-    pendingPosts: postStore.posts.filter(p => p.status === 'pending').length,
-    publishedPosts: postStore.posts.filter(p => p.status === 'published').length,
-    pendingComments: commentStore.comments.length,
-    openTickets: supportStore.tickets.length,
+    // Get comprehensive stats
+    const dashboardStats = await statsService.getDashboardStats()
+    stats.value = dashboardStats
+  } catch (error) {
+    console.error('Failed to load dashboard data:', error)
+  } finally {
+    loading.value = false
   }
 })
 
@@ -81,19 +137,32 @@ const getActivityColor = (action: string) => {
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div v-if="loading" class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <Card v-for="i in 4" :key="i" class="animate-pulse">
+        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+          <div class="h-4 w-24 bg-muted rounded"></div>
+          <div class="h-10 w-10 rounded-full bg-muted"></div>
+        </CardHeader>
+        <CardContent>
+          <div class="h-8 w-16 bg-muted rounded"></div>
+          <div class="h-3 w-32 bg-muted rounded mt-2"></div>
+        </CardContent>
+      </Card>
+    </div>
+
+    <div v-else class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       <!-- Total Posts -->
       <Card class="border-l-4 border-l-blue-500 hover:shadow-lg transition-shadow">
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle class="text-sm font-medium text-muted-foreground">Total Posts</CardTitle>
-          <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-            <FileText class="h-5 w-5 text-blue-600" />
+          <div class="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+            <FileText class="h-5 w-5 text-blue-600 dark:text-blue-400" />
           </div>
         </CardHeader>
         <CardContent>
           <div class="text-3xl font-bold">{{ stats.posts }}</div>
           <div class="flex items-center gap-2 mt-2">
-            <span class="text-xs text-green-600 font-medium flex items-center gap-1">
+            <span class="text-xs text-green-600 dark:text-green-400 font-medium flex items-center gap-1">
               <TrendingUp class="h-3 w-3" />
               {{ stats.publishedPosts }} published
             </span>
@@ -101,45 +170,45 @@ const getActivityColor = (action: string) => {
         </CardContent>
       </Card>
 
-      <!-- Pending Review -->
+      <!-- Categories -->
+      <Card class="border-l-4 border-l-green-500 hover:shadow-lg transition-shadow">
+        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle class="text-sm font-medium text-muted-foreground">Categories</CardTitle>
+          <div class="h-10 w-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+            <FolderTree class="h-5 w-5 text-green-600 dark:text-green-400" />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div class="text-3xl font-bold">{{ stats.categories }}</div>
+          <p class="text-xs text-muted-foreground mt-2">{{ stats.subcategories }} subcategories</p>
+        </CardContent>
+      </Card>
+
+      <!-- Draft Posts -->
       <Card class="border-l-4 border-l-yellow-500 hover:shadow-lg transition-shadow">
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium text-muted-foreground">Pending Review</CardTitle>
-          <div class="h-10 w-10 rounded-full bg-yellow-100 flex items-center justify-center">
-            <Clock class="h-5 w-5 text-yellow-600" />
+          <CardTitle class="text-sm font-medium text-muted-foreground">Draft Posts</CardTitle>
+          <div class="h-10 w-10 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center">
+            <Clock class="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
           </div>
         </CardHeader>
         <CardContent>
-          <div class="text-3xl font-bold">{{ stats.pendingPosts }}</div>
-          <p class="text-xs text-muted-foreground mt-2">Posts awaiting approval</p>
+          <div class="text-3xl font-bold">{{ stats.draftPosts }}</div>
+          <p class="text-xs text-muted-foreground mt-2">Work in progress</p>
         </CardContent>
       </Card>
 
-      <!-- Comments -->
+      <!-- Archived Posts -->
       <Card class="border-l-4 border-l-purple-500 hover:shadow-lg transition-shadow">
         <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium text-muted-foreground">Comments</CardTitle>
-          <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
-            <MessageSquare class="h-5 w-5 text-purple-600" />
+          <CardTitle class="text-sm font-medium text-muted-foreground">Archived</CardTitle>
+          <div class="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+            <FileText class="h-5 w-5 text-purple-600 dark:text-purple-400" />
           </div>
         </CardHeader>
         <CardContent>
-          <div class="text-3xl font-bold">{{ stats.pendingComments }}</div>
-          <p class="text-xs text-muted-foreground mt-2">Pending moderation</p>
-        </CardContent>
-      </Card>
-
-      <!-- Support Tickets -->
-      <Card class="border-l-4 border-l-red-500 hover:shadow-lg transition-shadow">
-        <CardHeader class="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle class="text-sm font-medium text-muted-foreground">Support Tickets</CardTitle>
-          <div class="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
-            <HeadphonesIcon class="h-5 w-5 text-red-600" />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div class="text-3xl font-bold">{{ stats.openTickets }}</div>
-          <p class="text-xs text-muted-foreground mt-2">Open tickets</p>
+          <div class="text-3xl font-bold">{{ stats.archivedPosts }}</div>
+          <p class="text-xs text-muted-foreground mt-2">Archived posts</p>
         </CardContent>
       </Card>
     </div>
