@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ApiPost } from "@/types/blog.type";
-import { Eye, Calendar, User, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 interface ArchiveRightSidebarProps {

@@ -45,7 +45,7 @@ const recentActivity = computed(() => {
     activities.push({
       type: 'comment',
       action: comment.status,
-      title: `Comment on "${comment.post_title || 'a post'}"`,
+      title: `Comment by ${comment.author_name}`,
       time: getRelativeTime(comment.created_at),
     })
   })

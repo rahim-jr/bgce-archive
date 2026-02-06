@@ -2,7 +2,7 @@
 
 import { Navbar } from "@/components/shared/Navbar";
 import Footer from "@/components/shared/Footer";
-import { Terminal, AlertTriangle, ArrowLeft, BookOpen, Search } from "lucide-react";
+import { AlertTriangle, ArrowLeft, BookOpen, Search } from "lucide-react";
 import Link from "next/link";
 
 export default function NotFound() {

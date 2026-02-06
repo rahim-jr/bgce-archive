@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Article } from "@/types/blog.type";
 import Link from "next/link";
-import { ThumbsUp, Eye, Calendar, User } from "lucide-react";
+import { ThumbsUp, Eye, Calendar } from "lucide-react";
 
 interface ArticleListProps {
   articles: Article[];

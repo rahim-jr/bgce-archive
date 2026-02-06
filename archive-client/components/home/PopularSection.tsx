@@ -12,7 +12,6 @@ import {
   Users,
   Clock,
   FolderOpen,
-  Star,
 } from "lucide-react";
 import {
   Table,

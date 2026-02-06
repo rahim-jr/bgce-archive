@@ -136,27 +136,28 @@ const ArticlePage = ({ post }: ArticlePageProps) => {
                       p: ({ node, ...props }) => (
                         <p className="text-muted-foreground leading-7 mb-4" {...props} />
                       ),
-                      a: ({ node, ...props }) => (
+                      a: ({ ...props }) => (
                         <a className="text-primary underline underline-offset-4 hover:text-primary/80 transition-colors font-medium" {...props} />
                       ),
-                      code: ({ node, inline, className, children, ...props }: any) => {
+                      code: ({ ...props }) => {
+                        const { inline, className, children } = props as { inline?: boolean; className?: string; children?: React.ReactNode };
                         if (inline) {
                           return (
-                            <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-primary border border-primary/20" {...props}>
+                            <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-primary border border-primary/20">
                               {children}
                             </code>
                           );
                         }
                         return (
-                          <code className={className} {...props}>
+                          <code className={className}>
                             {children}
                           </code>
                         );
                       },
-                      pre: ({ node, ...props }) => (
+                      pre: ({ ...props }) => (
                         <pre className="bg-muted/50 rounded-lg p-4 overflow-x-auto my-6 border border-border font-mono text-sm" {...props} />
                       ),
-                      blockquote: ({ node, ...props }) => (
+                      blockquote: ({ ...props }) => (
                         <blockquote className="border-l-4 border-primary pl-6 italic text-muted-foreground my-6 py-2 bg-primary/5" {...props} />
                       ),
                       ul: ({ node, ...props }) => (
