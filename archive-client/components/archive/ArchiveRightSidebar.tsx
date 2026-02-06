@@ -32,7 +32,7 @@ export const ArchiveRightSidebar = ({ post }: ArchiveRightSidebarProps) => {
     <div className="space-y-6">
       {/* Tags Section */}
       {tags.length > 0 && (
-        <div>
+        <div className="bg-white dark:bg-gray-900 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
           <h3 className="text-[14px] font-medium text-gray-800 dark:text-gray-200 mb-4">
             Tags
           </h3>
@@ -50,7 +50,7 @@ export const ArchiveRightSidebar = ({ post }: ArchiveRightSidebarProps) => {
       )}
 
       {/* Post Stats */}
-      <div>
+      <div className="bg-white dark:bg-gray-900 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         <h3 className="text-[14px] font-medium text-gray-800 dark:text-gray-200 mb-4">
           Post Information
         </h3>
@@ -77,7 +77,7 @@ export const ArchiveRightSidebar = ({ post }: ArchiveRightSidebarProps) => {
       </div>
 
       {/* Author Section */}
-      <div>
+      <div className="bg-white dark:bg-gray-900 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         <h3 className="text-[14px] font-medium text-gray-800 dark:text-gray-200 mb-4">
           Author
         </h3>
@@ -101,7 +101,7 @@ export const ArchiveRightSidebar = ({ post }: ArchiveRightSidebarProps) => {
       </div>
 
       {/* Share Section */}
-      <div>
+      <div className="bg-white dark:bg-gray-900 p-5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
         <h3 className="text-[14px] font-medium text-gray-800 dark:text-gray-200 mb-4">
           Share
         </h3>

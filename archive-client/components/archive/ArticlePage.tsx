@@ -104,76 +104,74 @@ const ArticlePage = ({ post }: ArticlePageProps) => {
   const htmlContent = markdownToHtml(post.content);
 
   return (
-    <>
-      <div className="mb-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Left Column */}
-          <div className="lg:col-span-8">
-            <div className="">
-              {/* Header */}
-              <div className="py-6 bg-[#EEEEFA] dark:bg-gray-700 px-6 lg:px-10">
-                <h1 className="text-[28px] lg:text-[36px] font-bold text-black dark:text-white leading-tight">
-                  {post.title}
-                </h1>
-                <div className="flex items-center gap-4 text-[14px] text-[#545b64] dark:text-gray-400 mt-3 flex-wrap">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
-                    <span>{publishedDate}</span>
-                  </div>
-                  <span>|</span>
-                  <div className="flex items-center gap-1">
-                    <Eye className="w-4 h-4" />
-                    <span>{post.view_count} views</span>
-                  </div>
-                  {post.is_featured && (
-                    <>
-                      <span>|</span>
-                      <Badge className="bg-yellow-500 text-white">Featured</Badge>
-                    </>
-                  )}
-                  {post.is_pinned && (
-                    <>
-                      <span>|</span>
-                      <Badge className="bg-blue-500 text-white">Pinned</Badge>
-                    </>
-                  )}
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Column */}
+        <div className="lg:col-span-8">
+          <div className="rounded-lg overflow-hidden shadow-sm">
+            {/* Header */}
+            <div className="py-6 bg-[#EEEEFA] dark:bg-gray-700 px-6 lg:px-10">
+              <h1 className="text-[28px] lg:text-[36px] font-bold text-black dark:text-white leading-tight">
+                {post.title}
+              </h1>
+              <div className="flex items-center gap-4 text-[14px] text-[#545b64] dark:text-gray-400 mt-3 flex-wrap">
+                <div className="flex items-center gap-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>{publishedDate}</span>
                 </div>
+                <span>|</span>
+                <div className="flex items-center gap-1">
+                  <Eye className="w-4 h-4" />
+                  <span>{post.view_count} views</span>
+                </div>
+                {post.is_featured && (
+                  <>
+                    <span>|</span>
+                    <Badge className="bg-yellow-500 text-white">Featured</Badge>
+                  </>
+                )}
+                {post.is_pinned && (
+                  <>
+                    <span>|</span>
+                    <Badge className="bg-blue-500 text-white">Pinned</Badge>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Vote Section */}
+            <div className="flex items-start gap-4 bg-white dark:bg-gray-900 p-6 px-6 lg:px-10 border-b border-gray-200 dark:border-gray-700">
+              {/* Left Vote Section */}
+              <div className="flex flex-col items-center justify-start text-gray-500 dark:text-gray-400 space-y-2">
+                <ThumbsUp className="w-5 h-5 cursor-pointer hover:text-green-600 transition-colors" />
+                <span className="text-lg font-semibold text-gray-800 dark:text-white">
+                  0
+                </span>
+                <ThumbsDown className="w-5 h-5 cursor-pointer hover:text-red-600 transition-colors" />
               </div>
 
-              {/* Vote Section */}
-              <div className="flex items-start gap-4 bg-white dark:bg-gray-900 p-6 px-6 lg:px-10 border-b border-gray-200 dark:border-gray-700">
-                {/* Left Vote Section */}
-                <div className="flex flex-col items-center justify-start text-gray-500 dark:text-gray-400 space-y-2">
-                  <ThumbsUp className="w-5 h-5 cursor-pointer hover:text-green-600 transition-colors" />
-                  <span className="text-lg font-semibold text-gray-800 dark:text-white">
-                    0
-                  </span>
-                  <ThumbsDown className="w-5 h-5 cursor-pointer hover:text-red-600 transition-colors" />
-                </div>
+              {/* Right Content Section */}
+              <div className="flex-1">
+                {post.summary && (
+                  <div className="text-gray-700 dark:text-gray-300 leading-relaxed text-[15px] bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-500">
+                    <p className="italic font-medium">{post.summary}</p>
+                  </div>
+                )}
 
-                {/* Right Content Section */}
-                <div className="flex-1">
-                  {post.summary && (
-                    <div className="text-gray-700 dark:text-gray-300 leading-relaxed text-[15px] bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-500">
-                      <p className="italic font-medium">{post.summary}</p>
-                    </div>
-                  )}
-
-                  {/* Tags */}
-                  {tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      {tags.map((tag, i) => (
-                        <Badge
-                          key={i}
-                          variant="outline"
-                          className="text-xs"
-                        >
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {/* Tags */}
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {tags.map((tag, i) => (
+                      <Badge
+                        key={i}
+                        variant="outline"
+                        className="text-xs"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -185,14 +183,16 @@ const ArticlePage = ({ post }: ArticlePageProps) => {
               />
             </div>
           </div>
+        </div>
 
-          {/* Right Sidebar */}
-          <div className="lg:col-span-4 px-4 lg:px-0 lg:mr-10">
+        {/* Right Sidebar - Sticky */}
+        <div className="lg:col-span-4">
+          <div className="lg:sticky lg:top-20">
             <ArchiveRightSidebar post={post} />
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -43,8 +43,8 @@ export function Navbar() {
   const closeSheet = () => setIsOpen(false);
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-background  bg-gradient-to-br from-gray-950 via-gray-950 to-blue-950 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 backdrop-blur border-b">
-      <div className="container  mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="sticky top-0 z-50 w-full bg-background  bg-gradient-to-br from-gray-950 via-gray-950 to-blue-950 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 backdrop-blur border-b" suppressHydrationWarning>
+      <div className="container  mx-auto px-4 sm:px-6 lg:px-8" suppressHydrationWarning>
         <div className="flex items-center h-16 justify-between relative">
           {/* Brand */}
           <Link href="/" className="text-white text-xl font-bold flex-shrink-0">
@@ -60,13 +60,13 @@ export function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center space-x-1 text-sm font-medium transition-all ${
-                    isActive
-                      ? "text-blue-300"
-                      : "text-gray-200 hover:text-white"
-                  }`}
+                  className={`flex items-center space-x-1 text-sm font-medium transition-all ${isActive
+                    ? "text-blue-300"
+                    : "text-gray-200 hover:text-white"
+                    }`}
+                  suppressHydrationWarning
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-4 w-4" suppressHydrationWarning />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -150,11 +150,10 @@ export function Navbar() {
                           key={item.href}
                           href={item.href}
                           onClick={closeSheet}
-                          className={`flex items-center space-x-2 text-sm font-medium py-2 transition-all ${
-                            isActive
-                              ? "text-white underline underline-offset-4"
-                              : "text-gray-200 hover:text-white"
-                          }`}
+                          className={`flex items-center space-x-2 text-sm font-medium py-2 transition-all ${isActive
+                            ? "text-white underline underline-offset-4"
+                            : "text-gray-200 hover:text-white"
+                            }`}
                         >
                           <Icon className="h-4 w-4" />
                           <span>{item.label}</span>

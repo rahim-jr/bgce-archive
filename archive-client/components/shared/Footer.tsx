@@ -3,8 +3,8 @@ import { SocialLinkButton } from "./SocialLinkButton";
 
 export default function Footer() {
   return (
-    <footer className="bg-background border-t bg-gradient-to-br from-gray-950 via-gray-950 to-blue-950">
-      <div className="container mx-auto  py-12">
+    <footer className="bg-background border-t bg-gradient-to-br from-gray-950 via-gray-950 to-blue-950" suppressHydrationWarning>
+      <div className="container mx-auto  py-12" suppressHydrationWarning>
         {/* Newsletter Section */}
         <div className="text-center mb-8 sm:mb-10 lg:mb-12">
           <h2 className="text-xl sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 text-white px-4">
