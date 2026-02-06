@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Bell, Search, Settings, Moon, Sun } from 'lucide-vue-next'
+import { Bell, Search, Settings } from 'lucide-vue-next'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -12,8 +12,8 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
+import ThemeToggle from '@/components/common/ThemeToggle.vue'
 
-const isDark = ref(false)
 const notifications = ref([
   { id: 1, title: 'New comment pending', time: '5 min ago', unread: true },
   { id: 2, title: 'Post published successfully', time: '1 hour ago', unread: true },
@@ -21,11 +21,6 @@ const notifications = ref([
 ])
 
 const unreadCount = ref(notifications.value.filter(n => n.unread).length)
-
-const toggleTheme = () => {
-  isDark.value = !isDark.value
-  // Implement theme toggle logic
-}
 </script>
 
 <template>
@@ -46,15 +41,7 @@ const toggleTheme = () => {
     <!-- Actions -->
     <div class="flex items-center gap-2">
       <!-- Theme Toggle -->
-      <Button 
-        variant="ghost" 
-        size="icon" 
-        class="h-9 w-9 rounded-full"
-        @click="toggleTheme"
-      >
-        <Sun v-if="!isDark" class="h-4 w-4" />
-        <Moon v-else class="h-4 w-4" />
-      </Button>
+      <ThemeToggle />
 
       <!-- Notifications -->
       <DropdownMenu>

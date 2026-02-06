@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Eye, EyeOff, Shield } from "lucide-vue-next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import ThemeToggle from "@/components/common/ThemeToggle.vue";
 
 const authStore = useAuthStore();
 
@@ -42,16 +43,21 @@ const onSubmit = handleSubmit(async values => {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gradient-primary flex items-center justify-center p-4">
+    <div class="min-h-screen bg-background flex items-center justify-center p-4 relative">
+        <!-- Theme Toggle - Top Right -->
+        <div class="absolute top-6 right-6">
+            <ThemeToggle />
+        </div>
+
         <div class="w-full max-w-md">
             <!-- Logo and Brand -->
             <div class="text-center mb-8">
-                <h1 class="text-3xl font-bold text-card-foreground mb-2">Archive Login</h1>
+                <h1 class="text-3xl font-bold text-foreground mb-2">Archive Login</h1>
                 <p class="text-muted-foreground">Secure access to your digital archive</p>
             </div>
 
             <!-- Login Card -->
-            <Card class="shadow-lg border-archive-muted/20 bg-card/95 backdrop-blur-sm">
+            <Card class="shadow-lg border-border bg-card backdrop-blur-sm">
                 <CardHeader class="space-y-1">
                     <CardTitle class="text-2xl font-semibold text-center">Welcome Back</CardTitle>
                     <CardDescription class="text-center">
