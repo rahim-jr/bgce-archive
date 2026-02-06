@@ -2,31 +2,56 @@
 
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
-import { ApiPost } from "@/types/blog.type";
+import { ApiPost, Article } from "@/types/blog.type";
 import { Calendar, Eye, Clock, Star } from "lucide-react";
 
 interface ArticleCardProps {
-  article: ApiPost;
+  article: ApiPost | Article;
 }
 
 const ArticleCard = ({ article }: ArticleCardProps) => {
+  // Type guard to check if it's an ApiPost
+  const isApiPost = (art: ApiPost | Article): art is ApiPost => {
+    return 'content' in art && 'status' in art;
+  };
+
   const postUrl = `/archive/post/${article.slug}`;
 
-  const publishedDate = article.published_at
+  // Handle both Article and ApiPost types
+  const publishedDate = isApiPost(article) && article.published_at
     ? new Date(article.published_at).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year: "numeric",
     })
-    : new Date(article.created_at).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    : isApiPost(article) && article.created_at
+      ? new Date(article.created_at).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+      : 'date' in article
+        ? new Date(article.date).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+        : 'N/A';
 
-  const tags = article.keywords ? article.keywords.split(',').map(k => k.trim()).filter(Boolean) : [];
-  const wordCount = article.content?.split(/\s+/).length || 0;
+  const tags = isApiPost(article) && article.keywords
+    ? article.keywords.split(',').map(k => k.trim()).filter(Boolean)
+    : 'tags' in article
+      ? article.tags
+      : [];
+
+  const content = isApiPost(article) ? article.content : article.description;
+  const wordCount = content?.split(/\s+/).length || 0;
   const readingTime = Math.ceil(wordCount / 200);
+
+  const isFeatured = isApiPost(article) ? article.is_featured : false;
+  const isPinned = isApiPost(article) ? article.is_pinned : false;
+  const summary = isApiPost(article) ? article.summary : article.description;
+  const viewCount = isApiPost(article) ? article.view_count : 'views' in article ? article.views : 0;
 
   return (
     <Link href={postUrl}>
@@ -35,15 +60,15 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
 
         <div className="relative">
           <div className="p-6 space-y-4">
-            {(article.is_featured || article.is_pinned) && (
+            {(isFeatured || isPinned) && (
               <div className="flex flex-wrap gap-2">
-                {article.is_featured && (
+                {isFeatured && (
                   <Badge className="bg-gradient-to-r from-primary/20 to-primary/10 text-primary border-primary/30 font-mono text-[10px] uppercase tracking-[0.2em] px-3 py-1.5 shadow-lg">
                     <Star className="h-3 w-3 mr-1 fill-primary" />
                     Featured
                   </Badge>
                 )}
-                {article.is_pinned && (
+                {isPinned && (
                   <Badge className="bg-gradient-to-r from-primary/20 to-primary/10 text-primary border-primary/30 font-mono text-[10px] uppercase tracking-[0.2em] px-3 py-1.5 shadow-lg">
                     Pinned
                   </Badge>
@@ -55,9 +80,9 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
               {article.title}
             </h3>
 
-            {article.summary && (
+            {summary && (
               <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-                {article.summary}
+                {summary}
               </p>
             )}
 
@@ -105,7 +130,7 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
                   <Eye className="h-3.5 w-3.5 text-primary mx-auto" />
                 </div>
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Views</div>
-                <div className="font-bold mt-1">{article.view_count}</div>
+                <div className="font-bold mt-1">{viewCount}</div>
               </div>
             </div>
           </div>
