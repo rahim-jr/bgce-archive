@@ -1,116 +1,157 @@
+"use client";
+
+import { Navbar } from "@/components/shared/Navbar";
+import Footer from "@/components/shared/Footer";
+import { Terminal, AlertTriangle, ArrowLeft, BookOpen, Search } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Home, Search, FileQuestion } from "lucide-react";
 
 export default function NotFound() {
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 px-4 relative overflow-hidden">
-            <div className="max-w-2xl w-full text-center relative z-10">
-                {/* Animated 404 */}
-                <div className="relative mb-8">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-64 h-64 bg-gradient-to-r from-blue-400 to-indigo-600 rounded-full blur-3xl opacity-20 animate-pulse"></div>
-                    </div>
-                    <div className="relative">
-                        <h1
-                            className="font-black leading-none tracking-tighter"
-                            style={{
-                                fontSize: "clamp(100px, 20vw, 200px)",
-                                background:
-                                    "linear-gradient(to right, rgb(37, 99, 235), rgb(79, 70, 229), rgb(147, 51, 234))",
-                                WebkitBackgroundClip: "text",
-                                WebkitTextFillColor: "transparent",
-                                backgroundClip: "text",
-                            }}
-                        >
-                            404
-                        </h1>
-                    </div>
-                </div>
+        <main className="min-h-screen flex flex-col bg-background">
+            <Navbar />
 
-                {/* Icon */}
-                <div className="flex justify-center mb-6">
-                    <div className="relative">
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full blur-xl opacity-30 animate-pulse"></div>
-                        <div className="relative bg-white dark:bg-gray-800 p-6 rounded-full shadow-xl border border-gray-200 dark:border-gray-700">
-                            <FileQuestion className="w-12 h-12 text-blue-600 dark:text-blue-400" />
+            <section className="relative flex-1 flex items-center justify-center overflow-hidden py-32">
+                {/* Technical Grid Background */}
+                <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:32px_32px]" />
+
+                {/* Glowing Effect */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[140px]" />
+
+                <div className="container px-6 mx-auto relative z-10">
+                    <div className="max-w-3xl mx-auto text-center space-y-12">
+                        {/* Error Badge */}
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-destructive/20 bg-destructive/5 text-[10px] font-mono uppercase tracking-[0.3em] text-destructive mx-auto">
+                            <AlertTriangle className="h-4 w-4 animate-pulse" />
+                            Archive Alert
+                        </div>
+
+                        {/* Error Code Display */}
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-primary/10 rounded-3xl blur-3xl" />
+                            <div className="relative p-12 rounded-[2.5rem] bg-gradient-to-br from-card/60 to-card/40 border-2 border-white/10 backdrop-blur-2xl space-y-6 shadow-2xl">
+                                <div className="flex items-center justify-center gap-4">
+                                    <BookOpen className="h-8 w-8 text-primary" />
+                                    <h1 className="text-8xl md:text-9xl font-bold font-mono tracking-tighter text-primary">
+                                        404
+                                    </h1>
+                                </div>
+
+                                <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+
+                                <div className="space-y-3">
+                                    <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+                                        Article Not Found
+                                    </h2>
+                                    <p className="text-muted-foreground max-w-md mx-auto leading-relaxed">
+                                        The knowledge you&apos;re seeking has drifted beyond our archive.
+                                        This entry doesn&apos;t exist in our vault.
+                                    </p>
+                                </div>
+
+                                {/* Terminal-style error log */}
+                                <div className="p-6 rounded-2xl bg-muted/80 border-2 border-white/10 font-mono text-left max-w-lg mx-auto shadow-lg">
+                                    <div className="space-y-2 text-sm">
+                                        <div className="flex gap-2">
+                                            <span className="text-primary">$</span>
+                                            <span className="text-muted-foreground">
+                                                bgce-archive locate --path=
+                                                <span className="text-destructive">unknown</span>
+                                            </span>
+                                        </div>
+                                        <div className="text-destructive/70 text-xs pl-4">
+                                            ERROR: Article not found in knowledge vault
+                                        </div>
+                                        <div className="text-muted-foreground/50 text-xs pl-4">
+                                            Suggestion: Return to archive index
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                            <Link
+                                href="/"
+                                className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all font-mono uppercase tracking-widest text-xs group shadow-lg hover:shadow-xl hover:-translate-y-1"
+                            >
+                                <ArrowLeft className="h-4 w-4 transition-transform duration-300 ease-in-out group-hover:-translate-x-2" />
+                                Return Home
+                            </Link>
+
+                            <Link
+                                href="/archive"
+                                className="flex items-center gap-2 px-6 py-3 rounded-2xl border-2 border-white/20 bg-card/50 backdrop-blur-md hover:bg-card/70 hover:border-primary/30 transition-all font-mono uppercase tracking-widest text-xs group shadow-lg hover:shadow-xl hover:-translate-y-1"
+                            >
+                                <Search className="h-4 w-4 transition-transform duration-300 ease-in-out group-hover:scale-110" />
+                                Browse Archive
+                            </Link>
+                        </div>
+
+                        {/* Technical Diagnostics */}
+                        <div className="pt-8 border-t border-white/10">
+                            <div className="grid grid-cols-3 gap-6 max-w-2xl mx-auto">
+                                <div className="p-4 rounded-2xl bg-gradient-to-br from-card/60 to-card/40 border-2 border-white/10 shadow-lg">
+                                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">
+                                        Status Code
+                                    </div>
+                                    <div className="text-2xl font-bold text-destructive">404</div>
+                                </div>
+                                <div className="p-4 rounded-2xl bg-gradient-to-br from-card/60 to-card/40 border-2 border-white/10 shadow-lg">
+                                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">
+                                        Error Type
+                                    </div>
+                                    <div className="text-2xl font-bold">Not Found</div>
+                                </div>
+                                <div className="p-4 rounded-2xl bg-gradient-to-br from-card/60 to-card/40 border-2 border-white/10 shadow-lg">
+                                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mb-2">
+                                        Protocol
+                                    </div>
+                                    <div className="text-2xl font-bold text-primary">BGCE-1</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Quick Links */}
+                        <div className="pt-6">
+                            <p className="text-sm text-muted-foreground mb-4 font-mono uppercase tracking-wider">
+                                Quick Navigation
+                            </p>
+                            <div className="flex flex-wrap gap-3 justify-center">
+                                <Link
+                                    href="/archive"
+                                    className="text-sm text-primary hover:text-primary/80 hover:underline transition-colors font-mono"
+                                >
+                                    All Articles
+                                </Link>
+                                <span className="text-muted-foreground">•</span>
+                                <Link
+                                    href="/"
+                                    className="text-sm text-primary hover:text-primary/80 hover:underline transition-colors font-mono"
+                                >
+                                    Popular Posts
+                                </Link>
+                                <span className="text-muted-foreground">•</span>
+                                <Link
+                                    href="/"
+                                    className="text-sm text-primary hover:text-primary/80 hover:underline transition-colors font-mono"
+                                >
+                                    Recent Questions
+                                </Link>
+                                <span className="text-muted-foreground">•</span>
+                                <Link
+                                    href="/knowledge-center"
+                                    className="text-sm text-primary hover:text-primary/80 hover:underline transition-colors font-mono"
+                                >
+                                    Knowledge Center
+                                </Link>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </section>
 
-                {/* Message */}
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-                    Page Not Found
-                </h2>
-                <p className="text-lg text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
-                    Oops! The page you&apos;re looking for seems to have wandered off
-                    into the digital void.
-                </p>
-
-                {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                    <Link href="/">
-                        <Button
-                            size="lg"
-                            className="w-full sm:w-auto text-white shadow-lg hover:shadow-xl transition-all duration-300 group"
-                            style={{
-                                background:
-                                    "linear-gradient(to right, rgb(37, 99, 235), rgb(79, 70, 229))",
-                            }}
-                        >
-                            <Home className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                            Back to Home
-                        </Button>
-                    </Link>
-
-                    <Link href="/archive">
-                        <Button
-                            size="lg"
-                            variant="outline"
-                            className="w-full sm:w-auto border-2 border-gray-300 dark:border-gray-600 hover:border-blue-600 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-gray-800 transition-all duration-300 group"
-                        >
-                            <Search className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-                            Browse Archive
-                        </Button>
-                    </Link>
-                </div>
-
-                {/* Additional Help */}
-                <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                        Looking for something specific?
-                    </p>
-                    <div className="flex flex-wrap gap-3 justify-center">
-                        <Link
-                            href="/archive"
-                            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline transition-colors"
-                        >
-                            All Articles
-                        </Link>
-                        <span className="text-gray-300 dark:text-gray-600">•</span>
-                        <Link
-                            href="/"
-                            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline transition-colors"
-                        >
-                            Popular Posts
-                        </Link>
-                        <span className="text-gray-300 dark:text-gray-600">•</span>
-                        <Link
-                            href="/"
-                            className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline transition-colors"
-                        >
-                            Recent Questions
-                        </Link>
-                    </div>
-                </div>
-            </div>
-
-            {/* Decorative Elements */}
-            <div className="absolute top-10 left-10 w-20 h-20 bg-blue-200 dark:bg-blue-900 rounded-full blur-2xl opacity-30 animate-pulse"></div>
-            <div
-                className="absolute bottom-10 right-10 w-32 h-32 bg-indigo-200 dark:bg-indigo-900 rounded-full blur-3xl opacity-30 animate-pulse"
-                style={{ animationDelay: "1s" }}
-            ></div>
-        </div>
+            <Footer />
+        </main>
     );
 }
