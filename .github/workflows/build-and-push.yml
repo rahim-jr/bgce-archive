@@ -61,7 +61,12 @@ jobs:
   # Trigger infrastructure deployment after successful builds
   update-deployment:
     needs: [detect-changes, build-and-push]
-    if: success() && github.ref == 'refs/heads/master'
+    # Trigger if at least one build succeeded (not cancelled or skipped)
+    if: |
+      always() && 
+      github.ref == 'refs/heads/master' &&
+      needs.build-and-push.result != 'cancelled' &&
+      needs.build-and-push.result != 'skipped'
     runs-on: ubuntu-latest
     
     steps:
@@ -81,6 +86,7 @@ jobs:
           echo "**Repository:** nesohq/nesohq-infra" >> $GITHUB_STEP_SUMMARY
           echo "**Event:** deploy-bgce-archive" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Note:** Deployment triggered even if some builds failed" >> $GITHUB_STEP_SUMMARY
           echo "**Built Images:**" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "ghcr.io/nesohq/bgce-archive/archive-admin:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
