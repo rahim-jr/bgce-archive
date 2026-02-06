@@ -9,7 +9,7 @@ A modern, beautiful admin dashboard for managing the BGCE Archive platform. Buil
 - 🎯 **Modern UI** - Built with Reka UI components and Tailwind CSS v4
 - 📱 **Responsive Design** - Works seamlessly on all devices
 - ♿ **Accessible** - WCAG AA compliant color contrasts
-- 🚀 **Fast** - Powered by Vite and optimized for performance
+- 🚀 **Fast** - Powered by Vite and optimized for performanc e
 
 ## 🎨 Theme System
 

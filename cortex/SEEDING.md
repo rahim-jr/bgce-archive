@@ -2,7 +2,7 @@
 
 ## Overview
 
-The seeding system populates the database with initial users for development and testing purposes.
+The seedin g system populates the database with initial users for development and testing purposes.
 
 ---
 

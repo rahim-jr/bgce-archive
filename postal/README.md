@@ -1,6 +1,6 @@
 # Postal - Archive Posts Microservice
 
-A Content Management Service for structured knowledge posts under categories and subcategories. Admin-driven, clean, and focused on archive-quality content.
+A Content Management Service for structured knowledge posts under categories and subcategories. Admin-driven, clean, and focused on archive-quality content .
 
 ## Status
 

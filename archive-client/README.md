@@ -7,7 +7,7 @@ This is the public-facing frontend for the Archive platform built with Next.js 1
 - Browse categories and subcategories
 - View articles and posts
 - Search functionality
-- Responsive design with dark mode support
+- Responsive design with dark mode suppor t
 - Real-time data from backend API
 
 ## Getting Started
