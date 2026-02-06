@@ -49,59 +49,70 @@ export function Navbar() {
       className={cn(
         "sticky top-0 z-50 w-full transition-all duration-500 border-b",
         scrolled
-          ? "bg-background/80 backdrop-blur-md border-border shadow-sm"
-          : "bg-background border-transparent"
+          ? "bg-background/90 backdrop-blur-xl border-border shadow-lg shadow-primary/5"
+          : "bg-background/50 backdrop-blur-md border-transparent"
       )}
       suppressHydrationWarning
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo with gradient */}
           <Link
             href="/"
-            className="font-semibold text-lg hover:text-primary transition-colors"
+            className="font-bold text-xl bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent hover:from-primary/80 hover:to-primary/40 transition-all duration-300"
           >
             BGCE Archive
           </Link>
 
-          <div className="hidden lg:flex items-center gap-8">
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
+              const Icon = item.icon;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "relative text-sm font-medium tracking-wide transition-all duration-300 uppercase py-2",
+                    "relative flex items-center gap-2 px-4 py-2.5 text-xs font-mono tracking-wider transition-all duration-300 uppercase rounded-xl group",
                     isActive
-                      ? "text-primary font-bold"
-                      : "text-muted-foreground hover:text-primary"
+                      ? "text-primary font-bold bg-primary/10"
+                      : "text-muted-foreground hover:text-primary hover:bg-primary/5"
                   )}
                 >
+                  <Icon className="h-4 w-4" />
                   {item.label}
                   {isActive && (
-                    <span className="absolute bottom-0 left-0 w-full h-[1px] bg-primary animate-in fade-in slide-in-from-left-2" />
+                    <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full animate-in fade-in slide-in-from-left-2" />
                   )}
                 </Link>
               );
             })}
           </div>
 
-          <div className="hidden lg:flex items-center gap-4">
+          {/* Desktop Actions */}
+          <div className="hidden lg:flex items-center gap-3">
             <ModeToggle />
             <Button
               variant="ghost"
               size="sm"
               asChild
-              className="text-sm font-medium"
+              className="text-xs font-mono uppercase tracking-wider rounded-xl hover:bg-primary/10"
             >
-              <Link href="/login">Login</Link>
+              <Link href="/login">
+                <LogIn className="h-4 w-4 mr-2" />
+                Login
+              </Link>
             </Button>
             <Button
               size="sm"
               asChild
-              className="text-sm font-medium"
+              className="text-xs font-mono uppercase tracking-wider rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
             >
-              <Link href="/register">Sign up</Link>
+              <Link href="/register">
+                <UserPlus className="h-4 w-4 mr-2" />
+                Sign up
+              </Link>
             </Button>
           </div>
 

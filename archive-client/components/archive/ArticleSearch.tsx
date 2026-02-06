@@ -68,49 +68,92 @@ export function ArticleSearch({
     fetchData();
   }, []);
 
+  // Get display label for selected category
+  const getSelectedLabel = () => {
+    if (selectedCategory === "all") return "All Categories";
+
+    if (selectedCategory.startsWith("cat-")) {
+      const catId = parseInt(selectedCategory.replace("cat-", ""));
+      const category = categories.find(c => c.id === catId);
+      return category?.label || "Select Category";
+    }
+
+    if (selectedCategory.startsWith("sub-")) {
+      const subId = parseInt(selectedCategory.replace("sub-", ""));
+      for (const category of categories) {
+        const subcategory = category.subcategories.find(s => s.id === subId);
+        if (subcategory) return `└─ ${subcategory.label}`;
+      }
+    }
+
+    return "Select Category";
+  };
+
+  // Get display label for sort
+  const getSortLabel = () => {
+    switch (sortBy) {
+      case "name-asc": return "Name (A-Z)";
+      case "name-desc": return "Name (Z-A)";
+      case "recent": return "Most Recent";
+      case "popular": return "Most Popular";
+      default: return "Sort By";
+    }
+  };
+
   return (
-    <div className="w-full space-y-4 py-6">
-      {/* Filter Badge */}
-      <div className="flex items-center gap-2 mb-4">
-        <Filter className="h-4 w-4 text-primary" />
-        <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">
-          Search & Filter
-        </span>
+    <div className="w-full space-y-6 py-6">
+      {/* Filter Badge with animated gradient */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/30">
+          <Filter className="h-4 w-4 text-primary" />
+        </div>
+        <div>
+          <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary font-bold">
+            Search & Filter
+          </span>
+          <p className="text-xs text-muted-foreground mt-0.5">Refine your results</p>
+        </div>
       </div>
 
       {/* Search and Filters Row */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
-        {/* Search */}
-        <div className="relative flex-1 w-full">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary" />
+        {/* Search with enhanced styling */}
+        <div className="relative flex-1 w-full group">
+          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 p-1.5 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+            <Search className="h-4 w-4 text-primary" />
+          </div>
           <Input
             placeholder="Search articles..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-12 h-12 rounded-full border-white/20 bg-card/50 backdrop-blur-md focus-visible:ring-primary focus-visible:border-primary/50 font-mono shadow-lg"
+            className="pl-14 h-14 rounded-2xl border-white/20 bg-card/50 backdrop-blur-md focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary/50 font-mono shadow-lg hover:shadow-xl transition-all"
           />
         </div>
 
-        {/* Category with Subcategories */}
+        {/* Category with Subcategories - Fixed display */}
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-full lg:w-[250px] h-12 rounded-full border-white/20 bg-card/50 backdrop-blur-md focus:ring-primary focus:border-primary/50 font-mono shadow-lg">
-            <SelectValue placeholder={loading ? "Loading..." : "Select Category"} />
+          <SelectTrigger className="w-full lg:w-[280px] h-14 rounded-2xl border-white/20 bg-card/50 backdrop-blur-md focus:ring-2 focus:ring-primary focus:border-primary/50 font-mono shadow-lg hover:shadow-xl transition-all">
+            <SelectValue>
+              {loading ? "Loading..." : getSelectedLabel()}
+            </SelectValue>
           </SelectTrigger>
-          <SelectContent className="font-mono max-h-[400px] rounded-2xl border-white/20 bg-card/95 backdrop-blur-md shadow-xl">
-            <SelectItem value="all" className="font-bold">All Categories</SelectItem>
+          <SelectContent className="font-mono max-h-[400px] rounded-2xl border-white/20 bg-card/95 backdrop-blur-md shadow-2xl">
+            <SelectItem value="all" className="font-bold text-primary">
+              📚 All Categories
+            </SelectItem>
 
             {!loading && categories.length > 0 ? (
               categories.map((category) => (
                 <SelectGroup key={category.id}>
                   <SelectItem value={`cat-${category.id}`} className="font-semibold">
-                    {category.label}
+                    📁 {category.label}
                   </SelectItem>
 
                   {category.subcategories.length > 0 && category.subcategories.map((subcategory) => (
                     <SelectItem
                       key={subcategory.id}
                       value={`sub-${subcategory.id}`}
-                      className="pl-6 text-muted-foreground"
+                      className="pl-8 text-muted-foreground"
                     >
                       └─ {subcategory.label}
                     </SelectItem>
@@ -125,37 +168,47 @@ export function ArticleSearch({
           </SelectContent>
         </Select>
 
-        {/* Sort */}
+        {/* Sort - Fixed display */}
         <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-full lg:w-[220px] h-12 rounded-full border-white/20 bg-card/50 backdrop-blur-md focus:ring-primary focus:border-primary/50 font-mono shadow-lg">
-            <SelectValue placeholder="Sort" />
+          <SelectTrigger className="w-full lg:w-[240px] h-14 rounded-2xl border-white/20 bg-card/50 backdrop-blur-md focus:ring-2 focus:ring-primary focus:border-primary/50 font-mono shadow-lg hover:shadow-xl transition-all">
+            <SelectValue>
+              {getSortLabel()}
+            </SelectValue>
           </SelectTrigger>
-          <SelectContent className="font-mono rounded-2xl border-white/20 bg-card/95 backdrop-blur-md shadow-xl">
-            <SelectItem value="name-asc">Name (A-Z)</SelectItem>
-            <SelectItem value="name-desc">Name (Z-A)</SelectItem>
-            <SelectItem value="recent">Most Recent</SelectItem>
-            <SelectItem value="popular">Most Popular</SelectItem>
+          <SelectContent className="font-mono rounded-2xl border-white/20 bg-card/95 backdrop-blur-md shadow-2xl">
+            <SelectItem value="name-asc">🔤 Name (A-Z)</SelectItem>
+            <SelectItem value="name-desc">🔤 Name (Z-A)</SelectItem>
+            <SelectItem value="recent">🕐 Most Recent</SelectItem>
+            <SelectItem value="popular">🔥 Most Popular</SelectItem>
           </SelectContent>
         </Select>
 
-        {/* View Toggle */}
-        <div className="flex rounded-full border border-white/20 bg-card/50 backdrop-blur-md overflow-hidden shadow-lg">
+        {/* View Toggle with enhanced styling */}
+        <div className="flex rounded-2xl border-2 border-white/20 bg-card/50 backdrop-blur-md overflow-hidden shadow-lg hover:shadow-xl transition-all">
           <Button
             variant={viewMode === "grid" ? "default" : "ghost"}
             size="sm"
             onClick={() => setViewMode("grid")}
-            className={`h-12 px-6 rounded-none ${viewMode === "grid" ? "bg-primary text-primary-foreground" : "hover:bg-primary/10"}`}
+            className={`h-14 px-6 rounded-none transition-all ${viewMode === "grid"
+                ? "bg-primary text-primary-foreground shadow-lg"
+                : "hover:bg-primary/10"
+              }`}
           >
-            <Grid className="h-4 w-4" />
+            <Grid className="h-5 w-5" />
           </Button>
+
+          <div className="w-px bg-white/20" />
 
           <Button
             variant={viewMode === "list" ? "default" : "ghost"}
             size="sm"
             onClick={() => setViewMode("list")}
-            className={`h-12 px-6 rounded-none ${viewMode === "list" ? "bg-primary text-primary-foreground" : "hover:bg-primary/10"}`}
+            className={`h-14 px-6 rounded-none transition-all ${viewMode === "list"
+                ? "bg-primary text-primary-foreground shadow-lg"
+                : "hover:bg-primary/10"
+              }`}
           >
-            <List className="h-4 w-4" />
+            <List className="h-5 w-5" />
           </Button>
         </div>
       </div>

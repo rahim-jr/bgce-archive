@@ -27,6 +27,8 @@ export function transformPostToArticle(post: ApiPost): Article {
         description: post.summary || post.meta_description || "",
         tags: post.keywords ? post.keywords.split(",").map((k) => k.trim()) : [],
         date: post.published_at || post.created_at,
+        category_id: post.category_id,
+        subcategory_id: post.sub_category_id,
     };
 }
 

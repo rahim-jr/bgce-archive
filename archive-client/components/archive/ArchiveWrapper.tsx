@@ -13,11 +13,27 @@ const ArchiveWrapper = ({ articles: initialArticles }: { articles: Article[] }) 
   const [viewMode, setViewMode] = useState<"list" | "grid">("grid");
   const [articles, setArticles] = useState<Article[]>(initialArticles);
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [sortBy, setSortBy] = useState<string>("recent");
 
   useEffect(() => {
     // Start with initial articles
     let filteredArticles = [...initialArticles];
+
+    // Apply category filter
+    if (selectedCategory !== "all") {
+      if (selectedCategory.startsWith("cat-")) {
+        const catId = parseInt(selectedCategory.replace("cat-", ""));
+        filteredArticles = filteredArticles.filter(
+          (article) => article.category_id === catId
+        );
+      } else if (selectedCategory.startsWith("sub-")) {
+        const subId = parseInt(selectedCategory.replace("sub-", ""));
+        filteredArticles = filteredArticles.filter(
+          (article) => article.subcategory_id === subId
+        );
+      }
+    }
 
     // Apply search filter
     if (searchQuery.trim()) {
@@ -25,7 +41,8 @@ const ArchiveWrapper = ({ articles: initialArticles }: { articles: Article[] }) 
       filteredArticles = filteredArticles.filter(
         (article) =>
           article.title.toLowerCase().includes(query) ||
-          article.description.toLowerCase().includes(query)
+          article.description.toLowerCase().includes(query) ||
+          (article.tags && article.tags.some(tag => tag.toLowerCase().includes(query)))
       );
     }
 
@@ -49,7 +66,7 @@ const ArchiveWrapper = ({ articles: initialArticles }: { articles: Article[] }) 
     }
 
     setArticles(filteredArticles);
-  }, [initialArticles, searchQuery, sortBy]);
+  }, [initialArticles, searchQuery, selectedCategory, sortBy]);
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -63,29 +80,47 @@ const ArchiveWrapper = ({ articles: initialArticles }: { articles: Article[] }) 
         </div>
 
         {/* Hero Section */}
-        <div className="mb-12 space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 text-[10px] font-mono uppercase tracking-[0.3em] text-primary shadow-lg">
-            <Layers className="h-4 w-4" />
+        <div className="mb-16 space-y-8">
+          <div className="inline-flex items-center gap-3 px-5 py-3 rounded-2xl border-2 border-primary/30 bg-gradient-to-r from-primary/10 to-primary/5 text-[10px] font-mono uppercase tracking-[0.3em] text-primary shadow-lg">
+            <div className="p-1.5 rounded-lg bg-primary/20">
+              <Layers className="h-4 w-4" />
+            </div>
             Archive Registry
           </div>
 
-          <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-[1.1]">
-            Knowledge <span className="text-primary italic">Vault</span>
-          </h1>
+          <div className="space-y-4">
+            <h1 className="text-6xl md:text-7xl font-bold tracking-tight leading-[1.1]">
+              Knowledge <span className="text-primary italic bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Vault</span>
+            </h1>
 
-          <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed">
-            Explore our comprehensive collection of articles, tutorials, and resources from the Go community.
-          </p>
+            <p className="text-xl text-muted-foreground max-w-3xl leading-relaxed">
+              Explore our comprehensive collection of articles, tutorials, and resources from the Go community.
+            </p>
+          </div>
 
           {/* Stats */}
-          <div className="flex flex-wrap gap-4 pt-4">
-            <div className="px-6 py-3 rounded-xl bg-muted/80 border border-white/10 shadow-lg">
-              <div className="text-2xl font-bold font-mono text-primary">{initialArticles.length}</div>
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">Total Articles</div>
+          <div className="flex flex-wrap gap-4 pt-6">
+            <div className="px-8 py-4 rounded-2xl bg-gradient-to-br from-card/60 to-card/40 border-2 border-white/10 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-primary/10">
+                  <Code2 className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <div className="text-3xl font-bold font-mono text-primary">{initialArticles.length}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">Total Articles</div>
+                </div>
+              </div>
             </div>
-            <div className="px-6 py-3 rounded-xl bg-muted/80 border border-white/10 shadow-lg">
-              <div className="text-2xl font-bold font-mono text-primary">{articles.length}</div>
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">Filtered</div>
+            <div className="px-8 py-4 rounded-2xl bg-gradient-to-br from-card/60 to-card/40 border-2 border-white/10 shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-primary/10">
+                  <Layers className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <div className="text-3xl font-bold font-mono text-primary">{articles.length}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">Filtered</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -94,8 +129,8 @@ const ArchiveWrapper = ({ articles: initialArticles }: { articles: Article[] }) 
         <ArticleSearch
           setViewMode={setViewMode}
           viewMode={viewMode}
-          selectedCategory="all"
-          setSelectedCategory={() => { }} // No-op since articles are pre-filtered
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           sortBy={sortBy}

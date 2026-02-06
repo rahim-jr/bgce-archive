@@ -25,6 +25,8 @@ export interface Article {
   description: string;
   tags: string[]; // New field
   date: string;
+  category_id?: number; // Add for filtering
+  subcategory_id?: number; // Add for filtering
 }
 
 // API Response Types
