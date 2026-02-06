@@ -8,29 +8,41 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { ChevronRight, House } from "lucide-react";
+import { ChevronRight, Home } from "lucide-react";
 
 export function BlogBreadcrumb() {
   return (
-    <div className="border-b ">
-      <div className="container mx-auto px-4 pb-3">
+    <div className="inline-block">
+      <div className="p-4 rounded-full bg-card/30 border border-white/5 backdrop-blur-md">
         <Breadcrumb>
-          <BreadcrumbList>
+          <BreadcrumbList className="font-mono text-xs">
             <BreadcrumbItem>
-              <House size={20} />
-              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+              <BreadcrumbLink
+                href="/"
+                className="flex items-center gap-2 hover:text-primary transition-colors uppercase tracking-wider"
+              >
+                <Home className="h-3.5 w-3.5" />
+                Home
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator>
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3.5 w-3.5 text-primary" />
             </BreadcrumbSeparator>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Technology</BreadcrumbLink>
+              <BreadcrumbLink
+                href="/archive"
+                className="hover:text-primary transition-colors uppercase tracking-wider"
+              >
+                Archive
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator>
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3.5 w-3.5 text-primary" />
             </BreadcrumbSeparator>
             <BreadcrumbItem>
-              <BreadcrumbPage>Software Development</BreadcrumbPage>
+              <BreadcrumbPage className="text-primary font-bold uppercase tracking-wider">
+                All Articles
+              </BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

@@ -12,7 +12,7 @@ import {
   SelectGroup,
 } from "@/components/ui/select";
 
-import { Search, List, Grid } from "lucide-react";
+import { Search, List, Grid, Filter } from "lucide-react";
 import { getCategories, getSubcategories } from "@/lib/api";
 import type { ApiCategory, ApiSubcategory } from "@/types/blog.type";
 
@@ -47,16 +47,11 @@ export function ArticleSearch({
   useEffect(() => {
     async function fetchData() {
       try {
-        // Fetch categories and subcategories
         const [categoriesData, subcategoriesData] = await Promise.all([
           getCategories(),
           getSubcategories(),
         ]);
 
-        console.log("Categories:", categoriesData);
-        console.log("Subcategories:", subcategoriesData);
-
-        // Build hierarchy: attach subcategories to their parent categories
         const categoriesWithSubs: CategoryWithSubcategories[] = categoriesData.map((cat) => ({
           ...cat,
           subcategories: subcategoriesData.filter((sub) => sub.parent_id === cat.id),
@@ -74,55 +69,48 @@ export function ArticleSearch({
   }, []);
 
   return (
-    <div className="w-full space-y-4 py-4">
+    <div className="w-full space-y-4 py-6">
+      {/* Filter Badge */}
+      <div className="flex items-center gap-2 mb-4">
+        <Filter className="h-4 w-4 text-primary" />
+        <span className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">
+          Search & Filter
+        </span>
+      </div>
+
       {/* Search and Filters Row */}
-      <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
         {/* Search */}
         <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-primary" />
           <Input
             placeholder="Search articles..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="rounded-sm shadow-none  pl-10 w-full h-10 focus-visible:ring-0.1 focus-visible:ring-blue-500 focus-visible:border-blue-500 border border-gray-400 font-medium"
+            className="pl-12 h-12 rounded-full border-white/10 bg-card/30 backdrop-blur-md focus-visible:ring-primary focus-visible:border-primary/50 font-mono"
           />
         </div>
 
         {/* Category with Subcategories */}
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger
-            className="w-full md:w-[200px] lg:w-[300px] !h-10 font-medium
-            border
-            rounded-sm             
-            shadow-none 
-            border-gray-400
-            focus:ring-0.1
-            focus:ring-blue-500
-            focus:border-blue-500
-            focus:outline-none
-            data-[state=open]:ring-0.1
-            data-[state=open]:ring-blue-500
-            data-[state=open]:border-blue-500"
-          >
+          <SelectTrigger className="w-full lg:w-[250px] h-12 rounded-full border-white/10 bg-card/30 backdrop-blur-md focus:ring-primary focus:border-primary/50 font-mono">
             <SelectValue placeholder={loading ? "Loading..." : "Select Category"} />
           </SelectTrigger>
-          <SelectContent className="font-medium max-h-[400px]">
-            <SelectItem value="all">All Categories</SelectItem>
+          <SelectContent className="font-mono max-h-[400px] rounded-2xl border-white/10 bg-card/95 backdrop-blur-md">
+            <SelectItem value="all" className="font-bold">All Categories</SelectItem>
 
             {!loading && categories.length > 0 ? (
               categories.map((category) => (
                 <SelectGroup key={category.id}>
-                  {/* Parent Category */}
                   <SelectItem value={`cat-${category.id}`} className="font-semibold">
                     {category.label}
                   </SelectItem>
 
-                  {/* Subcategories */}
                   {category.subcategories.length > 0 && category.subcategories.map((subcategory) => (
                     <SelectItem
                       key={subcategory.id}
                       value={`sub-${subcategory.id}`}
-                      className="pl-6"
+                      className="pl-6 text-muted-foreground"
                     >
                       └─ {subcategory.label}
                     </SelectItem>
@@ -139,38 +127,24 @@ export function ArticleSearch({
 
         {/* Sort */}
         <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger
-            className="w-full md:w-[200px] lg:w-[300px] !h-10 font-medium
-            border
-            rounded-sm             
-            shadow-none 
-            border-gray-400
-            focus:ring-0.1
-            focus:ring-blue-500
-            focus:border-blue-500
-            focus:outline-none
-            data-[state=open]:ring-0.1
-            data-[state=open]:ring-blue-500
-            data-[state=open]:border-blue-500 rounded-0"
-          >
+          <SelectTrigger className="w-full lg:w-[220px] h-12 rounded-full border-white/10 bg-card/30 backdrop-blur-md focus:ring-primary focus:border-primary/50 font-mono">
             <SelectValue placeholder="Sort" />
           </SelectTrigger>
-
-          <SelectContent className="font-medium">
-            <SelectItem value="name-asc">Sort by name (A-Z)</SelectItem>
-            <SelectItem value="name-desc">Sort by name (Z-A)</SelectItem>
-            <SelectItem value="recent">Sort by most recent</SelectItem>
-            <SelectItem value="popular">Sort by most popular</SelectItem>
+          <SelectContent className="font-mono rounded-2xl border-white/10 bg-card/95 backdrop-blur-md">
+            <SelectItem value="name-asc">Name (A-Z)</SelectItem>
+            <SelectItem value="name-desc">Name (Z-A)</SelectItem>
+            <SelectItem value="recent">Most Recent</SelectItem>
+            <SelectItem value="popular">Most Popular</SelectItem>
           </SelectContent>
         </Select>
 
         {/* View Toggle */}
-        <div className="flex border rounded-lg">
+        <div className="flex rounded-full border border-white/10 bg-card/30 backdrop-blur-md overflow-hidden">
           <Button
             variant={viewMode === "grid" ? "default" : "ghost"}
             size="sm"
             onClick={() => setViewMode("grid")}
-            className="h-9 px-3 cursor-pointer"
+            className={`h-12 px-6 rounded-none ${viewMode === "grid" ? "bg-primary text-primary-foreground" : "hover:bg-primary/10"}`}
           >
             <Grid className="h-4 w-4" />
           </Button>
@@ -179,7 +153,7 @@ export function ArticleSearch({
             variant={viewMode === "list" ? "default" : "ghost"}
             size="sm"
             onClick={() => setViewMode("list")}
-            className="h-9 px-3 cursor-pointer"
+            className={`h-12 px-6 rounded-none ${viewMode === "list" ? "bg-primary text-primary-foreground" : "hover:bg-primary/10"}`}
           >
             <List className="h-4 w-4" />
           </Button>

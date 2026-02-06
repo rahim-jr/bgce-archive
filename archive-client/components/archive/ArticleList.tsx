@@ -1,9 +1,9 @@
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Article } from "@/types/blog.type";
 import Link from "next/link";
+import { ThumbsUp, Eye, Calendar, User } from "lucide-react";
 
 interface ArticleListProps {
   articles: Article[];
@@ -11,97 +11,96 @@ interface ArticleListProps {
 
 const ArticleList: React.FC<ArticleListProps> = ({ articles }) => {
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {articles.map((article) => (
-        <Card
+        <div
           key={article.id}
-          className="w-full hover:shadow-lg dark:hover:shadow-gray-900 dark:bg-gray-800 dark:border-0  transition-shadow duration-200 p-0 rounded-sm"
+          className="rounded-[2rem] bg-card/30 border border-white/5 backdrop-blur-md hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
         >
-          <CardContent className="p-0">
-            <div className="flex flex-col lg:flex-row">
-              {/* Main Content */}
-              <div className="flex-1 p-4 md:p-6">
-                <Link href={`/archive/post/${article.slug}`}>
-                  <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-2 hover:text-blue-900 dark:hover:text-blue-300 cursor-pointer">
-                    {article.title}
-                  </h2>
-                </Link>
-                <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 mb-4">
-                  {article.description}
-                </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="outline" className="text-xs">
-                    ARTICLE
-                  </Badge>
-                  {article.tags.map((tag, index) => (
-                    <Badge
-                      key={index}
-                      variant="outline"
-                      className="text-xs bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
-                    >
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
+          <div className="flex flex-col lg:flex-row">
+            {/* Main Content */}
+            <div className="flex-1 p-8 space-y-4">
+              <Link href={`/archive/post/${article.slug}`}>
+                <h2 className="text-2xl font-bold text-foreground hover:text-primary transition-colors cursor-pointer">
+                  {article.title}
+                </h2>
+              </Link>
 
-              {/* Stats and Author Section */}
-              <div className="bg-[#EEEEFA] dark:bg-gray-700 p-4 md:px-4 md:py-4 lg:w-72 border-t lg:border-t-0 lg:border-l dark:border-gray-600">
-                <div className="flex lg:flex-col gap-1">
-                  {/* Stats */}
-                  <div className="flex lg:flex-row gap-4 lg:gap-6 lg:mb-4 items-center mr-2">
-                    <div className="text-center">
-                      <div className="text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white">
-                        {article.votes}
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
-                        votes
-                      </div>
+              <p className="text-muted-foreground leading-relaxed">
+                {article.description}
+              </p>
+
+              <div className="flex flex-wrap gap-2">
+                <Badge className="bg-primary/10 text-primary border-primary/20 font-mono text-[10px] uppercase tracking-[0.2em]">
+                  Article
+                </Badge>
+                {article.tags.slice(0, 5).map((tag, index) => (
+                  <Badge
+                    key={index}
+                    variant="outline"
+                    className="text-[10px] font-mono uppercase tracking-wider border-white/10 hover:bg-primary/10 hover:border-primary/20 transition-colors"
+                  >
+                    #{tag}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Stats and Author Section */}
+            <div className="bg-gray-300 dark:bg-black/40 p-6 lg:w-80 border-t lg:border-t-0 lg:border-l border-white/5">
+              <div className="flex lg:flex-col gap-6">
+                {/* Stats */}
+                <div className="flex lg:flex-row gap-6 lg:mb-6 items-center">
+                  <div className="text-center">
+                    <ThumbsUp className="h-4 w-4 text-primary mb-1 mx-auto" />
+                    <div className="text-2xl font-bold font-mono text-primary">
+                      {article.votes}
                     </div>
-                    <div className="text-center">
-                      <div className="text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white">
-                        {article.views}
-                      </div>
-                      <div className="text-xs text-gray-600 dark:text-gray-400">
-                        views
-                      </div>
+                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">
+                      Votes
                     </div>
                   </div>
-
-                  {/* Author Info */}
-                  <div className="flex items-center gap-3 flex-1 lg:flex-initial">
-                    <div className="relative">
-                      <Avatar className="h-10 w-10 md:h-12 md:w-12 border-2 border-gray-800 dark:border-gray-600">
-                        <AvatarImage
-                          src={article.author.avatar}
-                          alt={article.author.name || "Author"}
-                        />
-                        <AvatarFallback>
-                          {article.author.name
-                            ? article.author.name.substring(0, 2).toUpperCase()
-                            : "AU"}
-                        </AvatarFallback>
-                      </Avatar>
+                  <div className="text-center">
+                    <Eye className="h-4 w-4 text-primary mb-1 mx-auto" />
+                    <div className="text-2xl font-bold font-mono text-primary">
+                      {article.views}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div
-                        className={`inline-block px-2 py-0.5 ${article.author.badgeColor || "bg-gray-500"} text-white text-[10px] font-semibold rounded mb-1`}
-                      >
-                        {article.author.badge || "MEMBER"}
-                      </div>
-                      <div className="text-teal-900 dark:text-teal-300 text-sm font-medium hover:underline cursor-pointer">
-                        {article.author.name || "Anonymous"}
-                      </div>
-                      <div className="text-xs text-gray-500 dark:text-gray-400">
-                        {article.date}
-                      </div>
+                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">
+                      Views
+                    </div>
+                  </div>
+                </div>
+
+                {/* Author Info */}
+                <div className="flex items-center gap-3 flex-1 lg:flex-initial">
+                  <Avatar className="h-12 w-12 border-2 border-primary/20">
+                    <AvatarImage
+                      src={article.author.avatar}
+                      alt={article.author.name || "Author"}
+                    />
+                    <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                      {article.author.name
+                        ? article.author.name.substring(0, 2).toUpperCase()
+                        : "AU"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className={`inline-block px-3 py-1 ${article.author.badgeColor || "bg-primary"} text-primary-foreground text-[10px] font-mono font-bold rounded-full mb-2 uppercase tracking-wider`}>
+                      {article.author.badge || "Member"}
+                    </div>
+                    <div className="font-bold hover:text-primary transition-colors cursor-pointer">
+                      {article.author.name || "Anonymous"}
+                    </div>
+                    <div className="text-xs text-muted-foreground font-mono flex items-center gap-1 mt-1">
+                      <Calendar className="h-3 w-3" />
+                      {article.date}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ))}
     </div>
   );
