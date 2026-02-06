@@ -7,7 +7,7 @@ type CreatePostRequest struct {
 	Slug            string `json:"slug" validate:"required,min=3,max=500"`
 	Summary         string `json:"summary" validate:"max=1000"`
 	Content         string `json:"content" validate:"required"`
-	Thumbnail       string `json:"thumbnail_url"`
+	Thumbnail       string `json:"thumbnail"`
 	CategoryID      uint   `json:"category_id" validate:"required,min=1"`
 	SubCategoryID   *uint  `json:"sub_category_id"`
 	MetaTitle       string `json:"meta_title" validate:"max=500"`
@@ -24,7 +24,7 @@ type UpdatePostRequest struct {
 	Slug            *string `json:"slug" validate:"omitempty,min=3,max=500"`
 	Summary         *string `json:"summary" validate:"omitempty,max=1000"`
 	Content         *string `json:"content"`
-	Thumbnail       *string `json:"thumbnail_url"`
+	Thumbnail       *string `json:"thumbnail"`
 	CategoryID      *uint   `json:"category_id" validate:"omitempty,min=1"`
 	SubCategoryID   *uint   `json:"sub_category_id"`
 	MetaTitle       *string `json:"meta_title" validate:"omitempty,max=500"`
@@ -57,7 +57,7 @@ type PostResponse struct {
 	Slug            string     `json:"slug"`
 	Summary         string     `json:"summary"`
 	Content         string     `json:"content"`
-	Thumbnail       string     `json:"thumbnail_url,omitempty"`
+	Thumbnail       string     `json:"thumbnail,omitempty"`
 	CategoryID      uint       `json:"category_id"`
 	SubCategoryID   *uint      `json:"sub_category_id,omitempty"`
 	MetaTitle       string     `json:"meta_title,omitempty"`

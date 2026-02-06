@@ -49,6 +49,7 @@ docker-build: ## Build Docker image
 
 docker-up: ## Start all services with docker-compose
 	@echo "$(GREEN)Starting Docker services...$(RESET)"
+	docker compose build --no-cache
 	docker compose up -d
 
 docker-down: ## Stop all services

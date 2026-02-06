@@ -35,7 +35,7 @@ services:
       ENABLE_REDIS_TLS_MODE: "false"
 
       # Postgres DB
-      BGCE_DB_DSN: "postgres://postgres:postgres@postgres:5432/bgce?sslmode=disable"
+      BGCE_DB_DSN: "postgresql://postgres:root@postgres:5432/cortex_db?sslmode=disable"
       BGCE_DB_DRIVER: "postgres"
 
     depends_on:
@@ -52,9 +52,9 @@ services:
     image: postgres:15-alpine
     container_name: bgce-postgres
     environment:
-      POSTGRES_DB: bgce
+      POSTGRES_DB: cortex_db
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: root
     ports:
       - "5432:5432"
     volumes:

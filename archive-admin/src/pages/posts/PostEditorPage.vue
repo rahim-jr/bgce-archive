@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
+import MarkdownEditor from '@/components/posts/MarkdownEditor.vue'
 import { usePostStore } from '@/stores/post'
 import { useCategoryStore } from '@/stores/category'
 import { useSubcategoryStore } from '@/stores/subcategory'
@@ -59,6 +60,7 @@ const filteredSubcategories = computed(() => {
 const handleSubmit = async () => {
   saving.value = true
   try {
+    console.log('Form data before submit:', JSON.stringify(form.value, null, 2))
     if (isEdit.value) {
       await postStore.updatePost(Number(route.params.id), form.value)
     } else {
@@ -145,7 +147,7 @@ onMounted(async () => {
             </div>
             <div>
               <Label>Content *</Label>
-              <Textarea v-model="form.content" rows="15" required />
+              <MarkdownEditor v-model="form.content" />
             </div>
           </CardContent>
         </Card>
