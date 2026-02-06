@@ -10,19 +10,19 @@ import {
 
 export function PaginationDemo() {
   return (
-    <div className="p-4 rounded-[2rem] bg-card/30 border border-white/5 backdrop-blur-md inline-block">
+    <div className="p-4 rounded-[2rem] bg-card/50 border border-white/10 backdrop-blur-md inline-block shadow-lg">
       <Pagination>
         <PaginationContent className="gap-2">
           <PaginationItem>
             <PaginationPrevious
               href="#"
-              className="rounded-full border-white/10 hover:bg-primary/10 hover:border-primary/20 font-mono uppercase tracking-widest text-[10px]"
+              className="rounded-full border-white/20 hover:bg-primary/10 hover:border-primary/30 font-mono uppercase tracking-widest text-[10px]"
             />
           </PaginationItem>
           <PaginationItem>
             <PaginationLink
               href="#"
-              className="rounded-full border-white/10 hover:bg-primary/10 hover:border-primary/20 font-mono w-10 h-10"
+              className="rounded-full border-white/20 hover:bg-primary/10 hover:border-primary/30 font-mono w-10 h-10"
             >
               1
             </PaginationLink>
@@ -39,7 +39,7 @@ export function PaginationDemo() {
           <PaginationItem>
             <PaginationLink
               href="#"
-              className="rounded-full border-white/10 hover:bg-primary/10 hover:border-primary/20 font-mono w-10 h-10"
+              className="rounded-full border-white/20 hover:bg-primary/10 hover:border-primary/30 font-mono w-10 h-10"
             >
               3
             </PaginationLink>
@@ -50,7 +50,7 @@ export function PaginationDemo() {
           <PaginationItem>
             <PaginationNext
               href="#"
-              className="rounded-full border-white/10 hover:bg-primary/10 hover:border-primary/20 font-mono uppercase tracking-widest text-[10px]"
+              className="rounded-full border-white/20 hover:bg-primary/10 hover:border-primary/30 font-mono uppercase tracking-widest text-[10px]"
             />
           </PaginationItem>
         </PaginationContent>

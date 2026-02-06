@@ -33,7 +33,7 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
 
   return (
     <Link href={postUrl}>
-      <div className="h-full rounded-[2rem] bg-card/30 border border-white/5 backdrop-blur-md hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 cursor-pointer group overflow-hidden">
+      <div className="h-full rounded-[2rem] bg-card/50 border border-white/10 backdrop-blur-md hover:border-primary/30 hover:-translate-y-1 transition-all duration-300 cursor-pointer group overflow-hidden shadow-lg">
         {/* Header */}
         <div className="p-6 space-y-4">
           {/* Badges */}
@@ -88,7 +88,7 @@ const ArticleCard = ({ article }: ArticleCardProps) => {
         </div>
 
         {/* Footer Stats */}
-        <div className="px-6 py-4 bg-gray-300 dark:bg-black/40 border-t border-white/5">
+        <div className="px-6 py-4 bg-muted/80 border-t border-white/10">
           <div className="grid grid-cols-3 gap-4 text-xs font-mono">
             <div className="text-center">
               <Calendar className="h-3.5 w-3.5 text-primary mb-1 mx-auto" />

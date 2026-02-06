@@ -134,7 +134,7 @@ export default function PopularSection() {
                 return (
                   <div
                     key={category.id}
-                    className="p-6 rounded-[1.5rem] bg-card/30 border border-white/5 backdrop-blur-md hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+                    className="p-6 rounded-[1.5rem] bg-card/50 border border-white/10 backdrop-blur-md hover:border-primary/30 hover:-translate-y-1 transition-all duration-300 cursor-pointer group shadow-lg"
                   >
                     <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
                       {/* Left: Icon + Title */}
@@ -192,9 +192,9 @@ export default function PopularSection() {
             </p>
           </div>
 
-          <div className="rounded-[1.5rem] bg-card/30 border border-white/5 backdrop-blur-md overflow-hidden">
+          <div className="rounded-[1.5rem] bg-card/50 border border-white/10 backdrop-blur-md overflow-hidden shadow-lg">
             <Table className="w-full text-sm">
-              <TableHeader className="bg-gray-300 dark:bg-black/40 border-b border-white/5">
+              <TableHeader className="bg-muted/80 border-b border-white/10">
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="p-4 font-bold text-center text-foreground uppercase tracking-widest text-[10px]">
                     Rank
@@ -212,7 +212,7 @@ export default function PopularSection() {
                 {contributors.map((contributor) => (
                   <TableRow
                     key={contributor.rank}
-                    className="border-b last:border-0 border-white/5 hover:bg-primary/5 transition-colors"
+                    className="border-b last:border-0 border-white/10 hover:bg-primary/5 transition-colors"
                   >
                     <TableCell className="p-4 font-medium text-center">
                       {contributor.rank <= 3 ? (

@@ -87,16 +87,16 @@ export function ArticleSearch({
             placeholder="Search articles..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-12 h-12 rounded-full border-white/10 bg-card/30 backdrop-blur-md focus-visible:ring-primary focus-visible:border-primary/50 font-mono"
+            className="pl-12 h-12 rounded-full border-white/20 bg-card/50 backdrop-blur-md focus-visible:ring-primary focus-visible:border-primary/50 font-mono shadow-lg"
           />
         </div>
 
         {/* Category with Subcategories */}
         <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-full lg:w-[250px] h-12 rounded-full border-white/10 bg-card/30 backdrop-blur-md focus:ring-primary focus:border-primary/50 font-mono">
+          <SelectTrigger className="w-full lg:w-[250px] h-12 rounded-full border-white/20 bg-card/50 backdrop-blur-md focus:ring-primary focus:border-primary/50 font-mono shadow-lg">
             <SelectValue placeholder={loading ? "Loading..." : "Select Category"} />
           </SelectTrigger>
-          <SelectContent className="font-mono max-h-[400px] rounded-2xl border-white/10 bg-card/95 backdrop-blur-md">
+          <SelectContent className="font-mono max-h-[400px] rounded-2xl border-white/20 bg-card/95 backdrop-blur-md shadow-xl">
             <SelectItem value="all" className="font-bold">All Categories</SelectItem>
 
             {!loading && categories.length > 0 ? (
@@ -127,10 +127,10 @@ export function ArticleSearch({
 
         {/* Sort */}
         <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-full lg:w-[220px] h-12 rounded-full border-white/10 bg-card/30 backdrop-blur-md focus:ring-primary focus:border-primary/50 font-mono">
+          <SelectTrigger className="w-full lg:w-[220px] h-12 rounded-full border-white/20 bg-card/50 backdrop-blur-md focus:ring-primary focus:border-primary/50 font-mono shadow-lg">
             <SelectValue placeholder="Sort" />
           </SelectTrigger>
-          <SelectContent className="font-mono rounded-2xl border-white/10 bg-card/95 backdrop-blur-md">
+          <SelectContent className="font-mono rounded-2xl border-white/20 bg-card/95 backdrop-blur-md shadow-xl">
             <SelectItem value="name-asc">Name (A-Z)</SelectItem>
             <SelectItem value="name-desc">Name (Z-A)</SelectItem>
             <SelectItem value="recent">Most Recent</SelectItem>
@@ -139,7 +139,7 @@ export function ArticleSearch({
         </Select>
 
         {/* View Toggle */}
-        <div className="flex rounded-full border border-white/10 bg-card/30 backdrop-blur-md overflow-hidden">
+        <div className="flex rounded-full border border-white/20 bg-card/50 backdrop-blur-md overflow-hidden shadow-lg">
           <Button
             variant={viewMode === "grid" ? "default" : "ghost"}
             size="sm"

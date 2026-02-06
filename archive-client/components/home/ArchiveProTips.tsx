@@ -35,7 +35,7 @@ const ArchiveProTips = () => {
         {tips.map((tip) => (
           <div
             key={tip.title}
-            className="p-6 rounded-[2rem] bg-card/30 border border-white/5 backdrop-blur-md hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+            className="p-6 rounded-[2rem] bg-card/50 border border-white/10 backdrop-blur-md hover:border-primary/30 hover:-translate-y-1 transition-all duration-300 cursor-pointer group shadow-lg"
           >
             <div className="flex items-start gap-4">
               <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors flex-shrink-0">

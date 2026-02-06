@@ -42,7 +42,7 @@ const ArticlePage = ({ post }: ArticlePageProps) => {
             {/* Main Content */}
             <article className="lg:col-span-8 animate-fade-in space-y-8">
               {/* Header Card */}
-              <div className="p-8 rounded-[2rem] bg-card/30 border border-white/5 backdrop-blur-md space-y-6">
+              <div className="p-8 rounded-[2rem] bg-card/50 border border-white/10 backdrop-blur-md space-y-6 shadow-lg">
                 {/* Badges */}
                 {(post.is_featured || post.is_pinned) && (
                   <div className="flex flex-wrap gap-2">
@@ -65,23 +65,23 @@ const ArticlePage = ({ post }: ArticlePageProps) => {
                 </h1>
 
                 {/* Meta Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/5">
-                  <div className="p-3 rounded-xl bg-gray-300 dark:bg-black/40 border border-white/5 text-center">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/10">
+                  <div className="p-3 rounded-xl bg-muted/80 border border-white/10 text-center shadow-lg">
                     <Calendar className="w-4 h-4 text-primary mb-1 mx-auto" />
                     <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Published</div>
                     <div className="text-xs font-bold mt-1">{publishedDate}</div>
                   </div>
-                  <div className="p-3 rounded-xl bg-gray-300 dark:bg-black/40 border border-white/5 text-center">
+                  <div className="p-3 rounded-xl bg-muted/80 border border-white/10 text-center shadow-lg">
                     <Clock className="w-4 h-4 text-primary mb-1 mx-auto" />
                     <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Read Time</div>
                     <div className="text-xs font-bold mt-1">{readingTime} min</div>
                   </div>
-                  <div className="p-3 rounded-xl bg-gray-300 dark:bg-black/40 border border-white/5 text-center">
+                  <div className="p-3 rounded-xl bg-muted/80 border border-white/10 text-center shadow-lg">
                     <Eye className="w-4 h-4 text-primary mb-1 mx-auto" />
                     <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Views</div>
                     <div className="text-xs font-bold mt-1">{post.view_count}</div>
                   </div>
-                  <div className="p-3 rounded-xl bg-gray-300 dark:bg-black/40 border border-white/5 text-center">
+                  <div className="p-3 rounded-xl bg-muted/80 border border-white/10 text-center shadow-lg">
                     <Code2 className="w-4 h-4 text-primary mb-1 mx-auto" />
                     <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Version</div>
                     <div className="text-xs font-bold mt-1">v{post.version}</div>
@@ -91,7 +91,7 @@ const ArticlePage = ({ post }: ArticlePageProps) => {
 
               {/* Summary */}
               {post.summary && (
-                <div className="p-6 bg-primary/5 rounded-[1.5rem] border border-primary/20 border-l-4 border-l-primary backdrop-blur-sm">
+                <div className="p-6 bg-primary/10 rounded-[1.5rem] border border-primary/30 border-l-4 border-l-primary backdrop-blur-sm shadow-lg">
                   <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary mb-3">Summary</div>
                   <p className="text-lg leading-relaxed text-muted-foreground">
                     {post.summary}
@@ -115,7 +115,7 @@ const ArticlePage = ({ post }: ArticlePageProps) => {
               )}
 
               {/* Markdown Content */}
-              <div className="p-8 rounded-[2rem] bg-card/30 border border-white/5 backdrop-blur-md">
+              <div className="p-8 rounded-[2rem] bg-card/50 border border-white/10 backdrop-blur-md shadow-lg">
                 <div className="prose prose-lg dark:prose-invert max-w-none">
                   <ReactMarkdown
                     remarkPlugins={[remarkGfm]}
@@ -199,23 +199,23 @@ const ArticlePage = ({ post }: ArticlePageProps) => {
               </div>
 
               {/* Actions */}
-              <div className="p-6 rounded-[2rem] bg-card/30 border border-white/5 backdrop-blur-md">
+              <div className="p-6 rounded-[2rem] bg-card/50 border border-white/10 backdrop-blur-md shadow-lg">
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div className="flex items-center gap-2">
-                    <button className="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-mono uppercase tracking-widest rounded-full border border-white/10 hover:bg-primary/10 hover:border-primary/20 transition-all">
+                    <button className="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-mono uppercase tracking-widest rounded-full border border-white/20 hover:bg-primary/10 hover:border-primary/30 transition-all shadow-lg">
                       <ThumbsUp className="w-4 h-4" />
                       <span>Helpful</span>
                     </button>
-                    <button className="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-mono uppercase tracking-widest rounded-full border border-white/10 hover:bg-primary/10 hover:border-primary/20 transition-all">
+                    <button className="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-mono uppercase tracking-widest rounded-full border border-white/20 hover:bg-primary/10 hover:border-primary/30 transition-all shadow-lg">
                       <ThumbsDown className="w-4 h-4" />
                     </button>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button className="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-mono uppercase tracking-widest rounded-full border border-white/10 hover:bg-primary/10 hover:border-primary/20 transition-all">
+                    <button className="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-mono uppercase tracking-widest rounded-full border border-white/20 hover:bg-primary/10 hover:border-primary/30 transition-all shadow-lg">
                       <Bookmark className="w-4 h-4" />
                       <span className="hidden sm:inline">Save</span>
                     </button>
-                    <button className="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-mono uppercase tracking-widest rounded-full border border-white/10 hover:bg-primary/10 hover:border-primary/20 transition-all">
+                    <button className="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-mono uppercase tracking-widest rounded-full border border-white/20 hover:bg-primary/10 hover:border-primary/30 transition-all shadow-lg">
                       <Share2 className="w-4 h-4" />
                       <span className="hidden sm:inline">Share</span>
                     </button>

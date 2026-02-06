@@ -56,7 +56,7 @@ export default function RecentQuestions() {
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 bg-gray-300 dark:bg-black/40 border-t border-white/5">
+            <div className="px-6 py-4 bg-muted/80 border-t border-white/10">
               <div className="flex items-center justify-between text-xs font-mono">
                 {/* Stats */}
                 <div className="flex items-center gap-4 text-muted-foreground">

@@ -78,15 +78,15 @@ export default function HeroSection() {
 
         {/* Stats Grid */}
         <div className="mt-16 grid grid-cols-3 gap-4 max-w-2xl mx-auto">
-          <div className="p-4 rounded-xl bg-gray-300 dark:bg-black/40 border border-white/5 text-center">
+          <div className="p-4 rounded-xl bg-muted/80 border border-white/10 text-center shadow-lg">
             <div className="text-2xl font-bold font-mono">12k+</div>
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">Members</div>
           </div>
-          <div className="p-4 rounded-xl bg-gray-300 dark:bg-black/40 border border-white/5 text-center">
+          <div className="p-4 rounded-xl bg-muted/80 border border-white/10 text-center shadow-lg">
             <div className="text-2xl font-bold font-mono">840+</div>
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">Articles</div>
           </div>
-          <div className="p-4 rounded-xl bg-gray-300 dark:bg-black/40 border border-white/5 text-center">
+          <div className="p-4 rounded-xl bg-muted/80 border border-white/10 text-center shadow-lg">
             <div className="text-2xl font-bold font-mono">2026</div>
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">Est. Year</div>
           </div>

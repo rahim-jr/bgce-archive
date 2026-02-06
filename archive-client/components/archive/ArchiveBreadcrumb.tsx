@@ -13,7 +13,7 @@ import { ChevronRight, Home } from "lucide-react";
 export function BlogBreadcrumb() {
   return (
     <div className="inline-block">
-      <div className="p-4 rounded-full bg-card/30 border border-white/5 backdrop-blur-md">
+      <div className="p-4 rounded-full bg-card/50 border border-white/10 backdrop-blur-md shadow-lg">
         <Breadcrumb>
           <BreadcrumbList className="font-mono text-xs">
             <BreadcrumbItem>

@@ -7,5 +7,6 @@
     "gopls": {
         "formatting.gofumpt": true
     },
-    "makefile.configureOnOpen": false
+    "makefile.configureOnOpen": false,
+    "typescript.autoClosingTags": false
 }

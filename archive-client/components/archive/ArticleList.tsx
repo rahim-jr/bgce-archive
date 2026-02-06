@@ -15,7 +15,7 @@ const ArticleList: React.FC<ArticleListProps> = ({ articles }) => {
       {articles.map((article) => (
         <div
           key={article.id}
-          className="rounded-[2rem] bg-card/30 border border-white/5 backdrop-blur-md hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+          className="rounded-[2rem] bg-card/50 border border-white/10 backdrop-blur-md hover:border-primary/30 hover:-translate-y-1 transition-all duration-300 overflow-hidden shadow-lg"
         >
           <div className="flex flex-col lg:flex-row">
             {/* Main Content */}
@@ -47,7 +47,7 @@ const ArticleList: React.FC<ArticleListProps> = ({ articles }) => {
             </div>
 
             {/* Stats and Author Section */}
-            <div className="bg-gray-300 dark:bg-black/40 p-6 lg:w-80 border-t lg:border-t-0 lg:border-l border-white/5">
+            <div className="bg-muted/80 p-6 lg:w-80 border-t lg:border-t-0 lg:border-l border-white/10">
               <div className="flex lg:flex-col gap-6">
                 {/* Stats */}
                 <div className="flex lg:flex-row gap-6 lg:mb-6 items-center">

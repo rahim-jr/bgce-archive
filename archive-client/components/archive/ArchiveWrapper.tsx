@@ -64,7 +64,7 @@ const ArchiveWrapper = ({ articles: initialArticles }: { articles: Article[] }) 
 
         {/* Hero Section */}
         <div className="mb-12 space-y-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-[10px] font-mono uppercase tracking-[0.3em] text-primary">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/10 text-[10px] font-mono uppercase tracking-[0.3em] text-primary shadow-lg">
             <Layers className="h-4 w-4" />
             Archive Registry
           </div>
@@ -79,11 +79,11 @@ const ArchiveWrapper = ({ articles: initialArticles }: { articles: Article[] }) 
 
           {/* Stats */}
           <div className="flex flex-wrap gap-4 pt-4">
-            <div className="px-6 py-3 rounded-xl bg-gray-300 dark:bg-black/40 border border-white/5">
+            <div className="px-6 py-3 rounded-xl bg-muted/80 border border-white/10 shadow-lg">
               <div className="text-2xl font-bold font-mono text-primary">{initialArticles.length}</div>
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">Total Articles</div>
             </div>
-            <div className="px-6 py-3 rounded-xl bg-gray-300 dark:bg-black/40 border border-white/5">
+            <div className="px-6 py-3 rounded-xl bg-muted/80 border border-white/10 shadow-lg">
               <div className="text-2xl font-bold font-mono text-primary">{articles.length}</div>
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">Filtered</div>
             </div>
@@ -104,7 +104,7 @@ const ArchiveWrapper = ({ articles: initialArticles }: { articles: Article[] }) 
 
         {articles.length === 0 ? (
           <div className="text-center py-24">
-            <div className="p-12 rounded-[2rem] bg-card/30 border border-white/5 backdrop-blur-md inline-block">
+            <div className="p-12 rounded-[2rem] bg-card/50 border border-white/10 backdrop-blur-md inline-block shadow-lg">
               <Code2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <p className="text-lg text-muted-foreground font-mono">No articles found.</p>
               <p className="text-sm text-muted-foreground mt-2">Try adjusting your search or filters</p>
