@@ -1,13 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useTheme } from "next-themes";
 import {
   Menu,
-  Sun,
-  Moon,
   Home,
   LogIn,
   UserPlus,
@@ -16,132 +13,121 @@ import {
   Users,
   LifeBuoy,
   Folder,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ModeToggle } from "./ModeToggle";
+import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
 
-  const toggleTheme = () => setTheme(theme === "light" ? "dark" : "light");
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const navItems = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/knowledge-center", label: "Knowledge Center", icon: BookOpen },
     { href: "/archive", label: "Archive", icon: Newspaper },
+    { href: "/knowledge-center", label: "Knowledge", icon: BookOpen },
     { href: "/topics", label: "Topics", icon: Folder },
-    { href: "/community-groups", label: "Community Groups", icon: Users },
-    {
-      href: "/nesohq-support",
-      label: "nesoHQ Support Official",
-      icon: LifeBuoy,
-    },
+    { href: "/community-groups", label: "Community", icon: Users },
+    { href: "/nesohq-support", label: "Support", icon: LifeBuoy },
   ];
 
   const closeSheet = () => setIsOpen(false);
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-background  bg-gradient-to-br from-gray-950 via-gray-950 to-blue-950 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 backdrop-blur border-b" suppressHydrationWarning>
-      <div className="container  mx-auto px-4 sm:px-6 lg:px-8" suppressHydrationWarning>
-        <div className="flex items-center h-16 justify-between relative">
-          {/* Brand */}
-          <Link href="/" className="text-white text-xl font-bold flex-shrink-0">
+    <nav
+      className={cn(
+        "sticky top-0 z-50 w-full transition-all duration-500 border-b",
+        scrolled
+          ? "bg-background/80 backdrop-blur-md border-border shadow-sm"
+          : "bg-background border-transparent"
+      )}
+      suppressHydrationWarning
+    >
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <Link
+            href="/"
+            className="font-semibold text-lg hover:text-primary transition-colors"
+          >
             BGCE Archive
           </Link>
 
-          {/* Centered Nav Links (Desktop only) */}
-          <div className="hidden lg:flex flex-1 justify-center space-x-6">
+          <div className="hidden lg:flex items-center gap-8">
             {navItems.map((item) => {
-              const Icon = item.icon;
               const isActive = pathname === item.href;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center space-x-1 text-sm font-medium transition-all ${isActive
-                    ? "text-blue-300"
-                    : "text-gray-200 hover:text-white"
-                    }`}
-                  suppressHydrationWarning
+                  className={cn(
+                    "relative text-sm font-medium tracking-wide transition-all duration-300 uppercase py-2",
+                    isActive
+                      ? "text-primary font-bold"
+                      : "text-muted-foreground hover:text-primary"
+                  )}
                 >
-                  <Icon className="h-4 w-4" suppressHydrationWarning />
-                  <span>{item.label}</span>
+                  {item.label}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 w-full h-[1px] bg-primary animate-in fade-in slide-in-from-left-2" />
+                  )}
                 </Link>
               );
             })}
           </div>
 
-          {/* Right-side Buttons (Desktop) */}
-          <div className="hidden lg:flex items-center space-x-3 flex-shrink-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="h-9 w-9 text-white hover:bg-white/20"
-            >
-              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            </Button>
-
+          <div className="hidden lg:flex items-center gap-4">
+            <ModeToggle />
             <Button
               variant="ghost"
               size="sm"
               asChild
-              className="border border-white text-white rounded-sm hover:bg-white hover:text-indigo-600 transition-colors duration-300"
+              className="text-sm font-medium"
             >
-              <Link href="/login" className="flex items-center space-x-1">
-                <LogIn className="h-4 w-4" />
-                <span>Login</span>
-              </Link>
+              <Link href="/login">Login</Link>
             </Button>
-
             <Button
               size="sm"
               asChild
-              className="rounded-sm bg-white text-indigo-600 hover:bg-gray-100 transition-all"
+              className="text-sm font-medium"
             >
-              <Link href="/register" className="flex items-center space-x-1">
-                <UserPlus className="h-4 w-4" />
-                <span>Register</span>
-              </Link>
+              <Link href="/register">Sign up</Link>
             </Button>
           </div>
 
-          {/* Mobile + Tablet Menu */}
-          <div className="flex lg:hidden items-center space-x-2">
-            {/* Theme Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="h-9 w-9 text-white"
-            >
-              <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-              <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            </Button>
-
-            {/* Hamburger */}
+          <div className="flex lg:hidden items-center gap-4">
+            <ModeToggle />
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 text-white"
-                >
+                <Button variant="ghost" size="icon" className="rounded-md">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent
-                side="right"
-                className="w-[300px] sm:w-[400px] bg-gradient-to-br from-indigo-700 via-purple-700 to-pink-600 text-white"
-              >
-                <div className="flex flex-col space-y-8 pt-6">
-                  <div className="border-b border-white/30 pb-4 px-4 text-lg font-semibold">
-                    BGCE Archive
+              <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+                <div className="flex flex-col h-full">
+                  <div className="flex items-center justify-between pb-6 border-b">
+                    <span className="font-semibold text-lg">Menu</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={closeSheet}
+                      className="rounded-md"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <div className="flex flex-col space-y-4 px-4">
+
+                  <div className="flex-1 py-6 space-y-1">
                     {navItems.map((item) => {
                       const Icon = item.icon;
                       const isActive = pathname === item.href;
@@ -150,10 +136,12 @@ export function Navbar() {
                           key={item.href}
                           href={item.href}
                           onClick={closeSheet}
-                          className={`flex items-center space-x-2 text-sm font-medium py-2 transition-all ${isActive
-                            ? "text-white underline underline-offset-4"
-                            : "text-gray-200 hover:text-white"
-                            }`}
+                          className={cn(
+                            "flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                            isActive
+                              ? "bg-muted text-foreground"
+                              : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                          )}
                         >
                           <Icon className="h-4 w-4" />
                           <span>{item.label}</span>
@@ -161,32 +149,20 @@ export function Navbar() {
                       );
                     })}
                   </div>
-                  <div className="flex flex-col space-y-3 pt-4">
+
+                  <div className="pt-6 border-t space-y-2">
                     <Button
                       variant="outline"
                       asChild
-                      className="bg-transparent border border-white text-white hover:bg-white hover:text-indigo-600"
+                      className="w-full justify-center"
                     >
-                      <Link
-                        href="/login"
-                        onClick={closeSheet}
-                        className="flex items-center space-x-2"
-                      >
-                        <LogIn className="h-4 w-4" />
-                        <span>Login</span>
+                      <Link href="/login" onClick={closeSheet}>
+                        Login
                       </Link>
                     </Button>
-                    <Button
-                      asChild
-                      className="bg-white text-indigo-600 hover:bg-gray-100"
-                    >
-                      <Link
-                        href="/register"
-                        onClick={closeSheet}
-                        className="flex items-center space-x-2"
-                      >
-                        <UserPlus className="h-4 w-4" />
-                        <span>Register</span>
+                    <Button asChild className="w-full justify-center">
+                      <Link href="/register" onClick={closeSheet}>
+                        Sign up
                       </Link>
                     </Button>
                   </div>

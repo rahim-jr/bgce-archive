@@ -1,91 +1,16 @@
 import React from "react";
-import { ThumbsUp, ThumbsDown, Calendar, Eye } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Calendar, Eye, Clock, Share2, Bookmark, Code2 } from "lucide-react";
 import { ArchiveRightSidebar } from "./ArchiveRightSidebar";
 import { ApiPost } from "@/types/blog.type";
 import { Badge } from "@/components/ui/badge";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import rehypeRaw from 'rehype-raw';
 
 interface ArticlePageProps {
   post: ApiPost;
 }
-
-// Enhanced markdown to HTML converter
-const markdownToHtml = (markdown: string): string => {
-  if (!markdown) return '';
-
-  let html = markdown;
-
-  // Code blocks (must be before inline code)
-  html = html.replace(/```(\w+)?\n([\s\S]+?)```/g, (match, lang, code) => {
-    return `<pre class="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-4 border border-gray-700"><code class="language-${lang || 'text'}">${code.trim()}</code></pre>`;
-  });
-
-  // Inline code
-  html = html.replace(/`([^`]+)`/g, '<code class="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm font-mono text-red-600 dark:text-red-400">$1</code>');
-
-  // Headers
-  html = html.replace(/^### (.+)$/gm, '<h3 class="text-xl font-bold mt-6 mb-3 text-gray-900 dark:text-white">$1</h3>');
-  html = html.replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold mt-8 mb-4 text-gray-900 dark:text-white border-b border-gray-200 dark:border-gray-700 pb-2">$1</h2>');
-  html = html.replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold mt-10 mb-5 text-gray-900 dark:text-white">$1</h1>');
-
-  // Bold and italic
-  html = html.replace(/\*\*\*(.+?)\*\*\*/g, '<strong class="font-bold"><em class="italic">$1</em></strong>');
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-gray-900 dark:text-white">$1</strong>');
-  html = html.replace(/\*(.+?)\*/g, '<em class="italic">$1</em>');
-
-  // Links
-  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">$1</a>');
-
-  // Images
-  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" class="rounded-lg my-4 max-w-full shadow-md" />');
-
-  // Tables
-  html = html.replace(/\|(.+)\|/g, (match) => {
-    const cells = match.split('|').filter(cell => cell.trim());
-    const isHeader = match.includes('---');
-
-    if (isHeader) return '';
-
-    const cellTags = cells.map(cell =>
-      `<td class="border border-gray-300 dark:border-gray-600 px-4 py-2">${cell.trim()}</td>`
-    ).join('');
-
-    return `<tr>${cellTags}</tr>`;
-  });
-
-  html = html.replace(/(<tr>[\s\S]+?<\/tr>)/g, '<table class="min-w-full border-collapse my-4">$1</table>');
-
-  // Unordered lists
-  html = html.replace(/^\* (.+)$/gm, '<li class="ml-6 mb-2 list-disc">$1</li>');
-  html = html.replace(/^- (.+)$/gm, '<li class="ml-6 mb-2 list-disc">$1</li>');
-
-  // Ordered lists
-  html = html.replace(/^\d+\. (.+)$/gm, '<li class="ml-6 mb-2 list-decimal">$1</li>');
-
-  // Wrap consecutive list items
-  html = html.replace(/(<li[\s\S]+?<\/li>)/g, (match) => {
-    if (!match.includes('<ul>') && !match.includes('<ol>')) {
-      return `<ul class="my-4">${match}</ul>`;
-    }
-    return match;
-  });
-
-  // Blockquotes
-  html = html.replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-blue-500 pl-4 italic my-4 text-gray-700 dark:text-gray-300 bg-blue-50 dark:bg-blue-900/20 py-2">$1</blockquote>');
-
-  // Horizontal rules
-  html = html.replace(/^---$/gm, '<hr class="my-6 border-gray-300 dark:border-gray-600" />');
-
-  // Paragraphs (split by double newlines)
-  const paragraphs = html.split('\n\n');
-  html = paragraphs.map(p => {
-    p = p.trim();
-    // Don't wrap if already wrapped in HTML tags
-    if (p.startsWith('<') || p === '') return p;
-    return `<p class="mb-4 leading-relaxed text-gray-700 dark:text-gray-300">${p.replace(/\n/g, '<br />')}</p>`;
-  }).join('\n');
-
-  return html;
-};
 
 const ArticlePage = ({ post }: ArticlePageProps) => {
   const publishedDate = post.published_at
@@ -101,94 +26,210 @@ const ArticlePage = ({ post }: ArticlePageProps) => {
     });
 
   const tags = post.keywords ? post.keywords.split(',').map(k => k.trim()).filter(Boolean) : [];
-  const htmlContent = markdownToHtml(post.content);
+
+  // Calculate reading time
+  const wordCount = post.content.split(/\s+/).length;
+  const readingTime = Math.ceil(wordCount / 200);
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column */}
-        <div className="lg:col-span-8">
-          <div className="rounded-lg overflow-hidden shadow-sm">
-            {/* Header */}
-            <div className="py-6 bg-[#EEEEFA] dark:bg-gray-700 px-6 lg:px-10">
-              <h1 className="text-[28px] lg:text-[36px] font-bold text-black dark:text-white leading-tight">
-                {post.title}
-              </h1>
-              <div className="flex items-center gap-4 text-[14px] text-[#545b64] dark:text-gray-400 mt-3 flex-wrap">
-                <div className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>{publishedDate}</span>
-                </div>
-                <span>|</span>
-                <div className="flex items-center gap-1">
-                  <Eye className="w-4 h-4" />
-                  <span>{post.view_count} views</span>
-                </div>
-                {post.is_featured && (
-                  <>
-                    <span>|</span>
-                    <Badge className="bg-yellow-500 text-white">Featured</Badge>
-                  </>
-                )}
-                {post.is_pinned && (
-                  <>
-                    <span>|</span>
-                    <Badge className="bg-blue-500 text-white">Pinned</Badge>
-                  </>
-                )}
-              </div>
-            </div>
+    <div className="min-h-screen bg-background relative">
+      {/* Technical Grid Background */}
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
 
-            {/* Vote Section */}
-            <div className="flex items-start gap-4 bg-white dark:bg-gray-900 p-6 px-6 lg:px-10 border-b border-gray-200 dark:border-gray-700">
-              {/* Left Vote Section */}
-              <div className="flex flex-col items-center justify-start text-gray-500 dark:text-gray-400 space-y-2">
-                <ThumbsUp className="w-5 h-5 cursor-pointer hover:text-green-600 transition-colors" />
-                <span className="text-lg font-semibold text-gray-800 dark:text-white">
-                  0
-                </span>
-                <ThumbsDown className="w-5 h-5 cursor-pointer hover:text-red-600 transition-colors" />
-              </div>
-
-              {/* Right Content Section */}
-              <div className="flex-1">
-                {post.summary && (
-                  <div className="text-gray-700 dark:text-gray-300 leading-relaxed text-[15px] bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border-l-4 border-blue-500">
-                    <p className="italic font-medium">{post.summary}</p>
-                  </div>
-                )}
-
-                {/* Tags */}
-                {tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    {tags.map((tag, i) => (
-                      <Badge
-                        key={i}
-                        variant="outline"
-                        className="text-xs"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+        <div className="max-w-[1200px] mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
             {/* Main Content */}
-            <div className="w-full px-6 lg:px-10 py-8 bg-white dark:bg-gray-900">
-              <div
-                className="prose prose-lg dark:prose-invert max-w-none"
-                dangerouslySetInnerHTML={{ __html: htmlContent }}
-              />
-            </div>
-          </div>
-        </div>
+            <article className="lg:col-span-8 animate-fade-in space-y-8">
+              {/* Header Card */}
+              <div className="p-8 rounded-[2rem] bg-card/30 border border-white/5 backdrop-blur-md space-y-6">
+                {/* Badges */}
+                {(post.is_featured || post.is_pinned) && (
+                  <div className="flex flex-wrap gap-2">
+                    {post.is_featured && (
+                      <Badge className="bg-primary/10 text-primary border-primary/20 font-mono text-[10px] uppercase tracking-[0.2em] px-3 py-1">
+                        Featured
+                      </Badge>
+                    )}
+                    {post.is_pinned && (
+                      <Badge className="bg-primary/10 text-primary border-primary/20 font-mono text-[10px] uppercase tracking-[0.2em] px-3 py-1">
+                        Pinned
+                      </Badge>
+                    )}
+                  </div>
+                )}
 
-        {/* Right Sidebar - Sticky */}
-        <div className="lg:col-span-4">
-          <div className="lg:sticky lg:top-20">
-            <ArchiveRightSidebar post={post} />
+                {/* Title */}
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
+                  {post.title}
+                </h1>
+
+                {/* Meta Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-white/5">
+                  <div className="p-3 rounded-xl bg-gray-300 dark:bg-black/40 border border-white/5 text-center">
+                    <Calendar className="w-4 h-4 text-primary mb-1 mx-auto" />
+                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Published</div>
+                    <div className="text-xs font-bold mt-1">{publishedDate}</div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-gray-300 dark:bg-black/40 border border-white/5 text-center">
+                    <Clock className="w-4 h-4 text-primary mb-1 mx-auto" />
+                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Read Time</div>
+                    <div className="text-xs font-bold mt-1">{readingTime} min</div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-gray-300 dark:bg-black/40 border border-white/5 text-center">
+                    <Eye className="w-4 h-4 text-primary mb-1 mx-auto" />
+                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Views</div>
+                    <div className="text-xs font-bold mt-1">{post.view_count}</div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-gray-300 dark:bg-black/40 border border-white/5 text-center">
+                    <Code2 className="w-4 h-4 text-primary mb-1 mx-auto" />
+                    <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Version</div>
+                    <div className="text-xs font-bold mt-1">v{post.version}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Summary */}
+              {post.summary && (
+                <div className="p-6 bg-primary/5 rounded-[1.5rem] border border-primary/20 border-l-4 border-l-primary backdrop-blur-sm">
+                  <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-primary mb-3">Summary</div>
+                  <p className="text-lg leading-relaxed text-muted-foreground">
+                    {post.summary}
+                  </p>
+                </div>
+              )}
+
+              {/* Tags */}
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag, i) => (
+                    <Badge
+                      key={i}
+                      variant="outline"
+                      className="text-[10px] font-mono hover:bg-primary/10 hover:border-primary/30 transition-colors cursor-pointer uppercase tracking-wider px-3 py-1 rounded-full"
+                    >
+                      #{tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* Markdown Content */}
+              <div className="p-8 rounded-[2rem] bg-card/30 border border-white/5 backdrop-blur-md">
+                <div className="prose prose-lg dark:prose-invert max-w-none">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    rehypePlugins={[rehypeHighlight, rehypeRaw]}
+                    components={{
+                      h1: ({ node, ...props }) => (
+                        <h1 className="text-4xl font-bold tracking-tight mt-8 mb-4 text-foreground" {...props} />
+                      ),
+                      h2: ({ node, ...props }) => (
+                        <h2 className="text-3xl font-bold tracking-tight mt-8 mb-4 text-foreground border-b border-border pb-2" {...props} />
+                      ),
+                      h3: ({ node, ...props }) => (
+                        <h3 className="text-2xl font-semibold tracking-tight mt-6 mb-3 text-foreground" {...props} />
+                      ),
+                      h4: ({ node, ...props }) => (
+                        <h4 className="text-xl font-semibold tracking-tight mt-6 mb-3 text-foreground" {...props} />
+                      ),
+                      p: ({ node, ...props }) => (
+                        <p className="text-muted-foreground leading-7 mb-4" {...props} />
+                      ),
+                      a: ({ node, ...props }) => (
+                        <a className="text-primary underline underline-offset-4 hover:text-primary/80 transition-colors font-medium" {...props} />
+                      ),
+                      code: ({ node, inline, className, children, ...props }: any) => {
+                        if (inline) {
+                          return (
+                            <code className="bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-primary border border-primary/20" {...props}>
+                              {children}
+                            </code>
+                          );
+                        }
+                        return (
+                          <code className={className} {...props}>
+                            {children}
+                          </code>
+                        );
+                      },
+                      pre: ({ node, ...props }) => (
+                        <pre className="bg-muted/50 rounded-lg p-4 overflow-x-auto my-6 border border-border font-mono text-sm" {...props} />
+                      ),
+                      blockquote: ({ node, ...props }) => (
+                        <blockquote className="border-l-4 border-primary pl-6 italic text-muted-foreground my-6 py-2 bg-primary/5" {...props} />
+                      ),
+                      ul: ({ node, ...props }) => (
+                        <ul className="my-6 ml-6 space-y-2 list-disc" {...props} />
+                      ),
+                      ol: ({ node, ...props }) => (
+                        <ol className="my-6 ml-6 space-y-2 list-decimal" {...props} />
+                      ),
+                      li: ({ node, ...props }) => (
+                        <li className="text-muted-foreground" {...props} />
+                      ),
+                      table: ({ node, ...props }) => (
+                        <div className="my-6 overflow-x-auto">
+                          <table className="w-full border-collapse border border-border rounded-lg overflow-hidden" {...props} />
+                        </div>
+                      ),
+                      thead: ({ node, ...props }) => (
+                        <thead className="bg-muted" {...props} />
+                      ),
+                      th: ({ node, ...props }) => (
+                        <th className="border border-border px-4 py-3 text-left font-semibold text-sm" {...props} />
+                      ),
+                      td: ({ node, ...props }) => (
+                        <td className="border border-border px-4 py-3 text-sm text-muted-foreground" {...props} />
+                      ),
+                      img: ({ node, ...props }) => (
+                        <img className="rounded-lg my-6 border border-border" {...props} />
+                      ),
+                      hr: ({ node, ...props }) => (
+                        <hr className="my-8 border-border" {...props} />
+                      ),
+                      strong: ({ node, ...props }) => (
+                        <strong className="font-semibold text-foreground" {...props} />
+                      ),
+                    }}
+                  >
+                    {post.content}
+                  </ReactMarkdown>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="p-6 rounded-[2rem] bg-card/30 border border-white/5 backdrop-blur-md">
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <div className="flex items-center gap-2">
+                    <button className="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-mono uppercase tracking-widest rounded-full border border-white/10 hover:bg-primary/10 hover:border-primary/20 transition-all">
+                      <ThumbsUp className="w-4 h-4" />
+                      <span>Helpful</span>
+                    </button>
+                    <button className="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-mono uppercase tracking-widest rounded-full border border-white/10 hover:bg-primary/10 hover:border-primary/20 transition-all">
+                      <ThumbsDown className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button className="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-mono uppercase tracking-widest rounded-full border border-white/10 hover:bg-primary/10 hover:border-primary/20 transition-all">
+                      <Bookmark className="w-4 h-4" />
+                      <span className="hidden sm:inline">Save</span>
+                    </button>
+                    <button className="inline-flex items-center gap-2 px-4 py-2 text-[10px] font-mono uppercase tracking-widest rounded-full border border-white/10 hover:bg-primary/10 hover:border-primary/20 transition-all">
+                      <Share2 className="w-4 h-4" />
+                      <span className="hidden sm:inline">Share</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            {/* Sidebar */}
+            <aside className="lg:col-span-4">
+              <div className="lg:sticky lg:top-24">
+                <ArchiveRightSidebar post={post} />
+              </div>
+            </aside>
           </div>
         </div>
       </div>

@@ -1,47 +1,59 @@
-import { CardContent } from "@/components/ui/card";
-import { Info, Heart, Cloud } from "lucide-react";
+"use client";
+
+import { Info, Heart, Cloud, ArrowRight } from "lucide-react";
 
 const ArchiveProTips = () => {
   const tips = [
     {
-      icon: <Info className="h-8 w-8 text-gray-700 dark:text-white" />,
+      icon: <Info className="h-6 w-6 text-primary" />,
       title: "FAQs",
-      desc: "Learn about re:Post, how to become a community expert, and more",
-      highlight: true, // first one has subtle shadow
+      desc: "Learn about BGCE Archive, how to become a community expert, and more",
     },
     {
-      icon: <Heart className="h-8 w-8 text-gray-700 dark:text-white" />,
+      icon: <Heart className="h-6 w-6 text-primary" />,
       title: "Community guidelines",
       desc: "Tips to maintain a safe and inclusive environment",
     },
     {
-      icon: <Cloud className="h-8 w-8 text-gray-700 dark:text-white" />,
-      title: "AWS Official",
-      desc: "Learn about AWS Official content  Your trusted source for AWS expertise",
+      icon: <Cloud className="h-6 w-6 text-primary" />,
+      title: "BGCE Official",
+      desc: "Learn about BGCE Official content — Your trusted source for Go expertise",
     },
   ];
 
   return (
-    <section className="container mx-auto py-10">
-      <h2 className="text-xl font-semibold mb-4">BGCE Archive pro tips</h2>
+    <section className="container mx-auto py-16">
+      {/* Header */}
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold tracking-tight">BGCE Archive pro tips</h2>
+        <p className="text-sm text-muted-foreground font-mono mt-2">
+          Essential resources for community members
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 ">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {tips.map((tip) => (
           <div
             key={tip.title}
-            className="border border-gray-200 dark:bg-gray-800 dark:border-0 rounded-md py-2 hover:shadow-xl cursor-pointer transition duration-550"
+            className="p-6 rounded-[2rem] bg-card/30 border border-white/5 backdrop-blur-md hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
           >
-            <CardContent className="flex items-start gap-3 px-4 py-4 ">
-              <div className="mt-1 ">{tip.icon}</div>
-              <div>
-                <h3 className="font-semibold text-gray-900 text-[15px] dark:text-white">
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors flex-shrink-0">
+                {tip.icon}
+              </div>
+              <div className="flex-1 space-y-2">
+                <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
                   {tip.title}
                 </h3>
-                <p className="text-sm text-gary-900 leading-snug mt-1">
+                <p className="text-sm text-muted-foreground leading-relaxed">
                   {tip.desc}
                 </p>
+                <div className="flex items-center gap-2 text-xs font-mono text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="uppercase tracking-widest">Learn More</span>
+                  <ArrowRight className="h-3 w-3" />
+                </div>
               </div>
-            </CardContent>
+            </div>
           </div>
         ))}
       </div>

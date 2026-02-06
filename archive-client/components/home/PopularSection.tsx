@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Cloud,
@@ -13,6 +12,7 @@ import {
   Users,
   Clock,
   FolderOpen,
+  Star,
 } from "lucide-react";
 import {
   Table,
@@ -97,84 +97,84 @@ export default function PopularSection() {
 
     fetchCategories();
   }, []);
+
   return (
-    <main className="container mx-auto py-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+    <main className="container mx-auto py-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Left Section: Topics */}
         <section>
-          <div className="mb-4">
-            <h2 className="text-2xl sm:text-xl font-semibold">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold tracking-tight">
               Follow popular topics
             </h2>
+            <p className="text-sm text-muted-foreground font-mono mt-2">
+              Explore trending categories
+            </p>
           </div>
 
           {loading ? (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {[1, 2, 3, 4, 5].map((i) => (
-                <Card
+                <div
                   key={i}
-                  className="border border-gray-300 dark:border-0 bg-[#F7F9FB] dark:bg-gray-800 rounded-md py-0 animate-pulse"
+                  className="p-6 rounded-[1.5rem] bg-card/30 border border-white/5 backdrop-blur-md animate-pulse"
                 >
-                  <CardContent className="px-3 sm:px-4 py-4">
-                    <div className="h-10 bg-gray-300 dark:bg-gray-700 rounded"></div>
-                  </CardContent>
-                </Card>
+                  <div className="h-10 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                </div>
               ))}
             </div>
           ) : categories.length === 0 ? (
-            <Card className="border border-gray-300 dark:border-0 bg-[#F7F9FB] dark:bg-gray-800 rounded-md">
-              <CardContent className="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-                No categories available yet
-              </CardContent>
-            </Card>
+            <div className="p-8 rounded-[1.5rem] bg-card/30 border border-white/5 backdrop-blur-md text-center text-muted-foreground">
+              No categories available yet
+            </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-3">
               {categories.map((category) => {
                 const IconComponent = getCategoryIcon(category.slug);
                 return (
-                  <Card
+                  <div
                     key={category.id}
-                    className="border border-gray-300 dark:border-0 bg-[#F7F9FB] dark:bg-gray-800 dark:text-white rounded-md py-0"
+                    className="p-6 rounded-[1.5rem] bg-card/30 border border-white/5 backdrop-blur-md hover:border-primary/20 hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
                   >
-                    <CardContent className="flex flex-col sm:flex-row items-center sm:justify-between px-3 sm:px-4 py-2.5 hover:shadow-md cursor-pointer transition duration-300">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
                       {/* Left: Icon + Title */}
-                      <div className="flex items-center gap-3 mb-2 sm:mb-0">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-500 dark:bg-gray-800">
-                          <IconComponent className="h-5 w-5 text-white dark:text-gray-300" />
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors">
+                          <IconComponent className="h-6 w-6 text-primary" />
                         </div>
                         <div className="flex flex-col">
-                          <span className="font-medium text-gray-900 dark:text-gray-100 text-sm sm:text-[15px]">
+                          <span className="font-bold text-foreground">
                             {category.label}
                           </span>
                           {category.description && (
-                            <span className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+                            <span className="text-xs text-muted-foreground line-clamp-1 font-mono">
                               {category.description}
                             </span>
                           )}
                         </div>
                       </div>
 
-                      {/* Middle: Stats Row - Mock data for now */}
-                      <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                        <span className="flex items-center gap-1 dark:text-white">
-                          <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
+                      {/* Right: Stats Row */}
+                      <div className="flex flex-wrap items-center gap-4 text-xs font-mono text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3.5 w-3.5 text-primary" />
                           {Math.floor(Math.random() * 10000)}
                         </span>
-                        <span className="flex items-center gap-1 dark:text-white">
-                          <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
+                        <span className="flex items-center gap-1">
+                          <FileText className="h-3.5 w-3.5 text-primary" />
                           {Math.floor(Math.random() * 500)}
                         </span>
-                        <span className="flex items-center gap-1 dark:text-white">
-                          <Server className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
+                        <span className="flex items-center gap-1">
+                          <Server className="h-3.5 w-3.5 text-primary" />
                           {Math.floor(Math.random() * 20)}
                         </span>
-                        <span className="flex items-center gap-1 dark:text-white">
-                          <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-500" />
+                        <span className="flex items-center gap-1">
+                          <Users className="h-3.5 w-3.5 text-primary" />
                           {Math.floor(Math.random() * 5000)}
                         </span>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 );
               })}
             </div>
@@ -183,68 +183,68 @@ export default function PopularSection() {
 
         {/* Right Section: Contributors */}
         <section>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl sm:text-xl font-semibold">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold tracking-tight">
               Top contributors
             </h2>
+            <p className="text-sm text-muted-foreground font-mono mt-2">
+              Community leaders
+            </p>
           </div>
 
-          {/*  Table */}
-          <div className="overflow-x-auto">
-            <div className="inline-block min-w-full rounded-md border border-gray-200 dark:border-gray-700 overflow-hidden">
-              <Table className="w-full text-sm dark:bg-gray-800 min-w-[400px]">
-                <TableHeader className="bg-[#FAFAFA] dark:bg-gray-600 ">
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="p-4 font-semibold text-center text-black dark:text-white">
-                      Rank
-                    </TableHead>
-                    <TableHead className="p-3 font-semibold text-left text-black dark:text-white">
-                      Name
-                    </TableHead>
-                    <TableHead className="p-3 font-semibold text-left text-black dark:text-white">
-                      Total points
-                    </TableHead>
+          <div className="rounded-[1.5rem] bg-card/30 border border-white/5 backdrop-blur-md overflow-hidden">
+            <Table className="w-full text-sm">
+              <TableHeader className="bg-gray-300 dark:bg-black/40 border-b border-white/5">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="p-4 font-bold text-center text-foreground uppercase tracking-widest text-[10px]">
+                    Rank
+                  </TableHead>
+                  <TableHead className="p-4 font-bold text-left text-foreground uppercase tracking-widest text-[10px]">
+                    Name
+                  </TableHead>
+                  <TableHead className="p-4 font-bold text-left text-foreground uppercase tracking-widest text-[10px]">
+                    Points
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+
+              <TableBody>
+                {contributors.map((contributor) => (
+                  <TableRow
+                    key={contributor.rank}
+                    className="border-b last:border-0 border-white/5 hover:bg-primary/5 transition-colors"
+                  >
+                    <TableCell className="p-4 font-medium text-center">
+                      {contributor.rank <= 3 ? (
+                        <span className="text-xl">
+                          {contributor.rank === 1 && "🥇"}
+                          {contributor.rank === 2 && "🥈"}
+                          {contributor.rank === 3 && "🥉"}
+                        </span>
+                      ) : (
+                        <span className="font-mono">{contributor.rank}</span>
+                      )}
+                    </TableCell>
+
+                    <TableCell className="p-4">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="h-8 w-8 border border-primary/20">
+                          <AvatarImage src={contributor.avatar} />
+                          <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                            {contributor.name.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium">{contributor.name}</span>
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="p-4 font-mono font-bold text-primary">
+                      {contributor.points}
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                  {contributors.map((contributor) => (
-                    <TableRow
-                      key={contributor.rank}
-                      className="border-b last:border-0 border-gray-200 dark:border-gray-700 hover:bg-transparent"
-                    >
-                      <TableCell className="p-3 font-medium text-center">
-                        {contributor.rank <= 3 ? (
-                          <span>
-                            {contributor.rank === 1 && "🥇"}
-                            {contributor.rank === 2 && "🥈"}
-                            {contributor.rank === 3 && "🥉"}
-                          </span>
-                        ) : (
-                          contributor.rank
-                        )}
-                      </TableCell>
-
-                      <TableCell className="p-3">
-                        <div className="flex items-center gap-3">
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={contributor.avatar} />
-                            <AvatarFallback>
-                              {contributor.name.charAt(0)}
-                            </AvatarFallback>
-                          </Avatar>
-                          <span>{contributor.name}</span>
-                        </div>
-                      </TableCell>
-
-                      <TableCell className="p-3 font-medium text-left">
-                        {contributor.points}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         </section>
       </div>
