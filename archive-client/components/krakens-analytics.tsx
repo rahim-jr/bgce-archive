@@ -9,7 +9,7 @@ export function KrakensAnalytics() {
             strategy="afterInteractive"
             onLoad={() => {
                 if (typeof window !== 'undefined' && (window as any).Krakens) {
-                    (window as any).Krakens.init('hrd_6f7e57b8d05b26e2f0801e0e0bd6437d5295eefbf93589defcb04df743f4a776');
+                    (window as any).Krakens.init('hrd_c3a24d14aa184752400c472a145343928195b6b0300d28b48932e21233e845a0');
                 }
             }}
         />
