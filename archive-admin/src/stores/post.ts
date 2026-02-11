@@ -201,11 +201,11 @@ export const usePostStore = defineStore('post', () => {
             const response = await postService.bulkUploadPosts(file);
 
             console.log(response);
-            
 
-            if (response.success) {
+
+            if (response.status) {
                 toast.success('Success', `Successfully uploaded posts`)
-                
+
                 await fetchPosts()
                 return response.data
             }
