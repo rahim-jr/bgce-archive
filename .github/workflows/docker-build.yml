@@ -64,7 +64,8 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          platforms: linux/amd64,linux/arm64
+          # Build only for amd64 for faster builds (add arm64 if needed)
+          platforms: linux/amd64
           build-args: |
             NEXT_PUBLIC_API_URL=https://cortex.nesohq.org/api/v1
             NEXT_PUBLIC_POSTAL_API_URL=https://postal.nesohq.org/api/v1
