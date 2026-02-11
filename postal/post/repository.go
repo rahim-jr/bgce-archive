@@ -152,7 +152,6 @@ func (r *repository) SlugExists(ctx context.Context, slug string, excludeID uint
 	return count > 0, err
 }
 
-
 func (r *repository) BatchCreate(ctx context.Context, posts *[]domain.Post) error {
 	tx := r.db.WithContext(ctx).Begin()
 	if tx.Error != nil {
@@ -161,13 +160,14 @@ func (r *repository) BatchCreate(ctx context.Context, posts *[]domain.Post) erro
 
 	const batchSize = 1000
 
-	for i := 0; i < len(*posts); i += batchSize{
+	for i := 0; i < len(*posts); i += batchSize {
 		end := i + batchSize
 		if end > len(*posts) {
 			end = len(*posts)
 		}
 
-		if err := tx.Create((*posts)[i:end]).Error; err != nil {
+		// Use Select to explicitly include boolean fields even if they are false (zero value)
+		if err := tx.Select("*").Create((*posts)[i:end]).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
@@ -176,14 +176,13 @@ func (r *repository) BatchCreate(ctx context.Context, posts *[]domain.Post) erro
 	return tx.Commit().Error
 }
 
-func (r *repository) FindExistingSlugs(ctx context.Context, slugs []string) (map[string]bool, error){
+func (r *repository) FindExistingSlugs(ctx context.Context, slugs []string) (map[string]bool, error) {
 	var existing []string
 
 	err := r.db.WithContext(ctx).
 		Model(&domain.Post{}).
 		Where("slug IN ?", slugs).
 		Pluck("slug", &existing).Error
-
 	if err != nil {
 		return nil, err
 	}

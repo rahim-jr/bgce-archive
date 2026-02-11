@@ -305,7 +305,6 @@ func (s *service) createVersion(ctx context.Context, post *domain.Post, userID u
 }
 
 func (s *service) BatchUploadPosts(ctx context.Context, userID uint, file *multipart.File) error {
-
 	posts, slugRows, err := util.ParseAndValidateCSV(file, userID)
 	if err != nil {
 		return fmt.Errorf("failed to parse CSV: %w", err)

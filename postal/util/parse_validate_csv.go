@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"strconv"
 	"strings"
+
 	"postal/domain"
 )
 
@@ -127,7 +128,7 @@ func ParseAndValidateCSV(
 			MetaDescription: metaDescription,
 			Keywords:        keywords,
 			OGImage:         ogImage,
-			Status:          domain.StatusDraft,
+			Status:          domain.StatusPublished,
 			IsPublic:        isPublic,
 			IsFeatured:      isFeatured,
 			IsPinned:        isPinned,
