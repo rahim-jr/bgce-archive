@@ -50,7 +50,7 @@ const handlePreview = async (id: number) => {
   try {
     const post = await postStore.fetchPostById(id)
     if (post && post.slug) {
-      const previewUrl = `http://localhost:3000/archive/post/${post.slug}`
+      const previewUrl = `https://bgceac.nesohq.org/archive/post/${post.slug}`
       window.open(previewUrl, '_blank')
     }
   } catch (error) {
