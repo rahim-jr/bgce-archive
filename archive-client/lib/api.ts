@@ -1,6 +1,6 @@
 import type { ApiCategory, ApiSubcategory, ApiResponse, ApiPost, ApiPostListResponse } from '@/types/blog.type';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080/api/v1';
 const POSTAL_API_URL = process.env.NEXT_PUBLIC_POSTAL_API_URL || 'http://localhost:8081/api/v1';
 
 export async function getCategories(): Promise<ApiCategory[]> {
