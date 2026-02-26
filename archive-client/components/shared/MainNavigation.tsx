@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -16,6 +16,7 @@ import { TopNav } from "./TopNav";
 import { Portal } from "@/components/ui/Portal";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { throttle } from "@/lib/performance";
 
 interface DropdownPosition {
   top: number;
@@ -52,10 +53,13 @@ export function MainNavigation() {
   const resourcesDropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Handle scroll effect
+  // Handle scroll effect with throttling
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", handleScroll);
+    const handleScroll = throttle(() => {
+      setScrolled(window.scrollY > 20);
+    }, 100);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -91,41 +95,45 @@ export function MainNavigation() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Update dropdown positions dynamically
+  // Update dropdown positions only when they open
+  const updateDropdownPosition = useCallback((
+    ref: React.RefObject<HTMLButtonElement | null>,
+    type: 'explore' | 'resources' | 'profile'
+  ) => {
+    if (!ref.current) return;
+
+    const rect = ref.current.getBoundingClientRect();
+
+    if (type === 'explore') {
+      setDropdownPositions(prev => ({
+        ...prev,
+        explore: { top: rect.bottom + 8, left: rect.left }
+      }));
+    } else if (type === 'resources') {
+      setDropdownPositions(prev => ({
+        ...prev,
+        resources: { top: rect.bottom + 8, right: window.innerWidth - rect.right }
+      }));
+    } else {
+      setDropdownPositions(prev => ({
+        ...prev,
+        profile: { top: rect.bottom + 8, right: window.innerWidth - rect.right }
+      }));
+    }
+  }, []);
+
+  // Update positions only when dropdowns open
   useEffect(() => {
-    const updatePositions = () => {
-      if (exploreRef.current && exploreOpen) {
-        const rect = exploreRef.current.getBoundingClientRect();
-        setDropdownPositions(prev => ({
-          ...prev,
-          explore: { top: rect.bottom + 8, left: rect.left }
-        }));
-      }
-      if (resourcesRef.current && resourcesOpen) {
-        const rect = resourcesRef.current.getBoundingClientRect();
-        setDropdownPositions(prev => ({
-          ...prev,
-          resources: { top: rect.bottom + 8, right: window.innerWidth - rect.right }
-        }));
-      }
-      if (profileRef.current && profileOpen) {
-        const rect = profileRef.current.getBoundingClientRect();
-        setDropdownPositions(prev => ({
-          ...prev,
-          profile: { top: rect.bottom + 8, right: window.innerWidth - rect.right }
-        }));
-      }
-    };
+    if (exploreOpen) updateDropdownPosition(exploreRef, 'explore');
+  }, [exploreOpen, updateDropdownPosition]);
 
-    updatePositions();
-    window.addEventListener('resize', updatePositions);
-    window.addEventListener('scroll', updatePositions);
+  useEffect(() => {
+    if (resourcesOpen) updateDropdownPosition(resourcesRef, 'resources');
+  }, [resourcesOpen, updateDropdownPosition]);
 
-    return () => {
-      window.removeEventListener('resize', updatePositions);
-      window.removeEventListener('scroll', updatePositions);
-    };
-  }, [exploreOpen, resourcesOpen, profileOpen]);
+  useEffect(() => {
+    if (profileOpen) updateDropdownPosition(profileRef, 'profile');
+  }, [profileOpen, updateDropdownPosition]);
 
   const exploreItems = {
     courses: {

@@ -10,7 +10,7 @@ export async function getCategories(): Promise<ApiCategory[]> {
             headers: {
                 'Content-Type': 'application/json',
             },
-            next: { revalidate: 300 }, // Cache for 5 minutes
+            next: { revalidate: 120 }, // Cache for 2 minutes (reduced from 5 minutes)
         });
 
         if (!response.ok) {
@@ -123,7 +123,7 @@ export async function getPosts(params?: {
             headers: {
                 'Content-Type': 'application/json',
             },
-            next: { revalidate: 180 }, // Cache for 3 minutes
+            next: { revalidate: 60 }, // Cache for 1 minute (reduced from 3 minutes)
         });
 
         if (!response.ok) {

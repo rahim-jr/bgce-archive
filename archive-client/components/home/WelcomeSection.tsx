@@ -73,11 +73,15 @@ export function WelcomeSection() {
     const [displayedLines, setDisplayedLines] = useState<string[]>([]);
     const [isTyping, setIsTyping] = useState(false);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const animationFrameRef = useRef<number | null>(null);
 
     useEffect(() => {
         // Clear any existing interval
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
+        }
+        if (animationFrameRef.current) {
+            cancelAnimationFrame(animationFrameRef.current);
         }
 
         setDisplayedLines([]);
@@ -85,22 +89,35 @@ export function WelcomeSection() {
 
         const currentCode = codeExamples[activeTech];
         let lineIndex = 0;
+        let lastTime = 0;
+        const interval = 80;
 
-        intervalRef.current = setInterval(() => {
-            if (lineIndex < currentCode.lines.length) {
-                setDisplayedLines(prev => [...prev, currentCode.lines[lineIndex]]);
-                lineIndex++;
-            } else {
-                if (intervalRef.current) {
-                    clearInterval(intervalRef.current);
+        const animate = (currentTime: number) => {
+            if (lastTime === 0) lastTime = currentTime;
+            const elapsed = currentTime - lastTime;
+
+            if (elapsed >= interval) {
+                if (lineIndex < currentCode.lines.length) {
+                    setDisplayedLines(prev => [...prev, currentCode.lines[lineIndex]]);
+                    lineIndex++;
+                    lastTime = currentTime;
+                    animationFrameRef.current = requestAnimationFrame(animate);
+                } else {
+                    setIsTyping(false);
                 }
-                setIsTyping(false);
+            } else {
+                animationFrameRef.current = requestAnimationFrame(animate);
             }
-        }, 80);
+        };
+
+        animationFrameRef.current = requestAnimationFrame(animate);
 
         return () => {
             if (intervalRef.current) {
                 clearInterval(intervalRef.current);
+            }
+            if (animationFrameRef.current) {
+                cancelAnimationFrame(animationFrameRef.current);
             }
         };
     }, [activeTech]);

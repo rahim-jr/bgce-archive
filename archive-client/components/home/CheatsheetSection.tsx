@@ -1,11 +1,12 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import { ArrowRight, FileText, Download, Eye, Star, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StaticWatermark } from "@/components/ui/StaticWatermark";
 
-export function CheatsheetSection() {
+export const CheatsheetSection = memo(function CheatsheetSection() {
     const cheatsheets = [
         {
             id: 1,
@@ -161,4 +162,4 @@ export function CheatsheetSection() {
             </div>
         </section>
     );
-}
+});

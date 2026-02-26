@@ -1,11 +1,12 @@
 "use client";
 
+import { memo } from "react";
 import Link from "next/link";
 import { ArrowRight, Clock, Users, Star, Play, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StaticWatermark } from "@/components/ui/StaticWatermark";
 
-export function PopularCoursesSection() {
+export const PopularCoursesSection = memo(function PopularCoursesSection() {
     const courses = [
         {
             id: 1,
@@ -172,4 +173,4 @@ export function PopularCoursesSection() {
             </div>
         </section>
     );
-}
+});
