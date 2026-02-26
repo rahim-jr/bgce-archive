@@ -45,5 +45,10 @@ func (s *service) CreateSubcategory(ctx context.Context, params CreateSubcategor
 		return fmt.Errorf("failed to create subcategory: %w", err)
 	}
 
+	// Invalidate subcategory list cache to show new subcategory immediately
+	if s.cache != nil {
+		s.invalidateSubcategoryListCache(ctx)
+	}
+
 	return nil
 }

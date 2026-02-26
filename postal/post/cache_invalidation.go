@@ -32,20 +32,22 @@ func (s *service) invalidatePostCache(ctx context.Context, post *domain.Post) {
 }
 
 // invalidateListCaches removes all cached list queries
-// This is a simple approach - in production, you might want more granular invalidation
 func (s *service) invalidateListCaches(ctx context.Context) {
 	if s.cache == nil {
 		return
 	}
 
-	// Note: This is a simplified approach. In production, you might:
-	// 1. Use Redis SCAN to find all "post:list:*" keys
-	// 2. Use Redis key expiration patterns
-	// 3. Maintain a set of active list cache keys
-	// 4. Use cache tags/groups for bulk invalidation
+	// Delete common cache key patterns for post lists
+	patterns := []string{
+		"post:list",
+		"post:list:*",
+	}
 
-	// For now, we rely on the shorter TTL (5 minutes) for list caches
-	// to naturally expire. This is acceptable for most use cases.
+	for _, pattern := range patterns {
+		if err := s.cache.Del(ctx, pattern); err != nil {
+			log.Printf("Failed to invalidate post list cache (pattern=%s): %v", pattern, err)
+		}
+	}
 
-	log.Printf("List caches will expire naturally (5min TTL)")
+	log.Printf("Post list caches invalidated")
 }

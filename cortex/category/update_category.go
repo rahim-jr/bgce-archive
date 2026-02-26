@@ -61,5 +61,10 @@ func (s *service) UpdateCategory(ctx context.Context, params UpdateCategoryParam
 		return errors.New("ent: category update failed")
 	}
 
+	// Invalidate category list cache to reflect updates immediately
+	if s.cache != nil {
+		s.invalidateCategoryListCache(ctx)
+	}
+
 	return nil
 }

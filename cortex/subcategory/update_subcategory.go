@@ -65,5 +65,10 @@ func (s *service) UpdateSubcategory(ctx context.Context, params UpdateSubcategor
 		return errors.New("failed to update subcategory")
 	}
 
+	// Invalidate subcategory list cache to reflect updates immediately
+	if s.cache != nil {
+		s.invalidateSubcategoryListCache(ctx)
+	}
+
 	return nil
 }

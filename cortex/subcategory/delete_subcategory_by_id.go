@@ -27,5 +27,10 @@ func (s *service) DeleteSubcategoryByID(ctx context.Context, id int, deletedBy i
 		return fmt.Errorf("failed to delete subcategory: %w", err)
 	}
 
+	// Invalidate subcategory list cache to reflect deletion immediately
+	if s.cache != nil {
+		s.invalidateSubcategoryListCache(ctx)
+	}
+
 	return nil
 }

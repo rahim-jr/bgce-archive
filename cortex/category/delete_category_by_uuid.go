@@ -16,5 +16,11 @@ func (s *service) DeleteCategoryByUUID(ctx context.Context, uuid uuid.UUID) erro
 	if err != nil {
 		return errors.New("ent: category deletion failed")
 	}
+
+	// Invalidate category list cache to reflect deletion immediately
+	if s.cache != nil {
+		s.invalidateCategoryListCache(ctx)
+	}
+
 	return nil
 }

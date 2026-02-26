@@ -21,5 +21,11 @@ func (s *service) CreateCategory(ctx context.Context, params CreateCategoryParam
 	if err != nil {
 		return errors.New("ent: category creation failed")
 	}
+
+	// Invalidate category list cache to show new category immediately
+	if s.cache != nil {
+		s.invalidateCategoryListCache(ctx)
+	}
+
 	return nil
 }

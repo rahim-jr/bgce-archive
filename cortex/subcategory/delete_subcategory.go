@@ -33,5 +33,10 @@ func (s *service) DeleteSubcategory(ctx context.Context, uuid uuid.UUID, deleted
 		return errors.New("failed to delete subcategory")
 	}
 
+	// Invalidate subcategory list cache to reflect deletion immediately
+	if s.cache != nil {
+		s.invalidateSubcategoryListCache(ctx)
+	}
+
 	return nil
 }

@@ -78,6 +78,9 @@ func (s *service) CreatePost(ctx context.Context, req CreatePostRequest, userID 
 
 	s.cachePost(ctx, post)
 
+	// Invalidate list caches to show new post immediately
+	s.invalidateListCaches(ctx)
+
 	// Create initial version
 	if err := s.createVersion(ctx, post, userID, "Initial version"); err != nil {
 		// Log error but don't fail the request
@@ -321,8 +324,8 @@ func (s *service) UpdatePost(ctx context.Context, id uint, req UpdatePostRequest
 		return nil, fmt.Errorf("failed to update post: %w", err)
 	}
 
-	// Invalidate cache for this post
-	s.invalidatePostCache(ctx, post)
+	// Update cache with fresh post data
+	s.cachePost(ctx, post)
 
 	// Invalidate list caches (since post data changed)
 	s.invalidateListCaches(ctx)
@@ -356,8 +359,10 @@ func (s *service) PublishPost(ctx context.Context, id uint, userID uint) error {
 		return err
 	}
 
-	// Invalidate cache
-	s.invalidatePostCache(ctx, post)
+	// Update cache with fresh post data
+	s.cachePost(ctx, post)
+
+	// Invalidate list caches
 	s.invalidateListCaches(ctx)
 
 	return nil
@@ -376,8 +381,10 @@ func (s *service) UnpublishPost(ctx context.Context, id uint, userID uint) error
 		return err
 	}
 
-	// Invalidate cache
-	s.invalidatePostCache(ctx, post)
+	// Update cache with fresh post data
+	s.cachePost(ctx, post)
+
+	// Invalidate list caches
 	s.invalidateListCaches(ctx)
 
 	return nil
@@ -394,7 +401,17 @@ func (s *service) ArchivePost(ctx context.Context, id uint, userID uint) error {
 	post.ArchivedAt = &now
 	post.UpdatedBy = userID
 
-	return s.repo.Update(ctx, post)
+	if err := s.repo.Update(ctx, post); err != nil {
+		return err
+	}
+
+	// Update cache with fresh post data
+	s.cachePost(ctx, post)
+
+	// Invalidate list caches
+	s.invalidateListCaches(ctx)
+
+	return nil
 }
 
 func (s *service) RestorePost(ctx context.Context, id uint, userID uint) error {
@@ -407,7 +424,17 @@ func (s *service) RestorePost(ctx context.Context, id uint, userID uint) error {
 	post.ArchivedAt = nil
 	post.UpdatedBy = userID
 
-	return s.repo.Update(ctx, post)
+	if err := s.repo.Update(ctx, post); err != nil {
+		return err
+	}
+
+	// Update cache with fresh post data
+	s.cachePost(ctx, post)
+
+	// Invalidate list caches
+	s.invalidateListCaches(ctx)
+
+	return nil
 }
 
 func (s *service) DeletePost(ctx context.Context, id uint) error {
@@ -429,7 +456,21 @@ func (s *service) DeletePost(ctx context.Context, id uint) error {
 }
 
 func (s *service) HardDeletePost(ctx context.Context, id uint) error {
-	return s.repo.HardDelete(ctx, id)
+	// Get post before deletion for cache invalidation
+	post, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if err := s.repo.HardDelete(ctx, id); err != nil {
+		return err
+	}
+
+	// Invalidate cache
+	s.invalidatePostCache(ctx, post)
+	s.invalidateListCaches(ctx)
+
+	return nil
 }
 
 func (s *service) createVersion(ctx context.Context, post *domain.Post, userID uint, changeNote string) error {
@@ -492,6 +533,9 @@ func (s *service) BatchUploadPosts(ctx context.Context, userID uint, file *multi
 		s.cachePost(ctx, &(*posts)[i])
 	}
 
+	// Invalidate list caches to show new posts immediately
+	s.invalidateListCaches(ctx)
+
 	return nil
 }
 
@@ -517,7 +561,14 @@ func (s *service) BatchDeletePosts(ctx context.Context, uuids *[]string) error {
 		ids = append(ids, u)
 	}
 
-	return s.repo.BatchDeleteByUUIDs(ctx, ids)
+	if err := s.repo.BatchDeleteByUUIDs(ctx, ids); err != nil {
+		return err
+	}
+
+	// Invalidate list caches after batch deletion
+	s.invalidateListCaches(ctx)
+
+	return nil
 }
 
 func (s *service) cachePost(ctx context.Context, post *domain.Post) {
