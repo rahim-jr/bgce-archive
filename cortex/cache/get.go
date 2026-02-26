@@ -14,7 +14,9 @@ func (c *cache) Get(ctx context.Context, key string) (string, error) {
 	defer span.End()
 
 	// Add timeout to prevent hanging requests
-	ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
+	// Increased from 100ms to 1s to allow for connection establishment
+	// The Redis client's ReadTimeout (2s) will handle actual slow queries
+	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
 	value, err := c.readClient.Get(ctx, key).Result()

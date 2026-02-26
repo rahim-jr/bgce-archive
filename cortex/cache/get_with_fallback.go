@@ -13,7 +13,8 @@ import (
 // executes the fallback function and asynchronously updates the cache
 func (c *cache) GetWithFallback(ctx context.Context, key string, ttl time.Duration, fallback func() (interface{}, error)) (interface{}, error) {
 	// Try cache first with timeout
-	cacheCtx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
+	// Increased from 100ms to 1s to allow for connection establishment
+	cacheCtx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
 	val, err := c.readClient.Get(cacheCtx, key).Result()
@@ -38,7 +39,7 @@ func (c *cache) GetWithFallback(ctx context.Context, key string, ttl time.Durati
 
 	// Async cache update (don't block response)
 	go func() {
-		updateCtx, updateCancel := context.WithTimeout(context.Background(), 1*time.Second)
+		updateCtx, updateCancel := context.WithTimeout(context.Background(), 2*time.Second)
 		defer updateCancel()
 
 		// Serialize result if needed
