@@ -54,7 +54,7 @@
         "/api/v1/posts": {
             "get": {
                 "summary": "List posts",
-                "description": "Retrieves a list of posts with optional filtering and pagination.",
+                "description": "Retrieves a list of posts with optional filtering and pagination. Returns lightweight post objects optimized for list views (excludes full content, only returns content_length for read time calculation).",
                 "tags": [
                     "Posts"
                 ],
@@ -62,34 +62,42 @@
                     {
                         "name": "limit",
                         "in": "query",
+                        "description": "Number of posts to return",
                         "schema": {
                             "type": "integer",
-                            "default": 10
+                            "default": 20,
+                            "minimum": 1,
+                            "maximum": 100
                         }
                     },
                     {
                         "name": "offset",
                         "in": "query",
+                        "description": "Number of posts to skip (for pagination)",
                         "schema": {
                             "type": "integer",
-                            "default": 0
+                            "default": 0,
+                            "minimum": 0
                         }
                     },
                     {
                         "name": "status",
                         "in": "query",
+                        "description": "Filter by post status",
                         "schema": {
                             "type": "string",
                             "enum": [
                                 "draft",
                                 "published",
-                                "archived"
+                                "archived",
+                                "deleted"
                             ]
                         }
                     },
                     {
                         "name": "category_id",
                         "in": "query",
+                        "description": "Filter by category ID",
                         "schema": {
                             "type": "integer"
                         }
@@ -97,8 +105,45 @@
                     {
                         "name": "sub_category_id",
                         "in": "query",
+                        "description": "Filter by subcategory ID",
                         "schema": {
                             "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Search in title, content, and summary",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sort_by",
+                        "in": "query",
+                        "description": "Field to sort by",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "created_at",
+                                "updated_at",
+                                "view_count",
+                                "title"
+                            ],
+                            "default": "created_at"
+                        }
+                    },
+                    {
+                        "name": "sort_order",
+                        "in": "query",
+                        "description": "Sort order",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "ASC",
+                                "DESC"
+                            ],
+                            "default": "DESC"
                         }
                     }
                 ],
@@ -853,7 +898,7 @@
                     "data": {
                         "type": "array",
                         "items": {
-                            "$ref": "#/components/schemas/Post"
+                            "$ref": "#/components/schemas/PostListItem"
                         }
                     },
                     "meta": {
@@ -872,6 +917,70 @@
                                 "example": 0
                             }
                         }
+                    }
+                }
+            },
+            "PostListItem": {
+                "type": "object",
+                "description": "Lightweight post object for list endpoints (optimized for performance)",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "getting-started-with-go"
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Getting Started with Go"
+                    },
+                    "summary": {
+                        "type": "string",
+                        "example": "Learn the basics of Go programming"
+                    },
+                    "meta_description": {
+                        "type": "string",
+                        "example": "A comprehensive guide to getting started with Go"
+                    },
+                    "keywords": {
+                        "type": "string",
+                        "example": "go,programming,tutorial"
+                    },
+                    "category_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "sub_category_id": {
+                        "type": "integer",
+                        "example": 2,
+                        "nullable": true
+                    },
+                    "is_featured": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "is_pinned": {
+                        "type": "boolean",
+                        "example": false
+                    },
+                    "created_by": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "view_count": {
+                        "type": "integer",
+                        "example": 100
+                    },
+                    "content_length": {
+                        "type": "integer",
+                        "example": 1250,
+                        "description": "Character count of the content (for read time calculation)"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
                     }
                 }
             },
