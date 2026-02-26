@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Plus, Search, Upload, Trash2 } from 'lucide-vue-next'
+import { Plus, Search, Upload, Trash2, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { usePostStore } from '@/stores/post'
 import { useConfirm } from '@/composables/useConfirm'
-import { usePostFilters } from '@/composables/usePostFilters'
 import PostFilters from '@/components/posts/PostFilters.vue'
 import PostTableRow from '@/components/posts/PostTableRow.vue'
 import BatchUploadModal from '@/components/posts/BatchUploadModal.vue'
@@ -18,18 +17,38 @@ const router = useRouter()
 const postStore = usePostStore()
 const { confirm } = useConfirm()
 
-const { statusFilter, searchQuery, filteredPosts, statusCounts } = usePostFilters(() => postStore.posts)
+// Pagination state
+const currentPage = ref(1)
+const pageSize = ref(20)
+const statusFilter = ref<string>('all')
+const searchQuery = ref('')
+
+// Computed values
+const totalPages = computed(() => Math.ceil(postStore.totalPosts / pageSize.value))
+const offset = computed(() => (currentPage.value - 1) * pageSize.value)
+
 const batchUploadModalOpen = ref(false)
 const selectedPostUuids = ref<string[]>([])
 
 const allSelected = computed({
-  get: () => filteredPosts.value.length > 0 && selectedPostUuids.value.length === filteredPosts.value.length,
+  get: () => postStore.posts.length > 0 && selectedPostUuids.value.length === postStore.posts.length,
   set: (value: boolean) => {
     if (value) {
-      selectedPostUuids.value = filteredPosts.value.map(p => p.uuid)
+      selectedPostUuids.value = postStore.posts.map(p => p.uuid)
     } else {
       selectedPostUuids.value = []
     }
+  }
+})
+
+const statusCounts = computed(() => {
+  // These are approximate since we're doing server-side pagination
+  // You might want to fetch these separately from the API
+  return {
+    all: postStore.totalPosts,
+    draft: 0,
+    published: 0,
+    archived: 0,
   }
 })
 
@@ -41,6 +60,54 @@ const togglePostSelection = (uuid: string) => {
     selectedPostUuids.value.push(uuid)
   }
 }
+
+const fetchPosts = async () => {
+  const params: any = {
+    limit: pageSize.value,
+    offset: offset.value,
+  }
+
+  if (statusFilter.value && statusFilter.value !== 'all') {
+    params.status = statusFilter.value
+  }
+
+  if (searchQuery.value) {
+    params.search = searchQuery.value
+  }
+
+  await postStore.fetchPosts(params)
+  // Clear selections when fetching new page
+  selectedPostUuids.value = []
+}
+
+const goToPage = (page: number) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page
+  }
+}
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++
+  }
+}
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--
+  }
+}
+
+// Watch for filter changes and reset to page 1
+watch([statusFilter, searchQuery, pageSize], () => {
+  currentPage.value = 1
+  fetchPosts()
+})
+
+// Watch for page changes
+watch(currentPage, () => {
+  fetchPosts()
+})
 
 const handleEdit = (id: number) => {
   router.push(`/posts/${id}/edit`)
@@ -67,6 +134,7 @@ const handleDelete = async (id: number) => {
   })
   if (confirmed) {
     await postStore.deletePost(id)
+    await fetchPosts()
   }
 }
 
@@ -79,6 +147,7 @@ const handlePublish = async (id: number) => {
   })
   if (confirmed) {
     await postStore.publishPost(id)
+    await fetchPosts()
   }
 }
 
@@ -91,6 +160,7 @@ const handleUnpublish = async (id: number) => {
   })
   if (confirmed) {
     await postStore.unpublishPost(id)
+    await fetchPosts()
   }
 }
 
@@ -103,6 +173,7 @@ const handleArchive = async (id: number) => {
   })
   if (confirmed) {
     await postStore.archivePost(id)
+    await fetchPosts()
   }
 }
 
@@ -110,6 +181,7 @@ const handleBatchUpload = async (file: File) => {
   try {
     await postStore.bulkUploadPosts(file)
     batchUploadModalOpen.value = false
+    await fetchPosts()
   } catch (error) {
     console.error('Failed to upload posts:', error)
   }
@@ -135,6 +207,7 @@ const handleBatchDelete = async () => {
       await postStore.batchDeletePosts(selectedPostUuids.value)
       selectedPostUuids.value = []
       toast.success('Posts deleted successfully')
+      await fetchPosts()
     } catch (error) {
       console.error('Failed to delete posts:', error)
       toast.error('Failed to delete posts')
@@ -143,7 +216,7 @@ const handleBatchDelete = async () => {
 }
 
 onMounted(() => {
-  postStore.fetchPosts()
+  fetchPosts()
 })
 </script>
 
@@ -184,11 +257,34 @@ onMounted(() => {
       :status-counts="statusCounts"
     />
 
+    <!-- Per Page Selector -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="text-sm text-muted-foreground">Show</span>
+        <select 
+          v-model.number="pageSize"
+          class="h-9 w-[100px] rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+        >
+          <option :value="10">10</option>
+          <option :value="20">20</option>
+          <option :value="50">50</option>
+          <option :value="100">100</option>
+        </select>
+        <span class="text-sm text-muted-foreground">per page</span>
+      </div>
+      <div v-if="postStore.loading" class="text-sm text-muted-foreground">
+        Loading...
+      </div>
+    </div>
+
     <!-- Posts Table -->
     <Card>
       <CardHeader>
         <CardTitle class="text-xl">
-          {{ filteredPosts.length }} {{ filteredPosts.length === 1 ? 'Post' : 'Posts' }}
+          {{ postStore.totalPosts }} {{ postStore.totalPosts === 1 ? 'Post' : 'Posts' }}
+          <span v-if="postStore.posts.length !== postStore.totalPosts" class="text-sm font-normal text-muted-foreground">
+            (Showing {{ offset + 1 }}-{{ Math.min(offset + pageSize, postStore.totalPosts) }})
+          </span>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -211,7 +307,7 @@ onMounted(() => {
             </TableHeader>
             <TableBody>
               <PostTableRow
-                v-for="post in filteredPosts"
+                v-for="post in postStore.posts"
                 :key="post.id"
                 :post="post"
                 :selected="selectedPostUuids.includes(post.uuid)"
@@ -228,7 +324,7 @@ onMounted(() => {
         </div>
 
         <!-- Empty State -->
-        <div v-if="filteredPosts.length === 0" class="text-center py-12">
+        <div v-if="postStore.posts.length === 0 && !postStore.loading" class="text-center py-12">
           <div class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-muted mb-4">
             <Search class="h-8 w-8 text-muted-foreground" />
           </div>
@@ -241,6 +337,57 @@ onMounted(() => {
             <Plus class="h-4 w-4 mr-2" />
             Create Post
           </Button>
+        </div>
+
+        <!-- Pagination -->
+        <div v-if="totalPages > 1" class="flex items-center justify-between mt-4 pt-4 border-t">
+          <div class="text-sm text-muted-foreground">
+            Page {{ currentPage }} of {{ totalPages }}
+          </div>
+          <div class="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              :disabled="currentPage === 1"
+              @click="prevPage"
+            >
+              <ChevronLeft class="h-4 w-4" />
+              Previous
+            </Button>
+            
+            <!-- Page numbers -->
+            <div class="flex items-center gap-1">
+              <Button
+                v-for="page in Math.min(5, totalPages)"
+                :key="page"
+                variant="outline"
+                size="sm"
+                :class="{ 'bg-primary text-primary-foreground': page === currentPage }"
+                @click="goToPage(page)"
+              >
+                {{ page }}
+              </Button>
+              <span v-if="totalPages > 5" class="px-2">...</span>
+              <Button
+                v-if="totalPages > 5 && currentPage < totalPages - 2"
+                variant="outline"
+                size="sm"
+                @click="goToPage(totalPages)"
+              >
+                {{ totalPages }}
+              </Button>
+            </div>
+
+            <Button
+              variant="outline"
+              size="sm"
+              :disabled="currentPage === totalPages"
+              @click="nextPage"
+            >
+              Next
+              <ChevronRight class="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
