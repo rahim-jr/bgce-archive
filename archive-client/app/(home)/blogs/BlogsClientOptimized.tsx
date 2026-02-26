@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { BlogHeader } from "@/components/blogs/BlogHeader";
 import { MobileFilterButton } from "@/components/blogs/MobileFilterButton";
@@ -19,6 +19,9 @@ const MobileFilterDrawer = dynamic(
 export default function BlogsClient({ initialPosts, categories }: BlogsClientProps) {
     // State
     const [posts, setPosts] = useState(initialPosts);
+    const [totalPosts, setTotalPosts] = useState(initialPosts.length);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(9);
     const [sortBy, setSortBy] = useState<SortOption>("new");
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -31,6 +34,9 @@ export default function BlogsClient({ initialPosts, categories }: BlogsClientPro
     const [showAllCategories, setShowAllCategories] = useState(false);
     const [isLoadingSubcategories, setIsLoadingSubcategories] = useState(false);
     const [showFeaturedOnly, setShowFeaturedOnly] = useState(false);
+    const [showPinnedOnly, setShowPinnedOnly] = useState(false);
+
+    const totalPages = Math.ceil(totalPosts / pageSize);
 
     // Fetch subcategories when category is selected
     useEffect(() => {
@@ -48,51 +54,62 @@ export default function BlogsClient({ initialPosts, categories }: BlogsClientPro
         }
     }, [selectedCategory, categories]);
 
+    // Fetch posts when filters change - SERVER SIDE
+    const fetchFilteredPosts = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const params: any = {
+                limit: pageSize,
+                offset: (currentPage - 1) * pageSize,
+            };
+
+            // Category filters
+            if (selectedCategory) params.category_id = selectedCategory;
+            if (selectedSubcategory) params.sub_category_id = selectedSubcategory;
+
+            // Search
+            if (searchQuery) params.search = searchQuery;
+
+            // Feature filters
+            if (showFeaturedOnly) params.is_featured = true;
+            if (showPinnedOnly) params.is_pinned = true;
+
+            // Sorting
+            if (sortBy === "new") {
+                params.sort_by = "created_at";
+                params.sort_order = "DESC";
+            } else if (sortBy === "views") {
+                params.sort_by = "view_count";
+                params.sort_order = "DESC";
+            } else if (sortBy === "featured") {
+                params.is_featured = true;
+                params.sort_by = "created_at";
+                params.sort_order = "DESC";
+            }
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_POSTAL_API_URL || 'http://localhost:8081/api/v1'}/posts?${new URLSearchParams(params).toString()}`);
+            const result = await response.json();
+
+            if (result.status) {
+                setPosts(result.data || []);
+                setTotalPosts(result.meta?.total || 0);
+            }
+        } catch (error) {
+            console.error("Error fetching posts:", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [currentPage, pageSize, selectedCategory, selectedSubcategory, searchQuery, showFeaturedOnly, showPinnedOnly, sortBy]);
+
     // Fetch posts when filters change
     useEffect(() => {
-        const fetchFilteredPosts = async () => {
-            setIsLoading(true);
-            try {
-                const params: any = { limit: 100 };
-                if (selectedCategory) params.category_id = selectedCategory;
-                if (selectedSubcategory) params.sub_category_id = selectedSubcategory;
-
-                const fetchedPosts = await getPosts(params);
-                setPosts(fetchedPosts);
-            } catch (error) {
-                console.error("Error fetching posts:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
         fetchFilteredPosts();
-    }, [selectedCategory, selectedSubcategory]);
+    }, [fetchFilteredPosts]);
 
-    // Filter and sort blogs
-    const filteredBlogs = useMemo(() => {
-        return posts
-            .filter((post) => {
-                if (searchQuery && !post.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-                    !post.summary?.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-                if (showFeaturedOnly && !post.is_featured) return false;
-                return true;
-            })
-            .sort((a, b) => {
-                switch (sortBy) {
-                    case "new":
-                        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-                    case "views":
-                        return b.view_count - a.view_count;
-                    case "featured":
-                        if (a.is_featured && !b.is_featured) return -1;
-                        if (!a.is_featured && b.is_featured) return 1;
-                        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-                    default:
-                        return 0;
-                }
-            });
-    }, [posts, searchQuery, showFeaturedOnly, sortBy]);
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedCategory, selectedSubcategory, searchQuery, showFeaturedOnly, showPinnedOnly, sortBy, pageSize]);
 
     // Filter categories based on search
     const filteredCategories = useMemo(() => {
@@ -110,12 +127,12 @@ export default function BlogsClient({ initialPosts, categories }: BlogsClientPro
 
     const hasMoreCategories = filteredCategories.length > 5 && !showAllCategories && !categorySearch;
 
-    // Get post count per category
+    // Get post count per category (approximate from initial load)
     const getCategoryPostCount = (categoryId: number) => {
         return initialPosts.filter(post => post.category_id === categoryId).length;
     };
 
-    const activeFiltersCount = [searchQuery, selectedCategory, selectedSubcategory, showFeaturedOnly].filter(Boolean).length;
+    const activeFiltersCount = [searchQuery, selectedCategory, selectedSubcategory, showFeaturedOnly, showPinnedOnly].filter(Boolean).length;
 
     // Prevent body scroll when drawer is open
     useEffect(() => {
@@ -151,6 +168,8 @@ export default function BlogsClient({ initialPosts, categories }: BlogsClientPro
         setCategorySearch("");
         setShowAllCategories(false);
         setShowFeaturedOnly(false);
+        setShowPinnedOnly(false);
+        setCurrentPage(1);
     };
 
     const handleToggleCategory = (categoryId: number) => {
@@ -160,6 +179,13 @@ export default function BlogsClient({ initialPosts, categories }: BlogsClientPro
             setSelectedCategory(categoryId);
             setExpandedCategory(categoryId);
             setSelectedSubcategory(null);
+        }
+    };
+
+    const goToPage = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     };
 
@@ -194,7 +220,7 @@ export default function BlogsClient({ initialPosts, categories }: BlogsClientPro
                         onToggleFeatured={() => setShowFeaturedOnly(!showFeaturedOnly)}
                         onClearFilters={clearAllFilters}
                         activeFiltersCount={activeFiltersCount}
-                        filteredBlogsCount={filteredBlogs.length}
+                        filteredBlogsCount={totalPosts}
                     />
                 )}
 
@@ -221,24 +247,85 @@ export default function BlogsClient({ initialPosts, categories }: BlogsClientPro
                         displayedCategories={displayedCategories}
                         hasMoreCategories={hasMoreCategories}
                         getCategoryPostCount={getCategoryPostCount}
-                        totalPosts={posts.length}
+                        totalPosts={totalPosts}
                         isLoadingSubcategories={isLoadingSubcategories}
                         onClearFilters={clearAllFilters}
                         activeFiltersCount={activeFiltersCount}
                     />
 
                     <main className="flex-1">
-                        <div className="mb-3 flex items-center justify-between">
-                            <p className="text-xs font-bold text-foreground">
-                                {isLoading ? "Loading..." : `${filteredBlogs.length} Blog${filteredBlogs.length !== 1 ? 's' : ''}`}
+                        {/* Results header with per-page selector */}
+                        <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                            <p className="text-sm font-medium text-foreground">
+                                {isLoading ? "Loading..." : `${totalPosts} Blog${totalPosts !== 1 ? 's' : ''} found`}
+                                {totalPosts > 0 && ` (Page ${currentPage} of ${totalPages})`}
                             </p>
+
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-muted-foreground">Show</span>
+                                <select
+                                    value={pageSize}
+                                    onChange={(e) => setPageSize(Number(e.target.value))}
+                                    className="h-9 w-20 rounded-md border border-input bg-background px-2 py-1 text-sm"
+                                >
+                                    <option value={9}>9</option>
+                                    <option value={15}>15</option>
+                                    <option value={50}>50</option>
+                                </select>
+                                <span className="text-sm text-muted-foreground">per page</span>
+                            </div>
                         </div>
 
                         <BlogGrid
-                            blogs={filteredBlogs}
+                            blogs={posts}
                             isLoading={isLoading}
                             onClearFilters={clearAllFilters}
                         />
+
+                        {/* Pagination */}
+                        {totalPages > 1 && !isLoading && (
+                            <div className="mt-8 flex items-center justify-center gap-2">
+                                <button
+                                    onClick={() => goToPage(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="px-4 py-2 rounded-md border border-input bg-background hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                                >
+                                    Previous
+                                </button>
+
+                                <div className="flex items-center gap-1">
+                                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => i + 1).map(page => (
+                                        <button
+                                            key={page}
+                                            onClick={() => goToPage(page)}
+                                            className={`px-3 py-2 rounded-md text-sm font-medium ${page === currentPage
+                                                    ? 'bg-primary text-primary-foreground'
+                                                    : 'border border-input bg-background hover:bg-accent'
+                                                }`}
+                                        >
+                                            {page}
+                                        </button>
+                                    ))}
+                                    {totalPages > 5 && <span className="px-2 text-muted-foreground">...</span>}
+                                    {totalPages > 5 && currentPage < totalPages - 2 && (
+                                        <button
+                                            onClick={() => goToPage(totalPages)}
+                                            className="px-3 py-2 rounded-md border border-input bg-background hover:bg-accent text-sm font-medium"
+                                        >
+                                            {totalPages}
+                                        </button>
+                                    )}
+                                </div>
+
+                                <button
+                                    onClick={() => goToPage(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="px-4 py-2 rounded-md border border-input bg-background hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        )}
                     </main>
                 </div>
             </div>
