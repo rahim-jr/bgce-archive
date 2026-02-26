@@ -8,6 +8,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { SkipToContent } from "@/components/shared/SkipToContent";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 import { GradientBackground } from "@/components/shared/GradientBackground";
+import { MobileOptimizer } from "@/components/shared/MobileOptimizer";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -26,6 +27,19 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
     title: "BGCE Archive",
     description: "Best Golang Community Ever",
+    other: {
+        // Optimize for mobile performance
+        "mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-status-bar-style": "default",
+    },
+};
+
+export const viewport = {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
 };
 
 export default function RootLayout({
@@ -35,11 +49,47 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
+            <head>
+                {/* Critical mobile performance CSS - loaded immediately */}
+                <style dangerouslySetInnerHTML={{
+                    __html: `
+                        @media (max-width: 768px) {
+                            * {
+                                backdrop-filter: none !important;
+                                -webkit-backdrop-filter: none !important;
+                            }
+                            [class*="blur"] {
+                                filter: none !important;
+                            }
+                            * {
+                                box-shadow: none !important;
+                                text-shadow: none !important;
+                            }
+                            *:hover {
+                                transform: none !important;
+                            }
+                            [class*="animate"] {
+                                animation: none !important;
+                            }
+                            [class*="bg-gradient"] {
+                                background-image: none !important;
+                            }
+                            html {
+                                scroll-behavior: auto !important;
+                            }
+                            * {
+                                -webkit-overflow-scrolling: touch;
+                            }
+                        }
+                    `
+                }} />
+            </head>
             <body
                 className={`${geistSans.variable} ${geistMono.variable} antialiased`}
             >
                 <SkipToContent />
                 <KrakensAnalytics />
+                <MobileOptimizer />
                 <GradientBackground />
 
                 <ThemeProvider

@@ -1,4 +1,36 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 export function GradientBackground() {
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        // Detect mobile device
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    if (isMobile) {
+        // Simplified version for mobile - no blur effects
+        return (
+            <>
+                {/* Base Gradient Layer */}
+                <div className="fixed inset-0 -z-50 bg-gradient-to-br from-primary/5 via-background to-primary/5 dark:from-primary/10 dark:via-background dark:to-primary/10" />
+
+                {/* Simple Grid Pattern */}
+                <div className="fixed inset-0 -z-40 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:48px_48px]" />
+            </>
+        );
+    }
+
+    // Full version for desktop
     return (
         <>
             {/* Base Gradient Layer */}
@@ -7,7 +39,7 @@ export function GradientBackground() {
             {/* Tech Grid Pattern */}
             <div className="fixed inset-0 -z-40 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:48px_48px]" />
 
-            {/* Animated Gradient Orbs */}
+            {/* Animated Gradient Orbs - Desktop Only */}
             <div className="fixed top-0 right-0 w-[600px] h-[600px] -z-30 bg-gradient-to-br from-primary/20 via-primary/10 to-transparent dark:from-primary/30 dark:via-primary/15 dark:to-transparent rounded-full blur-3xl animate-pulse pointer-events-none" style={{ animationDuration: '8s' }} />
 
             <div className="fixed bottom-0 left-0 w-[500px] h-[500px] -z-30 bg-gradient-to-tr from-blue-500/10 via-purple-500/10 to-transparent dark:from-blue-500/20 dark:via-purple-500/20 dark:to-transparent rounded-full blur-3xl animate-pulse pointer-events-none" style={{ animationDuration: '10s', animationDelay: '2s' }} />

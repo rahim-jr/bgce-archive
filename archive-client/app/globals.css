@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./nav-fix.css";
+@import "./performance-optimizations.css";
 
 /* Ensure body is transparent to show gradients */
 body {
