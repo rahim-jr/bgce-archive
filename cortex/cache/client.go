@@ -3,6 +3,7 @@ package cache
 import (
 	"crypto/tls"
 	"log/slog"
+	"time"
 
 	goRedis "github.com/redis/go-redis/v9"
 
@@ -22,6 +23,16 @@ func redisOptions(redisUrl string, enableRedisTLSMode bool) (*goRedis.Options, e
 
 		opt.TLSConfig = tlsConfig
 	}
+
+	// Configure connection pool for better performance
+	opt.PoolSize = 10     // Max number of socket connections
+	opt.MinIdleConns = 5  // Minimum idle connections
+	opt.MaxIdleConns = 10 // Maximum idle connections
+	opt.ConnMaxIdleTime = 5 * time.Minute
+	opt.ConnMaxLifetime = 30 * time.Minute
+	opt.PoolTimeout = 4 * time.Second // Wait time for connection from pool
+	opt.ReadTimeout = 3 * time.Second
+	opt.WriteTimeout = 3 * time.Second
 
 	return opt, nil
 }
