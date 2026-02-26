@@ -40,6 +40,7 @@ const statusCounts = ref({
   all: 0,
   draft: 0,
   published: 0,
+  pending: 0,
   archived: 0,
 })
 
@@ -54,7 +55,7 @@ const allSelected = computed({
   get: () => postStore.posts.length > 0 && selectedPostUuids.value.length === postStore.posts.length,
   set: (value: boolean) => {
     if (value) {
-      selectedPostUuids.value = postStore.posts.map(p => p.uuid)
+      selectedPostUuids.value = postStore.posts.map(p => p.uuid).filter((uuid): uuid is string => uuid !== undefined)
     } else {
       selectedPostUuids.value = []
     }
@@ -115,10 +116,11 @@ const fetchPosts = async () => {
 const fetchStatusCounts = async () => {
   // Fetch counts for each status without affecting the main posts display
   try {
-    const [allRes, draftRes, publishedRes, archivedRes] = await Promise.all([
+    const [allRes, draftRes, publishedRes, pendingRes, archivedRes] = await Promise.all([
       postService.getPosts({ limit: 1, offset: 0 }),
       postService.getPosts({ limit: 1, offset: 0, status: 'draft' }),
       postService.getPosts({ limit: 1, offset: 0, status: 'published' }),
+      postService.getPosts({ limit: 1, offset: 0, status: 'pending' }),
       postService.getPosts({ limit: 1, offset: 0, status: 'archived' }),
     ])
     
@@ -126,6 +128,7 @@ const fetchStatusCounts = async () => {
       all: allRes.meta?.total || 0,
       draft: draftRes.meta?.total || 0,
       published: publishedRes.meta?.total || 0,
+      pending: pendingRes.meta?.total || 0,
       archived: archivedRes.meta?.total || 0,
     }
   } catch (error) {
@@ -506,8 +509,8 @@ onMounted(async () => {
                 v-for="post in postStore.posts"
                 :key="post.id"
                 :post="post"
-                :selected="selectedPostUuids.includes(post.uuid)"
-                @toggle-select="togglePostSelection(post.uuid)"
+                :selected="post.uuid ? selectedPostUuids.includes(post.uuid) : false"
+                @toggle-select="post.uuid && togglePostSelection(post.uuid)"
                 @edit="handleEdit"
                 @preview="handlePreview"
                 @delete="handleDelete"
