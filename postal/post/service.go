@@ -148,7 +148,24 @@ func (s *service) GetPostBySlug(ctx context.Context, slug string) (*PostResponse
 }
 
 func (s *service) ListPosts(ctx context.Context, filter PostFilter) ([]*PostListItemResponse, int64, error) {
-	// Pass false for withContent to get lightweight query
+	// Try cache first for list queries
+	if s.cache != nil {
+		cacheKey := s.buildListCacheKey(filter)
+		cached, err := s.cache.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			var cachedResult struct {
+				Posts []*PostListItemResponse `json:"posts"`
+				Total int64                   `json:"total"`
+			}
+			if err := json.Unmarshal([]byte(cached), &cachedResult); err == nil {
+				log.Printf("Cache HIT - returning post list from Redis (key=%s)", cacheKey)
+				return cachedResult.Posts, cachedResult.Total, nil
+			}
+		}
+	}
+
+	// Cache MISS - load from DB
+	log.Printf("Cache MISS - loading post list from DB")
 	posts, total, err := s.repo.List(ctx, filter, false)
 	if err != nil {
 		return nil, 0, err
@@ -159,7 +176,67 @@ func (s *service) ListPosts(ctx context.Context, filter PostFilter) ([]*PostList
 		responses[i] = ToPostListItemResponse(post)
 	}
 
+	// Cache the result
+	s.cachePostList(ctx, filter, responses, total)
+
 	return responses, total, nil
+}
+
+// buildListCacheKey creates a unique cache key based on filter parameters
+func (s *service) buildListCacheKey(filter PostFilter) string {
+	key := fmt.Sprintf("post:list:limit:%d:offset:%d:sort:%s:%s",
+		filter.Limit, filter.Offset, filter.SortBy, filter.SortOrder)
+
+	if filter.Status != nil {
+		key += fmt.Sprintf(":status:%s", *filter.Status)
+	}
+	if filter.CategoryID != nil {
+		key += fmt.Sprintf(":cat:%d", *filter.CategoryID)
+	}
+	if filter.SubCategoryID != nil {
+		key += fmt.Sprintf(":subcat:%d", *filter.SubCategoryID)
+	}
+	if filter.IsFeatured != nil {
+		key += fmt.Sprintf(":featured:%t", *filter.IsFeatured)
+	}
+	if filter.IsPinned != nil {
+		key += fmt.Sprintf(":pinned:%t", *filter.IsPinned)
+	}
+	if filter.IsPublic != nil {
+		key += fmt.Sprintf(":public:%t", *filter.IsPublic)
+	}
+	if filter.Search != nil && *filter.Search != "" {
+		key += fmt.Sprintf(":search:%s", *filter.Search)
+	}
+
+	return key
+}
+
+// cachePostList caches the list result
+func (s *service) cachePostList(ctx context.Context, filter PostFilter, posts []*PostListItemResponse, total int64) {
+	if s.cache == nil {
+		return
+	}
+
+	cacheKey := s.buildListCacheKey(filter)
+	result := struct {
+		Posts []*PostListItemResponse `json:"posts"`
+		Total int64                   `json:"total"`
+	}{
+		Posts: posts,
+		Total: total,
+	}
+
+	data, err := json.Marshal(result)
+	if err != nil {
+		log.Printf("Failed to marshal post list for cache: %v", err)
+		return
+	}
+
+	// Cache list results for 5 minutes (shorter TTL than individual posts)
+	if err := s.cache.Set(ctx, cacheKey, data, 5*time.Minute); err != nil {
+		log.Printf("Failed to cache post list: %v", err)
+	}
 }
 
 func (s *service) UpdatePost(ctx context.Context, id uint, req UpdatePostRequest, userID uint) (*PostResponse, error) {
@@ -237,6 +314,12 @@ func (s *service) UpdatePost(ctx context.Context, id uint, req UpdatePostRequest
 		return nil, fmt.Errorf("failed to update post: %w", err)
 	}
 
+	// Invalidate cache for this post
+	s.invalidatePostCache(ctx, post)
+
+	// Invalidate list caches (since post data changed)
+	s.invalidateListCaches(ctx)
+
 	// Create version if content changed
 	if contentChanged {
 		if err := s.createVersion(ctx, post, userID, "Content updated"); err != nil {
@@ -262,7 +345,15 @@ func (s *service) PublishPost(ctx context.Context, id uint, userID uint) error {
 	post.PublishedAt = &now
 	post.UpdatedBy = userID
 
-	return s.repo.Update(ctx, post)
+	if err := s.repo.Update(ctx, post); err != nil {
+		return err
+	}
+
+	// Invalidate cache
+	s.invalidatePostCache(ctx, post)
+	s.invalidateListCaches(ctx)
+
+	return nil
 }
 
 func (s *service) UnpublishPost(ctx context.Context, id uint, userID uint) error {
@@ -274,7 +365,15 @@ func (s *service) UnpublishPost(ctx context.Context, id uint, userID uint) error
 	post.Status = domain.StatusDraft
 	post.UpdatedBy = userID
 
-	return s.repo.Update(ctx, post)
+	if err := s.repo.Update(ctx, post); err != nil {
+		return err
+	}
+
+	// Invalidate cache
+	s.invalidatePostCache(ctx, post)
+	s.invalidateListCaches(ctx)
+
+	return nil
 }
 
 func (s *service) ArchivePost(ctx context.Context, id uint, userID uint) error {
@@ -305,7 +404,21 @@ func (s *service) RestorePost(ctx context.Context, id uint, userID uint) error {
 }
 
 func (s *service) DeletePost(ctx context.Context, id uint) error {
-	return s.repo.Delete(ctx, id)
+	// Get post before deletion for cache invalidation
+	post, err := s.repo.GetByID(ctx, id)
+	if err != nil {
+		return err
+	}
+
+	if err := s.repo.Delete(ctx, id); err != nil {
+		return err
+	}
+
+	// Invalidate cache
+	s.invalidatePostCache(ctx, post)
+	s.invalidateListCaches(ctx)
+
+	return nil
 }
 
 func (s *service) HardDeletePost(ctx context.Context, id uint) error {
