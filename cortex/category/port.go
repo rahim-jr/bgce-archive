@@ -30,4 +30,6 @@ type Cache interface {
 	CategoryUUIDKey(uuid uuid.UUID) string
 	CategoryObjectKey(uuid uuid.UUID) string
 	CategoryTopPostsKey(uuid uuid.UUID) string
+	Del(ctx context.Context, key string) error
+	FlushAll(ctx context.Context) error
 }

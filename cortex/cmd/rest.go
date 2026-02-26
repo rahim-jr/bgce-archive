@@ -121,7 +121,7 @@ func APIServerCommand(ctx context.Context) *cobra.Command {
 			tenantSvc := tenant.NewService(cnf, tenantRepo, entClient)
 
 			userSvc := user.NewService(cnf, entClient)
-			handlers := handlers.NewHandler(cnf, ctgrySvc, subcategorySvc, tenantSvc, userSvc)
+			handlers := handlers.NewHandler(cnf, ctgrySvc, subcategorySvc, tenantSvc, userSvc, redisCache)
 
 			// NewServeMux now returns http.Handler with all middlewares applied
 			handler, err := rest.NewServeMux(middlewares, handlers)

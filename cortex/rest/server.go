@@ -69,6 +69,11 @@ func NewServeMux(mw *middlewares.Middlewares, handlers *handlers.Handlers) (http
 	// Health check
 	mux.HandleFunc("GET /api/v1/hello", handlers.Hello)
 
+	// Cache management (protected)
+	mux.HandleFunc("POST /api/v1/cache/flush", func(w http.ResponseWriter, r *http.Request) {
+		mw.AuthenticateJWT(http.HandlerFunc(handlers.FlushCache)).ServeHTTP(w, r)
+	})
+
 	// Setup swagger with its own middleware manager
 	swaggerManager := middlewares.NewManager()
 	swaggerManager.Use(middlewares.Recover, middlewares.Logger, middlewares.CORS)

@@ -16,6 +16,7 @@ type Handlers struct {
 	SubcategoryService subcategory.Service
 	TenantService      tenant.Service
 	userService        *user.Service
+	Cache              category.Cache
 }
 
 func NewHandler(
@@ -24,6 +25,7 @@ func NewHandler(
 	subcategorySvc subcategory.Service,
 	tenantSvc tenant.Service,
 	userSvc *user.Service,
+	cache category.Cache,
 ) *Handlers {
 	return &Handlers{
 		cnf:                cnf,
@@ -31,6 +33,7 @@ func NewHandler(
 		SubcategoryService: subcategorySvc,
 		TenantService:      tenantSvc,
 		userService:        userSvc,
+		Cache:              cache,
 	}
 }
 
