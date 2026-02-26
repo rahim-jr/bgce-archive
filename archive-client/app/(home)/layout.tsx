@@ -1,5 +1,5 @@
 import Footer from "@/components/shared/Footer";
-import { MainNavigation } from "@/components/shared/MainNavigation";
+import { MainNavigationOptimized } from "@/components/shared/MainNavigationOptimized";
 
 export default function HomeLayout({
   children,
@@ -8,7 +8,7 @@ export default function HomeLayout({
 }>) {
   return (
     <>
-      <MainNavigation />
+      <MainNavigationOptimized />
       <main id="main-content">
         {children}
       </main>

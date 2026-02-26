@@ -1,6 +1,6 @@
 "use client";
 
-import { MainNavigation } from "@/components/shared/MainNavigation";
+import { MainNavigationOptimized } from "@/components/shared/MainNavigationOptimized";
 import Footer from "@/components/shared/Footer";
 import { AlertTriangle, ArrowLeft, BookOpen, Search } from "lucide-react";
 import Link from "next/link";
@@ -8,7 +8,7 @@ import Link from "next/link";
 export default function NotFound() {
     return (
         <main className="min-h-screen flex flex-col bg-background">
-            <MainNavigation />
+            <MainNavigationOptimized />
 
             <section className="relative flex-1 flex items-center justify-center overflow-hidden py-32">
                 {/* Technical Grid Background */}

@@ -1,7 +1,7 @@
-import CommunityWrapper from "@/components/community/CommunityWrapper";
+import CommunityWrapperOptimized from "@/components/community/CommunityWrapperOptimized";
 
 const CommunityPage = () => {
-  return <CommunityWrapper />;
+  return <CommunityWrapperOptimized />;
 };
 
 export default CommunityPage;
