@@ -1,7 +1,7 @@
 "use client";
 
 import { AuthWrapper } from "@/components/auth/AuthWrapper";
-import { RegisterForm } from "@/components/auth/RegisterForm";
+import { RegisterFormOptimized } from "@/components/auth/RegisterFormOptimized";
 
 export default function RegisterPage() {
   return (
@@ -12,7 +12,7 @@ export default function RegisterPage() {
       footerLinkText="Sign in"
       footerLinkHref="/login"
     >
-      <RegisterForm />
+      <RegisterFormOptimized />
     </AuthWrapper>
   );
 }
