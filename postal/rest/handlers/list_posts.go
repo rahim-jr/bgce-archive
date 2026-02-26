@@ -49,6 +49,31 @@ func (h *Handlers) ListPosts(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	if subCategoryID := query.Get("sub_category_id"); subCategoryID != "" {
+		if scid, err := strconv.ParseUint(subCategoryID, 10, 32); err == nil {
+			id := uint(scid)
+			filter.SubCategoryID = &id
+		}
+	}
+
+	if isFeatured := query.Get("is_featured"); isFeatured != "" {
+		if featured, err := strconv.ParseBool(isFeatured); err == nil {
+			filter.IsFeatured = &featured
+		}
+	}
+
+	if isPinned := query.Get("is_pinned"); isPinned != "" {
+		if pinned, err := strconv.ParseBool(isPinned); err == nil {
+			filter.IsPinned = &pinned
+		}
+	}
+
+	if isPublic := query.Get("is_public"); isPublic != "" {
+		if public, err := strconv.ParseBool(isPublic); err == nil {
+			filter.IsPublic = &public
+		}
+	}
+
 	if search := query.Get("search"); search != "" {
 		filter.Search = &search
 	}
