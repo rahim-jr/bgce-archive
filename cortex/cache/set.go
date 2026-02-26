@@ -2,9 +2,10 @@ package cache
 
 import (
 	"context"
-	"cortex/logger"
 	"log/slog"
 	"time"
+
+	"cortex/logger"
 
 	"go.elastic.co/apm"
 )
@@ -12,6 +13,10 @@ import (
 func (c *cache) Set(ctx context.Context, key string, value any, expiration time.Duration) error {
 	span, _ := apm.StartSpan(ctx, "Set", "redis")
 	defer span.End()
+
+	// Add timeout to prevent hanging requests
+	ctx, cancel := context.WithTimeout(ctx, 200*time.Millisecond)
+	defer cancel()
 
 	err := c.writeClient.Set(ctx, key, value, expiration).Err()
 	if err != nil {

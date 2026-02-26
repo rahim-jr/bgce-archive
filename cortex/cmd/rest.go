@@ -63,7 +63,7 @@ func APIServerCommand(ctx context.Context) *cobra.Command {
 				return err
 			}
 
-			readRedisClient, err := cache.NewRedisClient(cnf.ReadRedisURL, cnf.EnableRedisTLSMode)
+			readRedisClient, err := cache.NewRedisClient(cnf.ReadRedisURL, cnf.EnableRedisTLSMode, false)
 			if err != nil {
 				slog.Error("Unable to create redis read client", logger.Extra(map[string]any{
 					"error": err.Error(),
@@ -72,7 +72,7 @@ func APIServerCommand(ctx context.Context) *cobra.Command {
 			}
 			defer readRedisClient.Close()
 
-			writeRedisClient, err := cache.NewRedisClient(cnf.WriteRedisURL, cnf.EnableRedisTLSMode)
+			writeRedisClient, err := cache.NewRedisClient(cnf.WriteRedisURL, cnf.EnableRedisTLSMode, true)
 			if err != nil {
 				slog.Error("Unable to create redis write client", logger.Extra(map[string]any{
 					"error": err.Error(),

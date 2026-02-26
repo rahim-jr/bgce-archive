@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/go-redis/redis"
 	"go.elastic.co/apm"
@@ -11,6 +12,10 @@ import (
 func (c *cache) Get(ctx context.Context, key string) (string, error) {
 	span, _ := apm.StartSpan(ctx, "Get", "redis")
 	defer span.End()
+
+	// Add timeout to prevent hanging requests
+	ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
+	defer cancel()
 
 	value, err := c.readClient.Get(ctx, key).Result()
 	if err != nil {

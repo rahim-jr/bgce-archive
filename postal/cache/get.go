@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"fmt"
+	"time"
 
 	goRedis "github.com/redis/go-redis/v9"
 )
@@ -11,6 +12,10 @@ func (c *cache) Get(ctx context.Context, key string) (string, error) {
 	if c.readClient == nil {
 		return "", nil
 	}
+
+	// Add timeout to prevent hanging requests
+	ctx, cancel := context.WithTimeout(ctx, 100*time.Millisecond)
+	defer cancel()
 
 	value, err := c.readClient.Get(ctx, key).Result()
 	if err != nil {

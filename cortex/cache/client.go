@@ -10,7 +10,7 @@ import (
 	"cortex/logger"
 )
 
-func redisOptions(redisUrl string, enableRedisTLSMode bool) (*goRedis.Options, error) {
+func redisOptions(redisUrl string, enableRedisTLSMode bool, isWriteClient bool) (*goRedis.Options, error) {
 	opt, err := goRedis.ParseURL(redisUrl)
 	if err != nil {
 		return nil, err
@@ -24,21 +24,35 @@ func redisOptions(redisUrl string, enableRedisTLSMode bool) (*goRedis.Options, e
 		opt.TLSConfig = tlsConfig
 	}
 
-	// Configure connection pool for better performance
-	opt.PoolSize = 10     // Max number of socket connections
-	opt.MinIdleConns = 5  // Minimum idle connections
-	opt.MaxIdleConns = 10 // Maximum idle connections
-	opt.ConnMaxIdleTime = 5 * time.Minute
-	opt.ConnMaxLifetime = 30 * time.Minute
-	opt.PoolTimeout = 4 * time.Second // Wait time for connection from pool
-	opt.ReadTimeout = 3 * time.Second
-	opt.WriteTimeout = 3 * time.Second
+	// Configure connection pool for high performance
+	// Different settings for read vs write clients
+	if isWriteClient {
+		// Write client - moderate pool size
+		opt.PoolSize = 20     // Max connections in pool
+		opt.MinIdleConns = 5  // Keep 5 idle connections ready
+		opt.MaxIdleConns = 10 // Max idle connections
+	} else {
+		// Read client - larger pool for high read throughput
+		opt.PoolSize = 50     // Max connections in pool
+		opt.MinIdleConns = 10 // Keep 10 idle connections ready
+		opt.MaxIdleConns = 20 // Max idle connections
+	}
+
+	// Connection lifecycle settings
+	opt.ConnMaxIdleTime = 5 * time.Minute  // Close idle connections after 5 minutes
+	opt.ConnMaxLifetime = 30 * time.Minute // Recycle connections after 30 minutes
+
+	// Timeout settings - aggressive for low latency
+	opt.PoolTimeout = 4 * time.Second  // Wait time for connection from pool
+	opt.DialTimeout = 2 * time.Second  // Connection establishment timeout
+	opt.ReadTimeout = 2 * time.Second  // Socket read timeout
+	opt.WriteTimeout = 2 * time.Second // Socket write timeout
 
 	return opt, nil
 }
 
-func NewRedisClient(redisUrl string, enableRedisTLSMode bool) (*goRedis.Client, error) {
-	opt, err := redisOptions(redisUrl, enableRedisTLSMode)
+func NewRedisClient(redisUrl string, enableRedisTLSMode bool, isWriteClient bool) (*goRedis.Client, error) {
+	opt, err := redisOptions(redisUrl, enableRedisTLSMode, isWriteClient)
 	if err != nil {
 		slog.Error("Unable to parse the redis URL", logger.Extra(map[string]any{
 			"error": err.Error(),

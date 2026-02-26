@@ -61,14 +61,27 @@ func runRESTServer(cmd *cobra.Command, args []string) error {
 	// Initialize cache
 	log.Println("🔄 Initializing cache...")
 	var cacheClient cache.Cache
-	writeRedisClient, err := cache.NewRedisClient(cfg.WriteRedisURL, cfg.EnableRedisTLSMode)
+	writeRedisClient, err := cache.NewRedisClient(cfg.WriteRedisURL, cfg.EnableRedisTLSMode, true)
 	if err != nil {
 		log.Printf("⚠️ Failed to initialize Redis client, cache disabled: %v", err)
 	} else if writeRedisClient != nil {
-		cacheClient = cache.NewCache(writeRedisClient, writeRedisClient)
+		// For postal, we use the same client for both read and write
+		// In production, you might want separate read/write clients
+		readRedisClient, err := cache.NewRedisClient(cfg.ReadRedisURL, cfg.EnableRedisTLSMode, false)
+		if err != nil {
+			log.Printf("⚠️ Failed to initialize Redis read client, using write client for both: %v", err)
+			cacheClient = cache.NewCache(writeRedisClient, writeRedisClient)
+		} else {
+			cacheClient = cache.NewCache(readRedisClient, writeRedisClient)
+			defer func() {
+				if closeErr := readRedisClient.Close(); closeErr != nil {
+					log.Printf("⚠️ Failed to close Redis read client: %v", closeErr)
+				}
+			}()
+		}
 		defer func() {
 			if closeErr := writeRedisClient.Close(); closeErr != nil {
-				log.Printf("⚠️ Failed to close Redis client: %v", closeErr)
+				log.Printf("⚠️ Failed to close Redis write client: %v", closeErr)
 			}
 		}()
 		log.Println("✅ Redis cache initialized")
