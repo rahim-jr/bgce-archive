@@ -1,6 +1,6 @@
 # Postal Service - Domain-Driven Design Architecture
 
-## Overview
+## Overvie w
 
 The Postal service manages blog posts with proper domain-driven design (DDD) principles, following the skeleton template architecture.
 

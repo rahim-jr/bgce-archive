@@ -1,4 +1,4 @@
-# Archive Client
+# Archive Clien t
 
 This is the public-facing frontend for the Archive platform built with Next.js 15, React 19, and TypeScript.
 
