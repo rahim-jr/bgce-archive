@@ -14,8 +14,8 @@ interface DesktopNavProps {
     onExploreClick: () => void;
     onResourcesClick: () => void;
     onLinkClick: () => void;
-    exploreRef: React.RefObject<HTMLButtonElement>;
-    resourcesRef: React.RefObject<HTMLButtonElement>;
+    exploreRef: React.RefObject<HTMLButtonElement | null>;
+    resourcesRef: React.RefObject<HTMLButtonElement | null>;
 }
 
 export function DesktopNav({

@@ -17,7 +17,7 @@ interface ProfileDropdownProps {
     position: DropdownPosition;
     onClose: () => void;
     onLogout: () => void;
-    dropdownRef: React.RefObject<HTMLDivElement>;
+    dropdownRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export function ProfileDropdown({

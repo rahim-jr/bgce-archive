@@ -9,7 +9,7 @@ interface ResourcesDropdownProps {
     isOpen: boolean;
     position: DropdownPosition;
     onClose: () => void;
-    dropdownRef: React.RefObject<HTMLDivElement>;
+    dropdownRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export function ResourcesDropdown({ isOpen, position, onClose, dropdownRef }: ResourcesDropdownProps) {

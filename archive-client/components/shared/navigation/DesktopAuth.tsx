@@ -18,7 +18,7 @@ interface DesktopAuthProps {
     user: User | null;
     profileOpen: boolean;
     onProfileClick: () => void;
-    profileRef: React.RefObject<HTMLButtonElement>;
+    profileRef: React.RefObject<HTMLButtonElement | null>;
 }
 
 export function DesktopAuth({

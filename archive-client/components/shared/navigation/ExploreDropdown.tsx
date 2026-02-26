@@ -11,7 +11,7 @@ interface ExploreDropdownProps {
     isOpen: boolean;
     position: DropdownPosition;
     onClose: () => void;
-    dropdownRef: React.RefObject<HTMLDivElement>;
+    dropdownRef: React.RefObject<HTMLDivElement | null>;
 }
 
 export function ExploreDropdown({ isOpen, position, onClose, dropdownRef }: ExploreDropdownProps) {
