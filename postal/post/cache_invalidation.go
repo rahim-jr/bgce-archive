@@ -37,16 +37,10 @@ func (s *service) invalidateListCaches(ctx context.Context) {
 		return
 	}
 
-	// Delete common cache key patterns for post lists
-	patterns := []string{
-		"post:list",
-		"post:list:*",
-	}
-
-	for _, pattern := range patterns {
-		if err := s.cache.Del(ctx, pattern); err != nil {
-			log.Printf("Failed to invalidate post list cache (pattern=%s): %v", pattern, err)
-		}
+	// Delete all keys matching the pattern "post:list:*"
+	if err := s.cache.DelPattern(ctx, "post:list:*"); err != nil {
+		log.Printf("Failed to invalidate post list cache: %v", err)
+		return
 	}
 
 	log.Printf("Post list caches invalidated")

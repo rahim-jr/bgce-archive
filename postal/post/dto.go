@@ -84,20 +84,21 @@ type PostResponse struct {
 
 // PostListItemResponse is a lighter response for list endpoints
 type PostListItemResponse struct {
-	ID              uint      `json:"id"`
-	Slug            string    `json:"slug"`
-	Title           string    `json:"title"`
-	Summary         string    `json:"summary"`
-	MetaDescription string    `json:"meta_description,omitempty"`
-	Keywords        string    `json:"keywords,omitempty"`
-	CategoryID      uint      `json:"category_id"`
-	SubCategoryID   *uint     `json:"sub_category_id,omitempty"`
-	IsFeatured      bool      `json:"is_featured"`
-	IsPinned        bool      `json:"is_pinned"`
-	CreatedBy       uint      `json:"created_by"`
-	ViewCount       int       `json:"view_count"`
-	ContentLength   int       `json:"content_length"` // For read time calculation
-	CreatedAt       time.Time `json:"created_at"`
+	ID              uint              `json:"id"`
+	Slug            string            `json:"slug"`
+	Title           string            `json:"title"`
+	Summary         string            `json:"summary"`
+	MetaDescription string            `json:"meta_description,omitempty"`
+	Keywords        string            `json:"keywords,omitempty"`
+	CategoryID      uint              `json:"category_id"`
+	Status          domain.PostStatus `json:"status"`
+	SubCategoryID   *uint             `json:"sub_category_id,omitempty"`
+	IsFeatured      bool              `json:"is_featured"`
+	IsPinned        bool              `json:"is_pinned"`
+	CreatedBy       uint              `json:"created_by"`
+	ViewCount       int               `json:"view_count"`
+	ContentLength   int               `json:"content_length"` // For read time calculation
+	CreatedAt       time.Time         `json:"created_at"`
 }
 
 type BatchDeleteRequest struct {
@@ -143,6 +144,7 @@ func ToPostListItemResponse(post *domain.Post) *PostListItemResponse {
 		MetaDescription: post.MetaDescription,
 		Keywords:        post.Keywords,
 		CategoryID:      post.CategoryID,
+		Status:          post.Status,
 		SubCategoryID:   post.SubCategoryID,
 		IsFeatured:      post.IsFeatured,
 		IsPinned:        post.IsPinned,

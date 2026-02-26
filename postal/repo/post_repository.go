@@ -106,7 +106,8 @@ func (r *postRepository) List(ctx context.Context, filter post.PostFilter, withC
 		selectQuery = selectQuery.Select(
 			"id", "slug", "title", "summary", "meta_description", "keywords",
 			"category_id", "sub_category_id", "is_featured", "is_pinned",
-			"created_by", "view_count", "CHAR_LENGTH(content) as content_length", "created_at",
+			"status", "created_by", "view_count", "created_at",
+			"CHAR_LENGTH(content) as content_length",
 		)
 	}
 

@@ -13,6 +13,7 @@ type Cache interface {
 	Set(ctx context.Context, key string, value any, expiration time.Duration) error
 	Get(ctx context.Context, key string) (string, error)
 	Del(ctx context.Context, keys ...string) error
+	DelPattern(ctx context.Context, pattern string) error
 	Exists(ctx context.Context, keys ...string) (int64, error)
 }
 
