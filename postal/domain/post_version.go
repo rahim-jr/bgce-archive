@@ -1,4 +1,4 @@
-package post_version
+package domain
 
 import (
 	"time"

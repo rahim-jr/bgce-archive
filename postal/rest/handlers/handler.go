@@ -7,16 +7,16 @@ import (
 )
 
 type Handlers struct {
-	PostService        post.Service
-	PostVersionService post_version.Repository
-	Validator		   *utils.Validator
+	PostService     post.Service
+	PostVersionRepo post_version.Repository
+	Validator       *utils.Validator
 }
 
-func NewHandlers(postService post.Service, versionRepo post_version.Repository, validator *utils.Validator) *Handlers {
+func NewHandlers(postService post.Service, postVersionRepo post_version.Repository, validator *utils.Validator) *Handlers {
 	return &Handlers{
-		PostService:        postService,
-		PostVersionService: versionRepo,
-		Validator:		   validator,
+		PostService:     postService,
+		PostVersionRepo: postVersionRepo,
+		Validator:       validator,
 	}
 }
 

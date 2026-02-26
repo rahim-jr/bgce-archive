@@ -2,51 +2,22 @@ package post
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"mime/multipart"
 	"time"
 
+	"postal/cache"
 	"postal/domain"
 	"postal/post_version"
 	"postal/util"
 )
 
-type Service interface {
-	CreatePost(ctx context.Context, req CreatePostRequest, userID uint) (*PostResponse, error)
-	GetPostByID(ctx context.Context, id uint) (*PostResponse, error)
-	GetPostByUUID(ctx context.Context, uuid string) (*PostResponse, error)
-	GetPostBySlug(ctx context.Context, slug string) (*PostResponse, error)
-	ListPosts(ctx context.Context, filter PostFilter) ([]*PostListItemResponse, int64, error)
-	UpdatePost(ctx context.Context, id uint, req UpdatePostRequest, userID uint) (*PostResponse, error)
-	PublishPost(ctx context.Context, id uint, userID uint) error
-	UnpublishPost(ctx context.Context, id uint, userID uint) error
-	ArchivePost(ctx context.Context, id uint, userID uint) error
-	RestorePost(ctx context.Context, id uint, userID uint) error
-	DeletePost(ctx context.Context, id uint) error
-	HardDeletePost(ctx context.Context, id uint) error
-	BatchUploadPosts(ctx context.Context, userID uint, file *multipart.File) error
-	BatchDeletePosts(ctx context.Context, uuids *[]string) error
-}
-
-type PostCache interface {
-	SetPost(ctx context.Context, post *domain.Post) error
-	GetByID(ctx context.Context, id uint) (*domain.Post, error)
-	GetBySlug(ctx context.Context, slug string) (*domain.Post, error)
-}
-
 type service struct {
 	repo        Repository
 	versionRepo post_version.Repository
-	cache       PostCache
-}
-
-func NewService(repo Repository, versionRepo post_version.Repository, cache PostCache) Service {
-	return &service{
-		repo:        repo,
-		versionRepo: versionRepo,
-		cache:       cache,
-	}
+	cache       cache.Cache
 }
 
 func (s *service) CreatePost(ctx context.Context, req CreatePostRequest, userID uint) (*PostResponse, error) {
@@ -117,23 +88,27 @@ func (s *service) CreatePost(ctx context.Context, req CreatePostRequest, userID 
 }
 
 func (s *service) GetPostByID(ctx context.Context, id uint) (*PostResponse, error) {
+	// Try cache first
 	if s.cache != nil {
-		post, err := s.cache.GetByID(ctx, id)
-		if err != nil {
-			return nil, err
-		}
-		if post != nil {
-			// Cache HIT - returning from Redis
-			log.Printf("Cache HIT - returning from Redis (id=%d)", id)
-			return ToPostResponse(post), nil
+		cacheKey := fmt.Sprintf("post:id:%d", id)
+		cached, err := s.cache.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			var post domain.Post
+			if err := json.Unmarshal([]byte(cached), &post); err == nil {
+				log.Printf("Cache HIT - returning from Redis (id=%d)", id)
+				return ToPostResponse(&post), nil
+			}
 		}
 	}
-	// Cache MISS - loading from DB and backfilling cache
-	log.Printf("Cache MISS - loading from DB and backfilling cache (id=%d)", id)
+
+	// Cache MISS - load from DB
+	log.Printf("Cache MISS - loading from DB (id=%d)", id)
 	post, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
+
+	// Backfill cache
 	s.cachePost(ctx, post)
 	return ToPostResponse(post), nil
 }
@@ -147,23 +122,27 @@ func (s *service) GetPostByUUID(ctx context.Context, uuid string) (*PostResponse
 }
 
 func (s *service) GetPostBySlug(ctx context.Context, slug string) (*PostResponse, error) {
+	// Try cache first
 	if s.cache != nil {
-		post, err := s.cache.GetBySlug(ctx, slug)
-		if err != nil {
-			return nil, err
-		}
-		if post != nil {
-			// Cache HIT - returning from Redis
-			log.Printf("Cache HIT - returning from Redis (slug=%s)", slug)
-			return ToPostResponse(post), nil
+		cacheKey := fmt.Sprintf("post:slug:%s", slug)
+		cached, err := s.cache.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			var post domain.Post
+			if err := json.Unmarshal([]byte(cached), &post); err == nil {
+				log.Printf("Cache HIT - returning from Redis (slug=%s)", slug)
+				return ToPostResponse(&post), nil
+			}
 		}
 	}
-	// Cache MISS - loading from DB and backfilling cache
-	log.Printf("Cache MISS - loading from DB and backfilling cache (slug=%s)", slug)
+
+	// Cache MISS - load from DB
+	log.Printf("Cache MISS - loading from DB (slug=%s)", slug)
 	post, err := s.repo.GetBySlug(ctx, slug)
 	if err != nil {
 		return nil, err
 	}
+
+	// Backfill cache
 	s.cachePost(ctx, post)
 	return ToPostResponse(post), nil
 }
@@ -334,7 +313,7 @@ func (s *service) HardDeletePost(ctx context.Context, id uint) error {
 }
 
 func (s *service) createVersion(ctx context.Context, post *domain.Post, userID uint, changeNote string) error {
-	version := &post_version.PostVersion{
+	version := &domain.PostVersion{
 		PostID:     post.ID,
 		VersionNo:  post.Version,
 		Title:      post.Title,
@@ -426,7 +405,23 @@ func (s *service) cachePost(ctx context.Context, post *domain.Post) {
 		return
 	}
 
-	if err := s.cache.SetPost(ctx, post); err != nil {
-		fmt.Printf("Failed to cache post: %v\n", err)
+	data, err := json.Marshal(post)
+	if err != nil {
+		log.Printf("Failed to marshal post for cache: %v", err)
+		return
+	}
+
+	// Cache by ID
+	idKey := fmt.Sprintf("post:id:%d", post.ID)
+	if err := s.cache.Set(ctx, idKey, data, 24*time.Hour); err != nil {
+		log.Printf("Failed to cache post by ID: %v", err)
+	}
+
+	// Cache by slug
+	if post.Slug != "" {
+		slugKey := fmt.Sprintf("post:slug:%s", post.Slug)
+		if err := s.cache.Set(ctx, slugKey, data, 24*time.Hour); err != nil {
+			log.Printf("Failed to cache post by slug: %v", err)
+		}
 	}
 }

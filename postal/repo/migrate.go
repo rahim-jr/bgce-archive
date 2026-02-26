@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"postal/domain"
-	"postal/post_version"
 
 	"gorm.io/gorm"
 )
@@ -14,7 +13,7 @@ func AutoMigrate(db *gorm.DB) error {
 
 	err := db.AutoMigrate(
 		&domain.Post{},
-		&post_version.PostVersion{},
+		&domain.PostVersion{},
 	)
 	if err != nil {
 		log.Printf("❌ Migration failed: %v", err)
