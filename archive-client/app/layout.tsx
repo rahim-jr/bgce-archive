@@ -58,20 +58,21 @@ export default function RootLayout({
                                 backdrop-filter: none !important;
                                 -webkit-backdrop-filter: none !important;
                             }
-                            [class*="blur"] {
+                            [class*="blur-"]:not(button):not(a):not([role="button"]) {
                                 filter: none !important;
                             }
-                            * {
+                            div:not(button):not(a):not([role="button"]) {
                                 box-shadow: none !important;
+                            }
+                            * {
                                 text-shadow: none !important;
                             }
-                            *:hover {
-                                transform: none !important;
-                            }
-                            [class*="animate"] {
+                            [class*="animate-pulse"],
+                            [class*="animate-spin"]:not(svg) {
                                 animation: none !important;
                             }
-                            [class*="bg-gradient"] {
+                            .fixed[class*="bg-gradient"],
+                            .absolute[class*="bg-gradient"]:not(button):not(a) {
                                 background-image: none !important;
                             }
                             html {

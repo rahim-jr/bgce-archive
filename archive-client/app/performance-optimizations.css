@@ -1,4 +1,4 @@
-/* Mobile Performance Optimizations - Fixed for Touch Scrolling */
+/* Mobile Performance Optimizations - Selective */
 
 @media (max-width: 768px) {
 
@@ -8,38 +8,38 @@
         -webkit-backdrop-filter: none !important;
     }
 
-    /* Disable blur effects */
-    [class*="blur"] {
+    /* Disable blur effects on backgrounds and decorative elements */
+    [class*="blur-"]:not(button):not(a):not([role="button"]) {
         filter: none !important;
     }
 
-    /* Simplify shadows */
-    * {
+    /* Simplify shadows but keep minimal ones for UI elements */
+    div:not(button):not(a):not([role="button"]) {
         box-shadow: none !important;
+    }
+
+    * {
         text-shadow: none !important;
     }
 
-    /* Disable hover transforms */
-    *:hover {
+    /* Disable hover transforms on cards and large elements */
+    [class*="hover:-translate"]:not(button):not(a) {
         transform: none !important;
     }
 
-    /* Simplify transitions - but don't disable completely */
-    * {
-        transition-duration: 0.1s !important;
-    }
-
-    /* Disable animations */
-    [class*="animate"] {
+    /* Disable animations on decorative elements */
+    [class*="animate-pulse"],
+    [class*="animate-spin"]:not(svg) {
         animation: none !important;
     }
 
-    /* Simplify gradient backgrounds */
-    [class*="bg-gradient"] {
+    /* Only remove background gradients, keep button/UI gradients */
+    .fixed[class*="bg-gradient"],
+    .absolute[class*="bg-gradient"]:not(button):not(a) {
         background-image: none !important;
     }
 
-    /* Optimize scroll - CRITICAL: Don't use contain property */
+    /* Optimize scroll */
     html {
         scroll-behavior: auto !important;
     }
@@ -48,6 +48,4 @@
     * {
         -webkit-overflow-scrolling: touch;
     }
-
-    /* DO NOT use contain property - it breaks scrolling */
 }
