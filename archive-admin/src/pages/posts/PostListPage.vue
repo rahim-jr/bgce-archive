@@ -8,6 +8,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Plus, Search, Upload, Trash2, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { usePostStore } from '@/stores/post'
 import { postService } from '@/services'
+import { useCategoryStore } from '@/stores/category'
+import { useSubcategoryStore } from '@/stores/subcategory'
 import { useConfirm } from '@/composables/useConfirm'
 import PostFilters from '@/components/posts/PostFilters.vue'
 import PostTableRow from '@/components/posts/PostTableRow.vue'
@@ -16,6 +18,8 @@ import { toast } from 'vue-sonner'
 
 const router = useRouter()
 const postStore = usePostStore()
+const categoryStore = useCategoryStore()
+const subcategoryStore = useSubcategoryStore()
 const { confirm } = useConfirm()
 
 // Pagination state
@@ -23,6 +27,13 @@ const currentPage = ref(1)
 const pageSize = ref(20)
 const statusFilter = ref<string>('all')
 const searchQuery = ref('')
+const categoryFilter = ref<number | null>(null)
+const subcategoryFilter = ref<number | null>(null)
+const featuredFilter = ref<boolean | null>(null)
+const pinnedFilter = ref<boolean | null>(null)
+const publicFilter = ref<boolean | null>(null)
+const sortBy = ref('created_at')
+const sortOrder = ref<'ASC' | 'DESC'>('DESC')
 
 // Status counts - fetch separately
 const statusCounts = ref({
@@ -63,6 +74,8 @@ const fetchPosts = async () => {
   const params: any = {
     limit: pageSize.value,
     offset: offset.value,
+    sort_by: sortBy.value,
+    sort_order: sortOrder.value,
   }
 
   if (statusFilter.value && statusFilter.value !== 'all') {
@@ -71,6 +84,26 @@ const fetchPosts = async () => {
 
   if (searchQuery.value) {
     params.search = searchQuery.value
+  }
+
+  if (categoryFilter.value) {
+    params.category_id = categoryFilter.value
+  }
+
+  if (subcategoryFilter.value) {
+    params.sub_category_id = subcategoryFilter.value
+  }
+
+  if (featuredFilter.value !== null) {
+    params.is_featured = featuredFilter.value
+  }
+
+  if (pinnedFilter.value !== null) {
+    params.is_pinned = pinnedFilter.value
+  }
+
+  if (publicFilter.value !== null) {
+    params.is_public = publicFilter.value
   }
 
   await postStore.fetchPosts(params)
@@ -118,7 +151,7 @@ const prevPage = () => {
 }
 
 // Watch for filter changes and reset to page 1
-watch([statusFilter, searchQuery, pageSize], () => {
+watch([statusFilter, searchQuery, pageSize, categoryFilter, subcategoryFilter, featuredFilter, pinnedFilter, publicFilter, sortBy, sortOrder], () => {
   currentPage.value = 1
   fetchPosts()
 })
@@ -241,7 +274,11 @@ const handleBatchDelete = async () => {
 }
 
 onMounted(async () => {
-  await fetchPosts()
+  await Promise.all([
+    categoryStore.fetchCategories(),
+    subcategoryStore.fetchSubcategories(),
+    fetchPosts()
+  ])
   fetchStatusCounts() // Don't await this, let it run in background
 })
 </script>
@@ -302,6 +339,134 @@ onMounted(async () => {
         Loading...
       </div>
     </div>
+
+    <!-- Advanced Filters -->
+    <Card>
+      <CardContent class="pt-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Category Filter -->
+          <div>
+            <label class="text-sm font-medium mb-2 block">Category</label>
+            <select 
+              v-model.number="categoryFilter"
+              class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <option :value="null">All Categories</option>
+              <option 
+                v-for="cat in categoryStore.categories.filter(c => c.status === 'approved')" 
+                :key="cat.id" 
+                :value="cat.id"
+              >
+                {{ cat.label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Subcategory Filter -->
+          <div>
+            <label class="text-sm font-medium mb-2 block">Subcategory</label>
+            <select 
+              v-model.number="subcategoryFilter"
+              class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              :disabled="!categoryFilter"
+            >
+              <option :value="null">All Subcategories</option>
+              <option 
+                v-for="sub in subcategoryStore.subcategories.filter(s => s.parent_id === categoryFilter && s.status === 'approved')" 
+                :key="sub.id" 
+                :value="sub.id"
+              >
+                {{ sub.label }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Sort By -->
+          <div>
+            <label class="text-sm font-medium mb-2 block">Sort By</label>
+            <select 
+              v-model="sortBy"
+              class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <option value="created_at">Created Date</option>
+              <option value="updated_at">Updated Date</option>
+              <option value="title">Title</option>
+              <option value="view_count">View Count</option>
+            </select>
+          </div>
+
+          <!-- Sort Order -->
+          <div>
+            <label class="text-sm font-medium mb-2 block">Order</label>
+            <select 
+              v-model="sortOrder"
+              class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <option value="DESC">Descending</option>
+              <option value="ASC">Ascending</option>
+            </select>
+          </div>
+
+          <!-- Featured Filter -->
+          <div>
+            <label class="text-sm font-medium mb-2 block">Featured</label>
+            <select 
+              v-model="featuredFilter"
+              class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <option :value="null">All</option>
+              <option :value="true">Featured Only</option>
+              <option :value="false">Not Featured</option>
+            </select>
+          </div>
+
+          <!-- Pinned Filter -->
+          <div>
+            <label class="text-sm font-medium mb-2 block">Pinned</label>
+            <select 
+              v-model="pinnedFilter"
+              class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <option :value="null">All</option>
+              <option :value="true">Pinned Only</option>
+              <option :value="false">Not Pinned</option>
+            </select>
+          </div>
+
+          <!-- Public Filter -->
+          <div>
+            <label class="text-sm font-medium mb-2 block">Visibility</label>
+            <select 
+              v-model="publicFilter"
+              class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <option :value="null">All</option>
+              <option :value="true">Public</option>
+              <option :value="false">Private</option>
+            </select>
+          </div>
+
+          <!-- Clear Filters Button -->
+          <div class="flex items-end">
+            <Button 
+              variant="outline" 
+              class="w-full"
+              @click="() => {
+                categoryFilter = null
+                subcategoryFilter = null
+                featuredFilter = null
+                pinnedFilter = null
+                publicFilter = null
+                sortBy = 'created_at'
+                sortOrder = 'DESC'
+              }"
+            >
+              Clear Filters
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
 
     <!-- Posts Table -->
     <Card>
@@ -389,20 +554,20 @@ onMounted(async () => {
                 variant="outline"
                 size="sm"
                 :class="{ 
-                  'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground': page === currentPage,
+                  'bg-primary text-primary-foreground hover:bg-primary/90 border-primary': page === currentPage,
                   'hover:bg-accent hover:text-accent-foreground': page !== currentPage
                 }"
                 @click="goToPage(page)"
               >
                 {{ page }}
               </Button>
-              <span v-if="totalPages > 5" class="px-2">...</span>
+              <span v-if="totalPages > 5" class="px-2 text-muted-foreground">...</span>
               <Button
                 v-if="totalPages > 5 && currentPage < totalPages - 2"
                 variant="outline"
                 size="sm"
                 :class="{ 
-                  'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground': totalPages === currentPage,
+                  'bg-primary text-primary-foreground hover:bg-primary/90 border-primary': totalPages === currentPage,
                   'hover:bg-accent hover:text-accent-foreground': totalPages !== currentPage
                 }"
                 @click="goToPage(totalPages)"
