@@ -1,0 +1,165 @@
+name: Manual Build All Services
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+        default: staging
+      trigger-deployment:
+        description: 'Trigger infrastructure deployment after build'
+        required: true
+        type: boolean
+        default: true
+
+env:
+  REGISTRY_GHCR: ghcr.io
+  IMAGE_PREFIX: nesohq/bgce-archive
+
+jobs:
+  build-all-services:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [archive-admin, archive-client, cortex, postal]
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔐 Login to registries
+        uses: ./.github/actions/docker-login
+        with:
+          ghcr-token: ${{ secrets.GITHUB_TOKEN }}
+          ghcr-username: ${{ github.actor }}
+
+      - name: 🏷️ Extract metadata
+        id: meta
+        uses: ./.github/actions/docker-metadata
+        with:
+          service: ${{ matrix.service }}
+          registry: ${{ env.REGISTRY_GHCR }}
+          image-prefix: ${{ env.IMAGE_PREFIX }}
+
+      - name: 🐳 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./${{ matrix.service }}
+          file: ./${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+          build-args: |
+            NEXT_PUBLIC_API_BASE_URL=https://cortex.nesohq.org/api/v1
+            NEXT_PUBLIC_POSTAL_API_URL=https://postal.nesohq.org/api/v1
+            NEXT_PUBLIC_KRAKENS_PROJECT_ID=hrd_c3a24d14aa184752400c472a145343928195b6b0300d28b48932e21233e845a0
+
+      - name: 📝 Generate image summary
+        run: |
+          echo "## 🐳 Docker Image Built - ${{ matrix.service }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Service:** ${{ matrix.service }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Pull command:**" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  trigger-deployment:
+    needs: build-all-services
+    if: inputs.trigger-deployment && needs.build-all-services.result == 'success'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 🚀 Trigger Infrastructure Deployment
+        run: |
+          EVENT_TYPE="deploy-${{ inputs.environment }}"
+          
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.INFRA_REPO_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/opskraken/nesohq-infra/dispatches \
+            -d "{\"event_type\":\"${EVENT_TYPE}\"}"
+      
+      - name: 📝 Deployment Summary
+        run: |
+          echo "## 🚀 Deployment Triggered" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ✅ Infrastructure deployment triggered" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** nesohq/nesohq-infra" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Event:** deploy-${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Built Images:**" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/nesohq/bgce-archive/archive-admin:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/nesohq/bgce-archive/archive-client:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/nesohq/bgce-archive/cortex:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/nesohq/bgce-archive/postal:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
+          echo "1. Monitor the infrastructure repository for deployment progress" >> $GITHUB_STEP_SUMMARY
+          echo "2. Check the ${{ inputs.environment }} environment after deployment completes" >> $GITHUB_STEP_SUMMARY
+          echo "3. Verify all services are running correctly" >> $GITHUB_STEP_SUMMARY
+
+  summary:
+    needs: [build-all-services, trigger-deployment]
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📊 Build Summary
+        run: |
+          echo "## 📊 Manual Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** @${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.build-all-services.result }}" == "success" ]; then
+            echo "✅ **All services built successfully**" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.build-all-services.result }}" == "failure" ]; then
+            echo "❌ **Some services failed to build**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Build status:** ${{ needs.build-all-services.result }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ inputs.trigger-deployment }}" == "true" ]; then
+            if [ "${{ needs.trigger-deployment.result }}" == "success" ]; then
+              echo "✅ **Deployment triggered successfully**" >> $GITHUB_STEP_SUMMARY
+            elif [ "${{ needs.trigger-deployment.result }}" == "skipped" ]; then
+              echo "⏭️ **Deployment skipped** (builds may have failed)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ **Deployment trigger failed**" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "⏭️ **Deployment not triggered** (manual choice)" >> $GITHUB_STEP_SUMMARY
+          fi
