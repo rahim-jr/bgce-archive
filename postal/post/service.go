@@ -151,14 +151,21 @@ func (s *service) ListPosts(ctx context.Context, filter PostFilter) ([]*PostList
 	// Try cache first for list queries
 	if s.cache != nil {
 		cacheKey := s.buildListCacheKey(filter)
+
+		cacheStart := time.Now()
 		cached, err := s.cache.Get(ctx, cacheKey)
+		cacheGetTime := time.Since(cacheStart)
+
 		if err == nil && cached != "" {
+			unmarshalStart := time.Now()
 			var cachedResult struct {
 				Posts []*PostListItemResponse `json:"posts"`
 				Total int64                   `json:"total"`
 			}
 			if err := json.Unmarshal([]byte(cached), &cachedResult); err == nil {
-				log.Printf("Cache HIT - returning post list from Redis (key=%s)", cacheKey)
+				unmarshalTime := time.Since(unmarshalStart)
+				log.Printf("Cache HIT - returning post list from Redis (key=%s) [cache_get=%v, unmarshal=%v, total=%v]",
+					cacheKey, cacheGetTime, unmarshalTime, time.Since(cacheStart))
 				return cachedResult.Posts, cachedResult.Total, nil
 			}
 		}

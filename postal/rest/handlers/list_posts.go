@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"postal/domain"
 	"postal/post"
@@ -12,6 +14,8 @@ import (
 func (h *Handlers) ListPosts(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	query := r.URL.Query()
+
+	handlerStart := time.Now()
 
 	// Build filter
 	filter := post.PostFilter{
@@ -57,7 +61,10 @@ func (h *Handlers) ListPosts(w http.ResponseWriter, r *http.Request) {
 		filter.SortOrder = sortOrder
 	}
 
+	serviceStart := time.Now()
 	posts, total, err := h.PostService.ListPosts(ctx, filter)
+	serviceTime := time.Since(serviceStart)
+
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(ErrorResponse{
@@ -68,6 +75,7 @@ func (h *Handlers) ListPosts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	encodeStart := time.Now()
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(PaginatedResponse{
 		Status:  true,
@@ -79,4 +87,7 @@ func (h *Handlers) ListPosts(w http.ResponseWriter, r *http.Request) {
 			Offset: filter.Offset,
 		},
 	})
+	encodeTime := time.Since(encodeStart)
+
+	log.Printf("ListPosts timing: service=%v, encode=%v, total=%v", serviceTime, encodeTime, time.Since(handlerStart))
 }
