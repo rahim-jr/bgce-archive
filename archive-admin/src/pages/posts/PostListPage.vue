@@ -106,6 +106,7 @@ const fetchPosts = async () => {
     params.is_public = publicFilter.value === 'true'
   }
 
+  console.log('Fetching posts with params:', params)
   await postStore.fetchPosts(params)
   // Clear selections when fetching new page
   selectedPostUuids.value = []
@@ -320,149 +321,153 @@ onMounted(async () => {
       :status-counts="statusCounts"
     />
 
-    <!-- Per Page Selector -->
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <span class="text-sm text-muted-foreground">Show</span>
-        <select 
-          v-model.number="pageSize"
-          class="h-9 w-[100px] rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        >
-          <option :value="10">10</option>
-          <option :value="20">20</option>
-          <option :value="50">50</option>
-          <option :value="100">100</option>
-        </select>
-        <span class="text-sm text-muted-foreground">per page</span>
-      </div>
-      <div v-if="postStore.loading" class="text-sm text-muted-foreground">
-        Loading...
-      </div>
-    </div>
-
     <!-- Advanced Filters -->
     <Card>
       <CardContent class="pt-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <!-- Category Filter -->
-          <div>
-            <label class="text-sm font-medium mb-2 block">Category</label>
-            <select 
-              v-model.number="categoryFilter"
-              class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option :value="null">All Categories</option>
-              <option 
-                v-for="cat in categoryStore.categories.filter(c => c.status === 'approved')" 
-                :key="cat.id" 
-                :value="cat.id"
+        <div class="space-y-4">
+          <!-- First Row: Per Page and Loading -->
+          <div class="flex items-center justify-between pb-4 border-b">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium">Show</span>
+              <select 
+                v-model.number="pageSize"
+                class="h-9 w-[100px] rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                {{ cat.label }}
-              </option>
-            </select>
+                <option :value="10">10</option>
+                <option :value="20">20</option>
+                <option :value="50">50</option>
+                <option :value="100">100</option>
+              </select>
+              <span class="text-sm font-medium">per page</span>
+            </div>
+            <div v-if="postStore.loading" class="flex items-center gap-2 text-sm text-muted-foreground">
+              <div class="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+              Loading...
+            </div>
           </div>
 
-          <!-- Subcategory Filter -->
-          <div>
-            <label class="text-sm font-medium mb-2 block">Subcategory</label>
-            <select 
-              v-model.number="subcategoryFilter"
-              class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              :disabled="!categoryFilter"
-            >
-              <option :value="null">All Subcategories</option>
-              <option 
-                v-for="sub in subcategoryStore.subcategories.filter(s => s.parent_id === categoryFilter && s.status === 'approved')" 
-                :key="sub.id" 
-                :value="sub.id"
+          <!-- Second Row: All Filters -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Category Filter -->
+            <div>
+              <label class="text-sm font-medium mb-2 block">Category</label>
+              <select 
+                v-model.number="categoryFilter"
+                class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                {{ sub.label }}
-              </option>
-            </select>
-          </div>
+                <option :value="null">All Categories</option>
+                <option 
+                  v-for="cat in categoryStore.categories.filter(c => c.status === 'approved')" 
+                  :key="cat.id" 
+                  :value="cat.id"
+                >
+                  {{ cat.label }}
+                </option>
+              </select>
+            </div>
 
-          <!-- Sort By -->
-          <div>
-            <label class="text-sm font-medium mb-2 block">Sort By</label>
-            <select 
-              v-model="sortBy"
-              class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="created_at">Created Date</option>
-              <option value="updated_at">Updated Date</option>
-              <option value="title">Title</option>
-              <option value="view_count">View Count</option>
-            </select>
-          </div>
+            <!-- Subcategory Filter -->
+            <div>
+              <label class="text-sm font-medium mb-2 block">Subcategory</label>
+              <select 
+                v-model.number="subcategoryFilter"
+                class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                :disabled="!categoryFilter"
+              >
+                <option :value="null">All Subcategories</option>
+                <option 
+                  v-for="sub in subcategoryStore.subcategories.filter(s => s.parent_id === categoryFilter && s.status === 'approved')" 
+                  :key="sub.id" 
+                  :value="sub.id"
+                >
+                  {{ sub.label }}
+                </option>
+              </select>
+            </div>
 
-          <!-- Sort Order -->
-          <div>
-            <label class="text-sm font-medium mb-2 block">Order</label>
-            <select 
-              v-model="sortOrder"
-              class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="DESC">Descending</option>
-              <option value="ASC">Ascending</option>
-            </select>
-          </div>
+            <!-- Featured Filter -->
+            <div>
+              <label class="text-sm font-medium mb-2 block">Featured</label>
+              <select 
+                v-model="featuredFilter"
+                class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="all">All</option>
+                <option value="true">Featured Only</option>
+                <option value="false">Not Featured</option>
+              </select>
+            </div>
 
-          <!-- Featured Filter -->
-          <div>
-            <label class="text-sm font-medium mb-2 block">Featured</label>
-            <select 
-              v-model="featuredFilter"
-              class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="all">All</option>
-              <option value="true">Featured Only</option>
-              <option value="false">Not Featured</option>
-            </select>
-          </div>
+            <!-- Pinned Filter -->
+            <div>
+              <label class="text-sm font-medium mb-2 block">Pinned</label>
+              <select 
+                v-model="pinnedFilter"
+                class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="all">All</option>
+                <option value="true">Pinned Only</option>
+                <option value="false">Not Pinned</option>
+              </select>
+            </div>
 
-          <!-- Pinned Filter -->
-          <div>
-            <label class="text-sm font-medium mb-2 block">Pinned</label>
-            <select 
-              v-model="pinnedFilter"
-              class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="all">All</option>
-              <option value="true">Pinned Only</option>
-              <option value="false">Not Pinned</option>
-            </select>
-          </div>
+            <!-- Public Filter -->
+            <div>
+              <label class="text-sm font-medium mb-2 block">Visibility</label>
+              <select 
+                v-model="publicFilter"
+                class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="all">All</option>
+                <option value="true">Public</option>
+                <option value="false">Private</option>
+              </select>
+            </div>
 
-          <!-- Public Filter -->
-          <div>
-            <label class="text-sm font-medium mb-2 block">Visibility</label>
-            <select 
-              v-model="publicFilter"
-              class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              <option value="all">All</option>
-              <option value="true">Public</option>
-              <option value="false">Private</option>
-            </select>
-          </div>
+            <!-- Sort By -->
+            <div>
+              <label class="text-sm font-medium mb-2 block">Sort By</label>
+              <select 
+                v-model="sortBy"
+                class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="created_at">Created Date</option>
+                <option value="updated_at">Updated Date</option>
+                <option value="title">Title</option>
+                <option value="view_count">View Count</option>
+              </select>
+            </div>
 
-          <!-- Clear Filters Button -->
-          <div class="flex items-end">
-            <Button 
-              variant="outline" 
-              class="w-full"
-              @click="() => {
-                categoryFilter = null
-                subcategoryFilter = null
-                featuredFilter = 'all'
-                pinnedFilter = 'all'
-                publicFilter = 'all'
-                sortBy = 'created_at'
-                sortOrder = 'DESC'
-              }"
-            >
-              Clear Filters
-            </Button>
+            <!-- Sort Order -->
+            <div>
+              <label class="text-sm font-medium mb-2 block">Order</label>
+              <select 
+                v-model="sortOrder"
+                class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <option value="DESC">Descending</option>
+                <option value="ASC">Ascending</option>
+              </select>
+            </div>
+
+            <!-- Clear Filters Button -->
+            <div class="flex items-end">
+              <Button 
+                variant="outline" 
+                class="w-full"
+                @click="() => {
+                  categoryFilter = null
+                  subcategoryFilter = null
+                  featuredFilter = 'all'
+                  pinnedFilter = 'all'
+                  publicFilter = 'all'
+                  sortBy = 'created_at'
+                  sortOrder = 'DESC'
+                }"
+              >
+                Clear Filters
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>
