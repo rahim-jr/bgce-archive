@@ -41,7 +41,7 @@ func Logger(handler http.Handler) http.Handler {
 		path := r.URL.Path
 
 		// Skip logging for health check endpoints
-		if path == "/api/v1/health" || path == "/health" {
+		if path == "/api/v1/health" || path == "/health" || path == "/api/v1/hello" {
 			handler.ServeHTTP(w, r)
 			return
 		}
