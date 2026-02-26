@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import { WelcomeSection } from "@/components/home/WelcomeSection";
 import { PopularCoursesSection } from "@/components/home/PopularCoursesSection";
 import { CommunityTalksSection } from "@/components/home/CommunityTalksSection";
+import { CheatsheetSection } from "@/components/home/CheatsheetSection";
 import { SkeletonCardGrid } from "@/components/shared/SkeletonCard";
 
 export default function HomePage() {
@@ -13,6 +14,9 @@ export default function HomePage() {
       </Suspense>
       <Suspense fallback={<div className="py-16"><SkeletonCardGrid count={3} /></div>}>
         <CommunityTalksSection />
+      </Suspense>
+      <Suspense fallback={<div className="py-16"><SkeletonCardGrid count={4} /></div>}>
+        <CheatsheetSection />
       </Suspense>
     </>
   );
