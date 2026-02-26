@@ -39,6 +39,13 @@ func (r *recorder) Flush() {
 func Logger(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
+
+		// Skip logging for health check endpoints
+		if path == "/api/v1/health" || path == "/health" {
+			handler.ServeHTTP(w, r)
+			return
+		}
+
 		rec := &recorder{
 			ResponseWriter: w,
 			statusCode:     200, // Default status code
