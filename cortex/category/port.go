@@ -17,7 +17,6 @@ type Service interface {
 	DeleteCategoryByUUID(ctx context.Context, uuid uuid.UUID) error
 	GetCategoryList(ctx context.Context, filter GetCategoryFilter) ([]*Category, error)
 	UpdateCategory(ctx context.Context, params UpdateCategoryParams) error
-
 }
 
 type Cache interface {
@@ -25,6 +24,7 @@ type Cache interface {
 	SAdd(ctx context.Context, key string, expiration time.Duration, members ...any) error
 	SlugsKey() string
 	Set(ctx context.Context, key string, value any, expiration time.Duration) error
+	Get(ctx context.Context, key string) (string, error)
 	SetJSON(ctx context.Context, key string, value any, expiration time.Duration) error
 	ZAdd(ctx context.Context, key string, expiration time.Duration, members ...any) error
 	CategoryUUIDKey(uuid uuid.UUID) string

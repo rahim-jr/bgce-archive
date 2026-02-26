@@ -2,16 +2,37 @@ package subcategory
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"log/slog"
 	"time"
 
 	"cortex/ent"
 	"cortex/ent/category"
+	"cortex/logger"
 
 	"github.com/google/uuid"
 )
 
 func (s *service) GetAllSubcategories(ctx context.Context, filter GetSubcategoryFilter) ([]*Subcategory, error) {
+	// Try cache first
+	if s.cache != nil {
+		cacheKey := buildSubcategoryListCacheKey(filter)
+		cached, err := s.cache.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			var subcategories []*Subcategory
+			if err := json.Unmarshal([]byte(cached), &subcategories); err == nil {
+				slog.InfoContext(ctx, "Cache HIT - returning subcategory list from Redis", logger.Extra(map[string]any{
+					"key": cacheKey,
+				}))
+				return subcategories, nil
+			}
+		}
+	}
+
+	// Cache MISS - query database
+	slog.InfoContext(ctx, "Cache MISS - loading subcategory list from DB")
+
 	// Build query for all subcategories (categories with parent_id not null)
 	query := s.ent.Category.Query().
 		Where(category.ParentIDNotNil())
@@ -114,5 +135,38 @@ func (s *service) GetAllSubcategories(ctx context.Context, filter GetSubcategory
 		})
 	}
 
+	// Cache the result (5 minutes TTL for lists)
+	if s.cache != nil {
+		cacheKey := buildSubcategoryListCacheKey(filter)
+		if err := s.cache.SetJSON(ctx, cacheKey, result, 5*time.Minute); err != nil {
+			slog.ErrorContext(ctx, "Failed to cache subcategory list", logger.Extra(map[string]any{
+				"error": err.Error(),
+			}))
+		}
+	}
+
 	return result, nil
+}
+
+func buildSubcategoryListCacheKey(filter GetSubcategoryFilter) string {
+	key := "subcategory:list"
+	if filter.ID != nil {
+		key += ":id:" + string(rune(*filter.ID))
+	}
+	if filter.UUID != nil {
+		key += ":uuid:" + filter.UUID.String()
+	}
+	if filter.Slug != nil {
+		key += ":slug:" + *filter.Slug
+	}
+	if filter.Status != nil {
+		key += ":status:" + *filter.Status
+	}
+	if filter.Limit != nil {
+		key += ":limit:" + string(rune(*filter.Limit))
+	}
+	if filter.Offset != nil {
+		key += ":offset:" + string(rune(*filter.Offset))
+	}
+	return key
 }

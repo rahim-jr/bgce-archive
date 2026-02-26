@@ -2,15 +2,37 @@ package category
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"log/slog"
+	"strconv"
+	"time"
 
 	"cortex/ent"
 	"cortex/ent/category"
+	"cortex/logger"
 
 	"github.com/google/uuid"
 )
 
 func (s *service) GetCategoryList(ctx context.Context, filter GetCategoryFilter) ([]*Category, error) {
+	// Try cache first
+	if s.cache != nil {
+		cacheKey := buildCategoryListCacheKey(filter)
+		cached, err := s.cache.Get(ctx, cacheKey)
+		if err == nil && cached != "" {
+			var categories []*Category
+			if err := json.Unmarshal([]byte(cached), &categories); err == nil {
+				slog.InfoContext(ctx, "Cache HIT - returning category list from Redis", logger.Extra(map[string]any{
+					"key": cacheKey,
+				}))
+				return categories, nil
+			}
+		}
+	}
+
+	// Cache MISS - query database
+	slog.InfoContext(ctx, "Cache MISS - loading category list from DB")
 	query := s.ent.Category.Query()
 
 	// IMPORTANT: Only get top-level categories (no parent)
@@ -51,7 +73,6 @@ func (s *service) GetCategoryList(ctx context.Context, filter GetCategoryFilter)
 			} else {
 				query = query.Order(ent.Asc(category.FieldLabel))
 			}
-			// Add more sort fields as needed
 		}
 	}
 
@@ -59,6 +80,7 @@ func (s *service) GetCategoryList(ctx context.Context, filter GetCategoryFilter)
 	if err != nil {
 		return nil, errors.New("ent: categories retrieval failed")
 	}
+
 	var result []*Category
 	for _, c := range categories {
 		parsedUUID, err := uuid.Parse(c.UUID)
@@ -81,5 +103,39 @@ func (s *service) GetCategoryList(ctx context.Context, filter GetCategoryFilter)
 			Meta:        c.Meta,
 		})
 	}
+
+	// Cache the result (5 minutes TTL for lists)
+	if s.cache != nil {
+		cacheKey := buildCategoryListCacheKey(filter)
+		if err := s.cache.SetJSON(ctx, cacheKey, result, 5*time.Minute); err != nil {
+			slog.ErrorContext(ctx, "Failed to cache category list", logger.Extra(map[string]any{
+				"error": err.Error(),
+			}))
+		}
+	}
+
 	return result, nil
+}
+
+func buildCategoryListCacheKey(filter GetCategoryFilter) string {
+	key := "category:list"
+	if filter.ID != nil {
+		key += ":id:" + strconv.Itoa(int(*filter.ID))
+	}
+	if filter.UUID != nil {
+		key += ":uuid:" + filter.UUID.String()
+	}
+	if filter.Slug != nil {
+		key += ":slug:" + *filter.Slug
+	}
+	if filter.Status != nil {
+		key += ":status:" + *filter.Status
+	}
+	if filter.Limit != nil {
+		key += ":limit:" + strconv.Itoa(*filter.Limit)
+	}
+	if filter.Offset != nil {
+		key += ":offset:" + strconv.Itoa(*filter.Offset)
+	}
+	return key
 }
