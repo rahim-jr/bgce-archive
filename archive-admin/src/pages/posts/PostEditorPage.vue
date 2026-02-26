@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -82,23 +82,29 @@ onMounted(async () => {
   
   if (isEdit.value) {
     const post = await postStore.fetchPostById(Number(route.params.id))
+    console.log('Fetched post data:', post)
+    console.log('Post summary:', post?.summary)
     if (post) {
-      form.value = {
-        title: post.title,
-        slug: post.slug,
-        content: post.content,
-        summary: post.summary || '',
-        thumbnail: post.thumbnail || '',
-        category_id: post.category_id,
-        sub_category_id: post.sub_category_id,
-        meta_title: post.meta_title || '',
-        meta_description: post.meta_description || '',
-        keywords: post.keywords || '',
-        og_image: post.og_image || '',
-        is_public: post.is_public,
-        is_featured: post.is_featured,
-        is_pinned: post.is_pinned,
-      }
+      // Use nextTick to ensure DOM is ready
+      await nextTick()
+      
+      form.value.title = post.title
+      form.value.slug = post.slug
+      form.value.content = post.content
+      form.value.summary = post.summary || ''
+      form.value.thumbnail = post.thumbnail || ''
+      form.value.category_id = post.category_id
+      form.value.sub_category_id = post.sub_category_id
+      form.value.meta_title = post.meta_title || ''
+      form.value.meta_description = post.meta_description || ''
+      form.value.keywords = post.keywords || ''
+      form.value.og_image = post.og_image || ''
+      form.value.is_public = post.is_public
+      form.value.is_featured = post.is_featured
+      form.value.is_pinned = post.is_pinned
+      
+      console.log('Form after assignment:', form.value)
+      console.log('Form summary after assignment:', form.value.summary)
     }
   }
 })
@@ -143,7 +149,12 @@ onMounted(async () => {
             </div>
             <div>
               <Label>Summary</Label>
-              <Textarea v-model="form.summary" rows="3" />
+              <textarea 
+                v-model="form.summary" 
+                rows="3"
+                class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              />
+              <p class="text-xs text-muted-foreground mt-1">Debug: {{ form.summary?.substring(0, 50) }}...</p>
             </div>
             <div>
               <Label>Content *</Label>
