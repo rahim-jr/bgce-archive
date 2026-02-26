@@ -24,14 +24,14 @@ const { confirm } = useConfirm()
 
 // Pagination state
 const currentPage = ref(1)
-const pageSize = ref(20)
+const pageSize = ref(10)
 const statusFilter = ref<string>('all')
 const searchQuery = ref('')
 const categoryFilter = ref<number | null>(null)
 const subcategoryFilter = ref<number | null>(null)
-const featuredFilter = ref<boolean | null>(null)
-const pinnedFilter = ref<boolean | null>(null)
-const publicFilter = ref<boolean | null>(null)
+const featuredFilter = ref<string>('all')
+const pinnedFilter = ref<string>('all')
+const publicFilter = ref<string>('all')
 const sortBy = ref('created_at')
 const sortOrder = ref<'ASC' | 'DESC'>('DESC')
 
@@ -94,16 +94,16 @@ const fetchPosts = async () => {
     params.sub_category_id = subcategoryFilter.value
   }
 
-  if (featuredFilter.value !== null) {
-    params.is_featured = featuredFilter.value
+  if (featuredFilter.value !== 'all') {
+    params.is_featured = featuredFilter.value === 'true'
   }
 
-  if (pinnedFilter.value !== null) {
-    params.is_pinned = pinnedFilter.value
+  if (pinnedFilter.value !== 'all') {
+    params.is_pinned = pinnedFilter.value === 'true'
   }
 
-  if (publicFilter.value !== null) {
-    params.is_public = publicFilter.value
+  if (publicFilter.value !== 'all') {
+    params.is_public = publicFilter.value === 'true'
   }
 
   await postStore.fetchPosts(params)
@@ -414,9 +414,9 @@ onMounted(async () => {
               v-model="featuredFilter"
               class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <option :value="null">All</option>
-              <option :value="true">Featured Only</option>
-              <option :value="false">Not Featured</option>
+              <option value="all">All</option>
+              <option value="true">Featured Only</option>
+              <option value="false">Not Featured</option>
             </select>
           </div>
 
@@ -427,9 +427,9 @@ onMounted(async () => {
               v-model="pinnedFilter"
               class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <option :value="null">All</option>
-              <option :value="true">Pinned Only</option>
-              <option :value="false">Not Pinned</option>
+              <option value="all">All</option>
+              <option value="true">Pinned Only</option>
+              <option value="false">Not Pinned</option>
             </select>
           </div>
 
@@ -440,9 +440,9 @@ onMounted(async () => {
               v-model="publicFilter"
               class="h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <option :value="null">All</option>
-              <option :value="true">Public</option>
-              <option :value="false">Private</option>
+              <option value="all">All</option>
+              <option value="true">Public</option>
+              <option value="false">Private</option>
             </select>
           </div>
 
@@ -454,9 +454,9 @@ onMounted(async () => {
               @click="() => {
                 categoryFilter = null
                 subcategoryFilter = null
-                featuredFilter = null
-                pinnedFilter = null
-                publicFilter = null
+                featuredFilter = 'all'
+                pinnedFilter = 'all'
+                publicFilter = 'all'
                 sortBy = 'created_at'
                 sortOrder = 'DESC'
               }"
@@ -553,10 +553,9 @@ onMounted(async () => {
                 :key="page"
                 variant="outline"
                 size="sm"
-                :class="{ 
-                  'bg-primary text-primary-foreground hover:bg-primary/90 border-primary': page === currentPage,
-                  'hover:bg-accent hover:text-accent-foreground': page !== currentPage
-                }"
+                :class="page === currentPage 
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-primary dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90' 
+                  : 'hover:bg-accent hover:text-accent-foreground'"
                 @click="goToPage(page)"
               >
                 {{ page }}
@@ -566,10 +565,9 @@ onMounted(async () => {
                 v-if="totalPages > 5 && currentPage < totalPages - 2"
                 variant="outline"
                 size="sm"
-                :class="{ 
-                  'bg-primary text-primary-foreground hover:bg-primary/90 border-primary': totalPages === currentPage,
-                  'hover:bg-accent hover:text-accent-foreground': totalPages !== currentPage
-                }"
+                :class="totalPages === currentPage 
+                  ? 'bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground border-primary dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90' 
+                  : 'hover:bg-accent hover:text-accent-foreground'"
                 @click="goToPage(totalPages)"
               >
                 {{ totalPages }}
