@@ -8,7 +8,7 @@ import { BlogSidebar } from "@/components/blogs/BlogSidebar";
 import { BlogGrid } from "@/components/blogs/BlogGrid";
 import { getPosts, getSubcategories } from "@/lib/api";
 import type { BlogsClientProps, SortOption } from "@/components/blogs/types";
-import type { ApiCategory } from "@/types/blog.type";
+import type { ApiCategory, ApiPostListItem } from "@/types/blog.type";
 
 // Dynamically import mobile drawer (heavy component)
 const MobileFilterDrawer = dynamic(

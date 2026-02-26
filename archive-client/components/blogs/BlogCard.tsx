@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Eye, Flame, Sparkles } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import type { ApiPost } from "@/types/blog.type";
+import type { ApiPostListItem } from "@/types/blog.type";
 
 interface BlogCardProps {
-    blog: ApiPost;
+    blog: ApiPostListItem;
 }
 
 const getAuthorInitials = (userId: number) => `U${userId}`;
@@ -14,9 +14,10 @@ const getAuthorColor = (userId: number) => {
     return colors[userId % colors.length];
 };
 
-const calculateReadTime = (content: string) => {
+const calculateReadTime = (contentLength: number) => {
     const wordsPerMinute = 200;
-    const wordCount = content.split(/\s+/).length;
+    const avgCharsPerWord = 5;
+    const wordCount = Math.ceil(contentLength / avgCharsPerWord);
     const minutes = Math.ceil(wordCount / wordsPerMinute);
     return `${minutes} min`;
 };
@@ -68,7 +69,7 @@ export function BlogCard({ blog }: BlogCardProps) {
                         {new Date(blog.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                     </p>
                 </div>
-                <span className="text-[9px] text-muted-foreground font-bold">{calculateReadTime(blog.content)}</span>
+                <span className="text-[9px] text-muted-foreground font-bold">{calculateReadTime(blog.content_length)}</span>
             </div>
 
             <div className="flex items-center gap-4 text-[10px] text-muted-foreground">

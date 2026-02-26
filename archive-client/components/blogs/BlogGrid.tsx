@@ -1,10 +1,10 @@
 import { Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BlogCard } from "./BlogCard";
-import type { ApiPost } from "@/types/blog.type";
+import type { ApiPostListItem } from "@/types/blog.type";
 
 interface BlogGridProps {
-    blogs: ApiPost[];
+    blogs: ApiPostListItem[];
     isLoading: boolean;
     onClearFilters: () => void;
 }

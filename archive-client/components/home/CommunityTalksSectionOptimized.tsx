@@ -6,10 +6,10 @@ import { SectionHeader } from "@/components/shared/SectionHeader";
 import { MobileViewAllButton } from "@/components/shared/MobileViewAllButton";
 import { PostCard } from "@/components/shared/cards/PostCard";
 import { getPosts } from "@/lib/api";
-import type { ApiPost } from "@/types/blog.type";
+import type { ApiPostListItem } from "@/types/blog.type";
 
 export function CommunityTalksSection() {
-    const [posts, setPosts] = useState<ApiPost[]>([]);
+    const [posts, setPosts] = useState<ApiPostListItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 

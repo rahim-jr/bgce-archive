@@ -1,4 +1,4 @@
-import type { ApiPost, ApiCategory } from "@/types/blog.type";
+import type { ApiPost, ApiPostListItem, ApiCategory } from "@/types/blog.type";
 
 export type SortOption = "new" | "views" | "featured";
 
@@ -11,6 +11,6 @@ export interface BlogFilters {
 }
 
 export interface BlogsClientProps {
-    initialPosts: ApiPost[];
+    initialPosts: ApiPostListItem[];
     categories: ApiCategory[];
 }

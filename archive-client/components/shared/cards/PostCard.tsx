@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { ArrowRight, Eye } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import type { ApiPost } from "@/types/blog.type";
+import type { ApiPostListItem } from "@/types/blog.type";
 
 interface PostCardProps {
-    post: ApiPost;
+    post: ApiPostListItem;
 }
 
 // Helper function to format date
@@ -66,10 +66,10 @@ export function PostCard({ post }: PostCardProps) {
                 </Avatar>
                 <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-foreground truncate">
-                        {post.published_at ? formatDate(post.published_at) : formatDate(post.created_at)}
+                        {formatDate(post.created_at)}
                     </p>
                     <p className="text-[10px] text-muted-foreground">
-                        {post.status === 'published' ? 'Published' : post.status}
+                        Published
                     </p>
                 </div>
             </div>

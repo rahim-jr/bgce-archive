@@ -6,10 +6,10 @@ import { ArrowRight, MessageSquare, ThumbsUp, Eye, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { getPosts } from "@/lib/api";
-import type { ApiPost } from "@/types/blog.type";
+import type { ApiPostListItem } from "@/types/blog.type";
 
 export function CommunityTalksSection() {
-  const [posts, setPosts] = useState<ApiPost[]>([]);
+  const [posts, setPosts] = useState<ApiPostListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -136,10 +136,10 @@ export function CommunityTalksSection() {
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-semibold text-foreground truncate">
-                      {post.published_at ? formatDate(post.published_at) : formatDate(post.created_at)}
+                      {formatDate(post.created_at)}
                     </p>
                     <p className="text-[10px] text-muted-foreground">
-                      {post.status === 'published' ? 'Published' : post.status}
+                      Published
                     </p>
                   </div>
                 </div>

@@ -88,10 +88,28 @@ export interface ApiPost {
   deleted_at?: string;
 }
 
+// Lighter response for list endpoints
+export interface ApiPostListItem {
+  id: number;
+  slug: string;
+  title: string;
+  summary: string;
+  meta_description?: string;
+  keywords?: string;
+  category_id: number;
+  sub_category_id?: number;
+  is_featured: boolean;
+  is_pinned: boolean;
+  created_by: number;
+  view_count: number;
+  content_length: number; // For read time calculation
+  created_at: string;
+}
+
 export interface ApiPostListResponse {
   status: boolean;
   message: string;
-  data: ApiPost[];
+  data: ApiPostListItem[];
   meta: {
     total: number;
     limit: number;
