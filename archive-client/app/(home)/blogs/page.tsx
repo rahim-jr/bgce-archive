@@ -1,5 +1,5 @@
 import { getPosts, getCategories } from "@/lib/api";
-import BlogsClient from "./BlogsClient";
+import BlogsClient from "./BlogsClientOptimized";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
