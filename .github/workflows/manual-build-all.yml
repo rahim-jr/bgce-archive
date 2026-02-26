@@ -16,6 +16,11 @@ on:
         required: true
         type: boolean
         default: true
+      image-tag:
+        description: 'Docker image tag'
+        required: false
+        type: string
+        default: 'latest'
 
 env:
   REGISTRY_GHCR: ghcr.io
@@ -40,19 +45,12 @@ jobs:
       - name: 🔧 Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: 🔐 Login to registries
-        uses: ./.github/actions/docker-login
+      - name: 🔐 Login to GHCR
+        uses: docker/login-action@v3
         with:
-          ghcr-token: ${{ secrets.GITHUB_TOKEN }}
-          ghcr-username: ${{ github.actor }}
-
-      - name: 🏷️ Extract metadata
-        id: meta
-        uses: ./.github/actions/docker-metadata
-        with:
-          service: ${{ matrix.service }}
           registry: ${{ env.REGISTRY_GHCR }}
-          image-prefix: ${{ env.IMAGE_PREFIX }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🐳 Build and push Docker image
         uses: docker/build-push-action@v5
@@ -60,8 +58,7 @@ jobs:
           context: ./${{ matrix.service }}
           file: ./${{ matrix.service }}/Dockerfile
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ inputs.image-tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64
@@ -76,14 +73,16 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Service:** ${{ matrix.service }}" >> $GITHUB_STEP_SUMMARY
           echo "**Environment:** ${{ inputs.environment }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** ${{ inputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:**" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo "${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ inputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Pull command:**" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:latest" >> $GITHUB_STEP_SUMMARY
+          echo "docker pull ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ inputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
 
   trigger-deployment:
@@ -113,10 +112,10 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Built Images:**" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "ghcr.io/nesohq/bgce-archive/archive-admin:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "ghcr.io/nesohq/bgce-archive/archive-client:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "ghcr.io/nesohq/bgce-archive/cortex:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "ghcr.io/nesohq/bgce-archive/postal:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/nesohq/bgce-archive/archive-admin:${{ inputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/nesohq/bgce-archive/archive-client:${{ inputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/nesohq/bgce-archive/cortex:${{ inputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "ghcr.io/nesohq/bgce-archive/postal:${{ inputs.image-tag }}" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Next Steps:**" >> $GITHUB_STEP_SUMMARY
