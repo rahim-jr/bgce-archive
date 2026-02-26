@@ -82,6 +82,24 @@ type PostResponse struct {
 	UpdatedAt       time.Time         `json:"updated_at"`
 }
 
+// PostListItemResponse is a lighter response for list endpoints
+type PostListItemResponse struct {
+	ID              uint      `json:"id"`
+	Slug            string    `json:"slug"`
+	Title           string    `json:"title"`
+	Summary         string    `json:"summary"`
+	MetaDescription string    `json:"meta_description,omitempty"`
+	Keywords        string    `json:"keywords,omitempty"`
+	CategoryID      uint      `json:"category_id"`
+	SubCategoryID   *uint     `json:"sub_category_id,omitempty"`
+	IsFeatured      bool      `json:"is_featured"`
+	IsPinned        bool      `json:"is_pinned"`
+	CreatedBy       uint      `json:"created_by"`
+	ViewCount       int       `json:"view_count"`
+	ContentLength   int       `json:"content_length"` // For read time calculation
+	CreatedAt       time.Time `json:"created_at"`
+}
+
 type BatchDeleteRequest struct {
 	UUIDs []string `json:"uuids" validate:"required,min=1,dive,required,uuid"`
 }
@@ -113,5 +131,24 @@ func ToPostResponse(post *domain.Post) *PostResponse {
 		Version:         post.Version,
 		CreatedAt:       post.CreatedAt,
 		UpdatedAt:       post.UpdatedAt,
+	}
+}
+
+func ToPostListItemResponse(post *domain.Post) *PostListItemResponse {
+	return &PostListItemResponse{
+		ID:              post.ID,
+		Slug:            post.Slug,
+		Title:           post.Title,
+		Summary:         post.Summary,
+		MetaDescription: post.MetaDescription,
+		Keywords:        post.Keywords,
+		CategoryID:      post.CategoryID,
+		SubCategoryID:   post.SubCategoryID,
+		IsFeatured:      post.IsFeatured,
+		IsPinned:        post.IsPinned,
+		CreatedBy:       post.CreatedBy,
+		ViewCount:       post.ViewCount,
+		ContentLength:   post.ContentLength,
+		CreatedAt:       post.CreatedAt,
 	}
 }

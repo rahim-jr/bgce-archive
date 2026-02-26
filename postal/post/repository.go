@@ -15,7 +15,7 @@ type Repository interface {
 	GetByID(ctx context.Context, id uint) (*domain.Post, error)
 	GetByUUID(ctx context.Context, uuid string) (*domain.Post, error)
 	GetBySlug(ctx context.Context, slug string) (*domain.Post, error)
-	List(ctx context.Context, filter PostFilter) ([]*domain.Post, int64, error)
+	List(ctx context.Context, filter PostFilter, withContent bool) ([]*domain.Post, int64, error)
 	Update(ctx context.Context, post *domain.Post) error
 	Delete(ctx context.Context, id uint) error
 	HardDelete(ctx context.Context, id uint) error
@@ -82,39 +82,89 @@ func (r *repository) GetBySlug(ctx context.Context, slug string) (*domain.Post, 
 	return &post, nil
 }
 
-func (r *repository) List(ctx context.Context, filter PostFilter) ([]*domain.Post, int64, error) {
+func (r *repository) List(ctx context.Context, filter PostFilter, withContent bool) ([]*domain.Post, int64, error) {
 	var posts []*domain.Post
 	var total int64
 
-	query := r.db.WithContext(ctx).Model(&domain.Post{})
+	// Build base query with filters for counting
+	baseQuery := r.db.WithContext(ctx).Model(&domain.Post{})
 
 	// Apply filters
 	if filter.Status != nil {
-		query = query.Where("status = ?", *filter.Status)
+		baseQuery = baseQuery.Where("status = ?", *filter.Status)
 	}
 	if filter.CategoryID != nil {
-		query = query.Where("category_id = ?", *filter.CategoryID)
+		baseQuery = baseQuery.Where("category_id = ?", *filter.CategoryID)
 	}
 	if filter.SubCategoryID != nil {
-		query = query.Where("sub_category_id = ?", *filter.SubCategoryID)
+		baseQuery = baseQuery.Where("sub_category_id = ?", *filter.SubCategoryID)
 	}
 	if filter.IsFeatured != nil {
-		query = query.Where("is_featured = ?", *filter.IsFeatured)
+		baseQuery = baseQuery.Where("is_featured = ?", *filter.IsFeatured)
 	}
 	if filter.IsPinned != nil {
-		query = query.Where("is_pinned = ?", *filter.IsPinned)
+		baseQuery = baseQuery.Where("is_pinned = ?", *filter.IsPinned)
 	}
 	if filter.IsPublic != nil {
-		query = query.Where("is_public = ?", *filter.IsPublic)
+		baseQuery = baseQuery.Where("is_public = ?", *filter.IsPublic)
 	}
 	if filter.Search != nil && *filter.Search != "" {
 		searchTerm := "%" + *filter.Search + "%"
-		query = query.Where("title ILIKE ? OR content ILIKE ? OR summary ILIKE ?", searchTerm, searchTerm, searchTerm)
+		baseQuery = baseQuery.Where("title ILIKE ? OR content ILIKE ? OR summary ILIKE ?", searchTerm, searchTerm, searchTerm)
 	}
 
-	// Count total
-	if err := query.Count(&total).Error; err != nil {
+	// Count total (efficient - only counts, doesn't fetch data)
+	if err := baseQuery.Count(&total).Error; err != nil {
 		return nil, 0, err
+	}
+
+	// Build select query with same filters
+	selectQuery := r.db.WithContext(ctx).Model(&domain.Post{})
+
+	// Select only necessary fields based on withContent flag
+	if !withContent {
+		// Lightweight query for list view - exclude heavy fields
+		selectQuery = selectQuery.Select(
+			"id",
+			"slug",
+			"title",
+			"summary",
+			"meta_description",
+			"keywords",
+			"category_id",
+			"sub_category_id",
+			"is_featured",
+			"is_pinned",
+			"created_by",
+			"view_count",
+			"CHAR_LENGTH(content) as content_length",
+			"created_at",
+		)
+	}
+	// If withContent is true, GORM will select all fields by default
+
+	// Apply same filters to select query
+	if filter.Status != nil {
+		selectQuery = selectQuery.Where("status = ?", *filter.Status)
+	}
+	if filter.CategoryID != nil {
+		selectQuery = selectQuery.Where("category_id = ?", *filter.CategoryID)
+	}
+	if filter.SubCategoryID != nil {
+		selectQuery = selectQuery.Where("sub_category_id = ?", *filter.SubCategoryID)
+	}
+	if filter.IsFeatured != nil {
+		selectQuery = selectQuery.Where("is_featured = ?", *filter.IsFeatured)
+	}
+	if filter.IsPinned != nil {
+		selectQuery = selectQuery.Where("is_pinned = ?", *filter.IsPinned)
+	}
+	if filter.IsPublic != nil {
+		selectQuery = selectQuery.Where("is_public = ?", *filter.IsPublic)
+	}
+	if filter.Search != nil && *filter.Search != "" {
+		searchTerm := "%" + *filter.Search + "%"
+		selectQuery = selectQuery.Where("title ILIKE ? OR content ILIKE ? OR summary ILIKE ?", searchTerm, searchTerm, searchTerm)
 	}
 
 	// Apply sorting
@@ -126,17 +176,17 @@ func (r *repository) List(ctx context.Context, filter PostFilter) ([]*domain.Pos
 	if filter.SortOrder != "" {
 		sortOrder = filter.SortOrder
 	}
-	query = query.Order(fmt.Sprintf("%s %s", sortBy, sortOrder))
+	selectQuery = selectQuery.Order(fmt.Sprintf("%s %s", sortBy, sortOrder))
 
 	// Apply pagination
 	if filter.Limit > 0 {
-		query = query.Limit(filter.Limit)
+		selectQuery = selectQuery.Limit(filter.Limit)
 	}
 	if filter.Offset > 0 {
-		query = query.Offset(filter.Offset)
+		selectQuery = selectQuery.Offset(filter.Offset)
 	}
 
-	err := query.Find(&posts).Error
+	err := selectQuery.Find(&posts).Error
 	return posts, total, err
 }
 

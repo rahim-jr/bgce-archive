@@ -17,7 +17,7 @@ type Service interface {
 	GetPostByID(ctx context.Context, id uint) (*PostResponse, error)
 	GetPostByUUID(ctx context.Context, uuid string) (*PostResponse, error)
 	GetPostBySlug(ctx context.Context, slug string) (*PostResponse, error)
-	ListPosts(ctx context.Context, filter PostFilter) ([]*PostResponse, int64, error)
+	ListPosts(ctx context.Context, filter PostFilter) ([]*PostListItemResponse, int64, error)
 	UpdatePost(ctx context.Context, id uint, req UpdatePostRequest, userID uint) (*PostResponse, error)
 	PublishPost(ctx context.Context, id uint, userID uint) error
 	UnpublishPost(ctx context.Context, id uint, userID uint) error
@@ -168,15 +168,16 @@ func (s *service) GetPostBySlug(ctx context.Context, slug string) (*PostResponse
 	return ToPostResponse(post), nil
 }
 
-func (s *service) ListPosts(ctx context.Context, filter PostFilter) ([]*PostResponse, int64, error) {
-	posts, total, err := s.repo.List(ctx, filter)
+func (s *service) ListPosts(ctx context.Context, filter PostFilter) ([]*PostListItemResponse, int64, error) {
+	// Pass false for withContent to get lightweight query
+	posts, total, err := s.repo.List(ctx, filter, false)
 	if err != nil {
 		return nil, 0, err
 	}
 
-	responses := make([]*PostResponse, len(posts))
+	responses := make([]*PostListItemResponse, len(posts))
 	for i, post := range posts {
-		responses[i] = ToPostResponse(post)
+		responses[i] = ToPostListItemResponse(post)
 	}
 
 	return responses, total, nil

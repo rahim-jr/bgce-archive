@@ -61,6 +61,9 @@ type Post struct {
 
 	// Version tracking
 	Version int `gorm:"default:1" json:"version"`
+
+	// Computed field for list queries (not stored in DB)
+	ContentLength int `gorm:"-" json:"content_length,omitempty"`
 }
 
 // BeforeCreate hook to generate UUID
