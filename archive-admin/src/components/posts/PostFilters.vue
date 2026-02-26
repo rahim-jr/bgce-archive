@@ -44,7 +44,7 @@ const emit = defineEmits<{
           <Button 
             variant="outline" 
             size="sm"
-            :class="statusFilter === 'all' ? 'bg-primary text-primary-foreground' : ''"
+            :class="statusFilter === 'all' ? 'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground' : ''"
             @click="emit('update:statusFilter', 'all')"
           >
             All

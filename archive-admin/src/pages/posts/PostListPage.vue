@@ -7,6 +7,7 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components
 import { Checkbox } from '@/components/ui/checkbox'
 import { Plus, Search, Upload, Trash2, ChevronLeft, ChevronRight } from 'lucide-vue-next'
 import { usePostStore } from '@/stores/post'
+import { postService } from '@/services'
 import { useConfirm } from '@/composables/useConfirm'
 import PostFilters from '@/components/posts/PostFilters.vue'
 import PostTableRow from '@/components/posts/PostTableRow.vue'
@@ -23,6 +24,14 @@ const pageSize = ref(20)
 const statusFilter = ref<string>('all')
 const searchQuery = ref('')
 
+// Status counts - fetch separately
+const statusCounts = ref({
+  all: 0,
+  draft: 0,
+  published: 0,
+  archived: 0,
+})
+
 // Computed values
 const totalPages = computed(() => Math.ceil(postStore.totalPosts / pageSize.value))
 const offset = computed(() => (currentPage.value - 1) * pageSize.value)
@@ -38,17 +47,6 @@ const allSelected = computed({
     } else {
       selectedPostUuids.value = []
     }
-  }
-})
-
-const statusCounts = computed(() => {
-  // These are approximate since we're doing server-side pagination
-  // You might want to fetch these separately from the API
-  return {
-    all: postStore.totalPosts,
-    draft: 0,
-    published: 0,
-    archived: 0,
   }
 })
 
@@ -78,6 +76,27 @@ const fetchPosts = async () => {
   await postStore.fetchPosts(params)
   // Clear selections when fetching new page
   selectedPostUuids.value = []
+}
+
+const fetchStatusCounts = async () => {
+  // Fetch counts for each status without affecting the main posts display
+  try {
+    const [allRes, draftRes, publishedRes, archivedRes] = await Promise.all([
+      postService.getPosts({ limit: 1, offset: 0 }),
+      postService.getPosts({ limit: 1, offset: 0, status: 'draft' }),
+      postService.getPosts({ limit: 1, offset: 0, status: 'published' }),
+      postService.getPosts({ limit: 1, offset: 0, status: 'archived' }),
+    ])
+    
+    statusCounts.value = {
+      all: allRes.meta?.total || 0,
+      draft: draftRes.meta?.total || 0,
+      published: publishedRes.meta?.total || 0,
+      archived: archivedRes.meta?.total || 0,
+    }
+  } catch (error) {
+    console.error('Failed to fetch status counts:', error)
+  }
 }
 
 const goToPage = (page: number) => {
@@ -135,6 +154,7 @@ const handleDelete = async (id: number) => {
   if (confirmed) {
     await postStore.deletePost(id)
     await fetchPosts()
+    await fetchStatusCounts()
   }
 }
 
@@ -148,6 +168,7 @@ const handlePublish = async (id: number) => {
   if (confirmed) {
     await postStore.publishPost(id)
     await fetchPosts()
+    await fetchStatusCounts()
   }
 }
 
@@ -161,6 +182,7 @@ const handleUnpublish = async (id: number) => {
   if (confirmed) {
     await postStore.unpublishPost(id)
     await fetchPosts()
+    await fetchStatusCounts()
   }
 }
 
@@ -174,6 +196,7 @@ const handleArchive = async (id: number) => {
   if (confirmed) {
     await postStore.archivePost(id)
     await fetchPosts()
+    await fetchStatusCounts()
   }
 }
 
@@ -182,6 +205,7 @@ const handleBatchUpload = async (file: File) => {
     await postStore.bulkUploadPosts(file)
     batchUploadModalOpen.value = false
     await fetchPosts()
+    await fetchStatusCounts()
   } catch (error) {
     console.error('Failed to upload posts:', error)
   }
@@ -208,6 +232,7 @@ const handleBatchDelete = async () => {
       selectedPostUuids.value = []
       toast.success('Posts deleted successfully')
       await fetchPosts()
+      await fetchStatusCounts()
     } catch (error) {
       console.error('Failed to delete posts:', error)
       toast.error('Failed to delete posts')
@@ -215,8 +240,9 @@ const handleBatchDelete = async () => {
   }
 }
 
-onMounted(() => {
-  fetchPosts()
+onMounted(async () => {
+  await fetchPosts()
+  fetchStatusCounts() // Don't await this, let it run in background
 })
 </script>
 
@@ -362,7 +388,10 @@ onMounted(() => {
                 :key="page"
                 variant="outline"
                 size="sm"
-                :class="{ 'bg-primary text-primary-foreground': page === currentPage }"
+                :class="{ 
+                  'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground': page === currentPage,
+                  'hover:bg-accent hover:text-accent-foreground': page !== currentPage
+                }"
                 @click="goToPage(page)"
               >
                 {{ page }}
@@ -372,6 +401,10 @@ onMounted(() => {
                 v-if="totalPages > 5 && currentPage < totalPages - 2"
                 variant="outline"
                 size="sm"
+                :class="{ 
+                  'bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground': totalPages === currentPage,
+                  'hover:bg-accent hover:text-accent-foreground': totalPages !== currentPage
+                }"
                 @click="goToPage(totalPages)"
               >
                 {{ totalPages }}
